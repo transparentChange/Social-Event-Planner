@@ -1,6 +1,11 @@
 import java.util.ArrayList;
 
 public class Student {
+    private String name;
+    private int studentNumber;
+    private ArrayList<Student> partners;
+    private boolean hasPaid;
+    
     public Student(String name, int studentNumber) {
         this.name = name;
         this.studentNumber = studentNumber;
@@ -15,18 +20,8 @@ public class Student {
         this.hasPaid = false;
     }
 
-    private String name;
-    private int studentNumber;
-    private ArrayList<Student> partners;
-    private boolean hasPaid;
-
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public int getStudentNumber() {
