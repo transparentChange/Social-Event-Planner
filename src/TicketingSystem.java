@@ -8,13 +8,10 @@ public class TicketingSystem extends JPanel implements MouseListener {
     private ArrayList<Student> students;
     private ArrayList<Table> tables;
 
-    //JPanel floorPlan = new FloorPlanSystem();
-
     public TicketingSystem(ArrayList<Student> students, ArrayList<Table> tables){
         this.addMouseListener(this);
         this.students = students;
         this.tables = tables;
-        //this.add(floorPlan);
     }
 
     private void addStudent(Student student){
