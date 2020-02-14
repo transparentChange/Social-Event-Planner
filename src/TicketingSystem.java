@@ -1,20 +1,40 @@
 import java.awt.event.MouseEvent;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.ActionListener;
 import java.awt.Graphics;
-
+import java.awt.GridBagLayout;
 import java.util.ArrayList;
+
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class TicketingSystem extends JPanel implements MouseListener {
     private ArrayList<Student> students;
     private ArrayList<Table> tables;
-
-    public TicketingSystem(ArrayList<Student> students, ArrayList<Table> tables){
+    private JTextField nameField;
+    private JTextField idField;
+    private JTextField gradeField;
+    private JTextField payField;
+    
+    public TicketingSystem(ArrayList<Student> students, ArrayList<Table> tables) {
+    	super(new GridBagLayout());
+    	
         this.addMouseListener(this);
+        
+        nameField = new JTextField(20);
+        this.add(nameField);
+        
         this.students = students;
         this.tables = tables;
     }
-
+    
+    public class txtInputListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            String input = nameField.getText();   //receive input from text field
+            System.out.println(input);
+        }
+    }
     private void addStudent(Student student){
         this.students.add(student);
     }
