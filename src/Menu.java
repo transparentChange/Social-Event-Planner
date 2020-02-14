@@ -8,8 +8,11 @@ public class Menu extends JPanel implements MouseListener {
     ArrayList<Student> students = new ArrayList<Student>();
     ArrayList<Table> tables = new ArrayList<Table>();
 
+    JPanel floorPlan = new FloorPlanSystem();
+
     public Menu(){
         this.addMouseListener(this);
+        this.add(floorPlan);
     }
 
     private void addStudent(Student student){
@@ -25,8 +28,29 @@ public class Menu extends JPanel implements MouseListener {
         super.paintComponent(g);
         setDoubleBuffered(true);
 
+
+
         //the greatest gui goes here
         g.fillRect(50,50,50,50);
+        /*
+        possibliy multi tab
+        if show floorplan
+            run seating assignment system
+            show floor plan panel -> floorPlan.setVisible(true)
+                floorPlan.repaint?
+                add X to top left corner
+                skip rest of code?
+                if x clicked -> floorPlan.setVisible
+                show floorplan = false
+        if add student
+            get info
+            find friends by id
+            if found add to friends list in student
+            else spit out some sort of error that friend has to register before you can add them
+            or we can have some sort of a temp user name storage and say that friend hasn't registered but if they do then they will be considered
+         */
+
+
 
         repaint();
     }
