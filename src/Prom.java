@@ -7,7 +7,7 @@ public class Prom extends JFrame {
 	private ArrayList<Student> students;
 	private ArrayList<Table> tables;
 	// private FloorPlanSystem floorPlanPanel;
-	//
+	
 	public Prom() {
 		super("Prom");
         
