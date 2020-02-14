@@ -13,7 +13,7 @@ public class TicketingSystem extends JPanel implements MouseListener {
     private ArrayList<Student> students;
     private ArrayList<Table> tables;
     private JTextField nameField;
-    private JTextField idField;
+    
     private JTextField gradeField;
     private JTextField payField;
     
