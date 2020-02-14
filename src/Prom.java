@@ -25,7 +25,7 @@ public class Prom extends JFrame {
 	}
 	
 	public static void main(String[] args){
-        
+        Prom prom = new Prom();
     }
 
     void redraw(){
