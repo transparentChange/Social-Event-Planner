@@ -33,13 +33,19 @@ public class Prom extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         this.setSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-        
-		loginPanel = new LoginPanel(WINDOW_HEIGHT, WINDOW_WIDTH);
 		
 		//loginButton.addActionListener(this);
 		
 		this.students = new ArrayList<Student>();
         this.tables = new ArrayList<Table>();
+        
+        try {
+        	initializeStudents();
+        } catch(Exception e) {
+        	e.printStackTrace();
+        }
+        
+		loginPanel = new LoginPanel(WINDOW_HEIGHT, WINDOW_WIDTH);
         
         // this.add(floorPlanPanel);
         //this.add(ticketingPanel);
@@ -49,26 +55,29 @@ public class Prom extends JFrame {
         this.setVisible(true);
 	}
 	
-	private void initializeStudents() throws FileNotFoundException {
-		File loginCredentials = new File("LoginCredentials.txt");
-		Scanner input = new Scanner(loginCredentials);
-		
-		String id, password;
-		String studentInfo;
-		String[] name;
-		int[] spaceIndices = new int[2];
-		while (input.hasNext()) {
-			studentInfo = input.nextLine();
-			spaceIndices[0] = studentInfo.indexOf(' ');
-			spaceIndices[1] = studentInfo.lastIndexOf(' ');
-			name = studentInfo.substring(0, spaceIndices[0]).split("_");
-			id = studentInfo.substring(spaceIndices[0] + 1, spaceIndices[1]);
-			password = studentInfo.substring(spaceIndices[1] + 1);
+	private void initializeStudents() {
+		File loginCredentials = new File("loginCredentials.txt");
+		try {
+			Scanner input = new Scanner(loginCredentials);
+			String id, password;
+			String studentInfo;
+			String[] name;
+			int[] spaceIndices = new int[2];
+			while (input.hasNext()) {
+				studentInfo = input.nextLine();
+				spaceIndices[0] = studentInfo.indexOf(' ');
+				spaceIndices[1] = studentInfo.lastIndexOf(' ');
+				name = studentInfo.substring(0, spaceIndices[0]).split("_");
+				id = studentInfo.substring(spaceIndices[0] + 1, spaceIndices[1]);
+				password = studentInfo.substring(spaceIndices[1] + 1);
+				
+				students.add(new Student(name[0] + " " + name[1], id, password));
+			}
 			
-			students.add(new Student(name[0] + " " + name[1], id, password));
+			input.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
-		input.close();
 	}
 	
 	static public int getWindowHeight() {
@@ -129,7 +138,11 @@ public class Prom extends JFrame {
     	public void actionPerformed(ActionEvent evt) {
     		Object source = evt.getSource();
     		if (source == loginButton) {
-    			toTicketingSystem();
+    			if (studentExists(idField.getText(), passwordField.getText())) {
+    				toTicketingSystem();
+    			} else {
+    				System.out.println("Too bad");
+    			}
     		}
     	}
     	
