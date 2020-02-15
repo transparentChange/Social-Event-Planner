@@ -32,8 +32,8 @@ public class TicketingSystem extends JPanel{
 
         this.loginPanel = new LoginPanel(this.getHeight(),this.getWidth());
 
-        add(loginPanel);
-        add(ticketPanel);
+        this.add(loginPanel);
+        this.add(ticketPanel);
     }
 
     private class LoginPanel extends JPanel implements ActionListener {
@@ -75,16 +75,18 @@ public class TicketingSystem extends JPanel{
             Object source = evt.getSource();
             String inputId = idField.getText();
             String inputPassword = passwordField.getText();
-            if ((source == loginButton) && (studentExists(inputId, inputPassword))) {
-                if (!((StudentLoginButton) loginButton).isLoginButton()) {
-                    String grade = "12";
-                    students.add(new Student(nameField.getText(), inputId, grade,inputPassword));
-                }
-                //send to ticketing system
+            if ((source == loginButton) && (studentExists(inputId, inputPassword))
+    				&& ((StudentLoginButton) loginButton).isLoginButton()) {
+            	System.out.println("yes login");
+            } else if ((source == loginButton) && (!((StudentLoginButton) loginButton).isLoginButton())) {
+    			students.add(new Student(nameField.getText(), inputId, 
+    					gradeOptions.getSelectedItem().toString(), inputPassword));
+    			writeLastStudent();
             } else if (source == createAccountButton) {
-                this.add(nameField);
-                ((StudentLoginButton) loginButton).switchButtonState();
-            }
+    			this.add(nameField);
+    			this.add(gradeOptions);
+    			((StudentLoginButton) loginButton).switchButtonState();
+    		}
 
             revalidate();
             repaint();
@@ -106,6 +108,8 @@ public class TicketingSystem extends JPanel{
     			Student curStudent = students.get(students.size() - 1);
     			output.print(curStudent.getName().replace(' ', '_') + " " + curStudent.getId() 
     					+ " " + curStudent.getGrade() + " " + curStudent.getPassword());
+    			output.close();
+    			System.out.println("here");
     		} catch (Exception e) {
     			e.printStackTrace();
     		}
@@ -143,18 +147,16 @@ public class TicketingSystem extends JPanel{
             String studentInfo;
             String[] name = {};
             int lenString, countSpaces;
-            int prevSpaceIndex;
+            int prevSpaceIndex = 0;
             while (input.hasNext()) {
                 studentInfo = input.nextLine();
                 lenString = studentInfo.length();
 
                 countSpaces = 0;
-                int i;
+                int i = 0;
                 while (countSpaces != 3) {
-                    i = 0;
                     if (studentInfo.charAt(i) == ' ') {
                         countSpaces++;
-                        prevSpaceIndex = i;
                         if (countSpaces == 1) {
                             name = studentInfo.substring(0, i).split("_");
                         } else if (countSpaces == 2) {
@@ -163,6 +165,7 @@ public class TicketingSystem extends JPanel{
                             grade = studentInfo.substring(prevSpaceIndex + 1, i);
                             password = studentInfo.substring(i + 1);
                         }
+                        prevSpaceIndex = i;
                     }
                     i++;
                 }
