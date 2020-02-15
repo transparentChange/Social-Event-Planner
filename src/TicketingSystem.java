@@ -2,6 +2,7 @@ import java.awt.event.*;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -36,37 +37,39 @@ public class TicketingSystem extends JPanel{
     }
 
     private class LoginPanel extends JPanel implements ActionListener {
-        //private StudentLoginButton studentButton;
-        private JTextField idField;
-        private JTextField nameField;
-        private JTextField passwordField;
-        private StudentLoginButton loginButton;
-        private JButton createAccountButton;
+    	private JTextField idField;
+    	private JTextField nameField;
+    	private JTextField passwordField;
+    	private StudentLoginButton loginButton;
+    	private JButton createAccountButton;
+        private JComboBox gradeOptions;
 
-        LoginPanel(int windowHeight, int windowWidth) {
-            this.setFocusable(false);
-            this.setBounds(windowWidth / 10, 0, windowWidth / 5, windowHeight);
-            this.setOpaque(false);
-            this.setLayout(new GridBagLayout());
+    	LoginPanel(int windowHeight, int windowWidth) {
+    		this.setFocusable(false);
+    		this.setBounds(windowWidth / 10, 0, windowWidth / 5, windowHeight);
+    		this.setOpaque(false);
+    		this.setLayout(new GridBagLayout());
 
-            //studentButton = new StudentLoginButton(0, 0);
-            createAccountButton = new JButton("Don't have an account? Click here to sign up.");
-            createAccountButton.addActionListener(this);
+    		//studentButton = new StudentLoginButton(0, 0);
+    		createAccountButton = new JButton("Don't have an account? Click here to sign up.");
+    		createAccountButton.addActionListener(this);
 
-            idField = new JTextField(20);
-            passwordField = new JTextField(20);
+    		idField = new JTextField(20);
+    		passwordField = new JTextField(20);
 
-            loginButton = new StudentLoginButton(0, 0);
-            loginButton.addActionListener(this);
+    		loginButton = new StudentLoginButton(0, 0);
+    		loginButton.addActionListener(this);
 
-            nameField = new JTextField(20);
+    		String[] grades = {"9", "10", "11", "12"};
+    		nameField = new JTextField(20);
+    		gradeOptions = new JComboBox(grades);
 
-            //this.add(studentButton);
-            this.add(idField);
-            this.add(passwordField);
-            this.add(loginButton);
-            this.add(createAccountButton);
-        }
+    		//this.add(studentButton);
+    		this.add(idField);
+    		this.add(passwordField);
+    		this.add(loginButton);
+    		this.add(createAccountButton);
+    	}
 
         public void actionPerformed(ActionEvent evt) {
             Object source = evt.getSource();
@@ -96,6 +99,17 @@ public class TicketingSystem extends JPanel{
 
             return false;
         }
+        
+    	private void writeLastStudent() {
+    		try {
+    			PrintWriter output = new PrintWriter(loginCredentials);
+    			Student curStudent = students.get(students.size() - 1);
+    			output.print(curStudent.getName().replace(' ', '_') + " " + curStudent.getId() 
+    					+ " " + curStudent.getGrade() + " " + curStudent.getPassword());
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
+    	}
     }
 
     private class TicketPanel extends JPanel{
