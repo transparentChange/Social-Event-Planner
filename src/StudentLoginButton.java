@@ -4,6 +4,8 @@ public class StudentLoginButton extends LoginButton {
 	StudentLoginButton(int gridX, int gridY) {
 		super(gridX, gridY);
 		
+		this.login = true;
+		
 		setText("Login");
 	}
 	
@@ -13,7 +15,6 @@ public class StudentLoginButton extends LoginButton {
 	
 	public void switchButtonState() {
 		login = !login;
-		System.out.println("switched");
 		if (login) {
 			this.setText("Login");
 		} else {

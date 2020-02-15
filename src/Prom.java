@@ -122,6 +122,7 @@ public class Prom extends JFrame {
     		
     		//studentButton = new StudentLoginButton(0, 0);
     		createAccountButton = new JButton("Don't have an account? Click here to sign up.");
+    		createAccountButton.addActionListener(this);
     		
     		idField = new JTextField(20);
     		passwordField = new JTextField(20);
@@ -143,7 +144,6 @@ public class Prom extends JFrame {
     		String inputId = idField.getText();
     		String inputPassword = passwordField.getText();
     		if ((source == loginButton) && (studentExists(inputId, inputPassword))) {
-    			System.out.println("here");
 				if (!((StudentLoginButton) loginButton).isLoginButton()) {
 					students.add(new Student(nameField.getText(), inputId, inputPassword));
 				}
@@ -154,6 +154,8 @@ public class Prom extends JFrame {
     			((StudentLoginButton) loginButton).switchButtonState();
     		}
     		
+    		revalidate();
+    		repaint();
     	}
     	
     	private boolean studentExists(String id, String password) {
