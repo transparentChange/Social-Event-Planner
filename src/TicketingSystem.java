@@ -13,7 +13,7 @@ public class TicketingSystem extends JPanel{
     private JTextField gradeField;
     private JTextField payField;
     private LoginPanel loginPanel;
-    private TicketPanel ticketPanel;
+    private TicketPanel ticketPanel = new TicketPanel(null);
     private File loginCredentials;
     
     public TicketingSystem(ArrayList<Student> students, ArrayList<Table> tables) {
