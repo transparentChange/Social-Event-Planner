@@ -11,7 +11,6 @@ import javax.swing.JTextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Prom extends JFrame {
@@ -108,10 +107,11 @@ public class Prom extends JFrame {
     }
     
     public class LoginPanel extends JPanel implements ActionListener {
-    	private StudentLoginButton studentButton;
+    	//private StudentLoginButton studentButton;
     	private JTextField idField;
+    	private JTextField nameField;
     	private JTextField passwordField;
-    	private JButton loginButton;
+    	private StudentLoginButton loginButton;
     	private JButton createAccountButton;
     	
     	LoginPanel(int windowHeight, int windowWidth) {
@@ -120,30 +120,40 @@ public class Prom extends JFrame {
     		this.setOpaque(false);
     		this.setLayout(new GridBagLayout());
     		
-    		studentButton = new StudentLoginButton(0, 0);
-    		createAccountButton = new JButton("Don't have an account? Click to create a new account");
+    		//studentButton = new StudentLoginButton(0, 0);
+    		createAccountButton = new JButton("Don't have an account? Click here to sign up.");
     		
     		idField = new JTextField(20);
     		passwordField = new JTextField(20);
     		
-    		loginButton = new JButton("Login");
+    		loginButton = new StudentLoginButton(0, 0);
     		loginButton.addActionListener(this);
-    			
-    		this.add(studentButton);
+    		
+    		nameField = new JTextField(20);
+    		
+    		//this.add(studentButton);
     		this.add(idField);
     		this.add(passwordField);
     		this.add(loginButton);
+    		this.add(createAccountButton);
     	}
     	
     	public void actionPerformed(ActionEvent evt) {
     		Object source = evt.getSource();
-    		if (source == loginButton) {
-    			if (studentExists(idField.getText(), passwordField.getText())) {
-    				toTicketingSystem();
-    			} else {
-    				System.out.println("Too bad");
-    			}
+    		String inputId = idField.getText();
+    		String inputPassword = passwordField.getText();
+    		if ((source == loginButton) && (studentExists(inputId, inputPassword))) {
+    			System.out.println("here");
+				if (!((StudentLoginButton) loginButton).isLoginButton()) {
+					students.add(new Student(nameField.getText(), inputId, inputPassword));
+				}
+    			
+    			toTicketingSystem();
+    		} else if (source == createAccountButton) {
+    			this.add(nameField);
+    			((StudentLoginButton) loginButton).switchButtonState();
     		}
+    		
     	}
     	
     	private boolean studentExists(String id, String password) {
