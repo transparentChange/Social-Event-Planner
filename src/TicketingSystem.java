@@ -75,13 +75,20 @@ public class TicketingSystem extends JPanel{
             Object source = evt.getSource();
             String inputId = idField.getText();
             String inputPassword = passwordField.getText();
-            if ((source == loginButton) && (studentExists(inputId, inputPassword))
+            int studentIndex = getStudentIndex(inputId, inputPassword);
+            if ((source == loginButton) && (studentIndex != -1)
     				&& ((StudentLoginButton) loginButton).isLoginButton()) {
             	System.out.println("yes login");
+            	ticketPanel = new TicketPanel(students.get(studentIndex));
+            	ticketPanel.setVisible(true);
+            	loginPanel.setVisible(false);
             } else if ((source == loginButton) && (!((StudentLoginButton) loginButton).isLoginButton())) {
     			students.add(new Student(nameField.getText(), inputId, 
     					gradeOptions.getSelectedItem().toString(), inputPassword));
     			writeLastStudent();
+    			ticketPanel.setVisible(true);
+            	loginPanel.setVisible(false);
+    			ticketPanel = new TicketPanel(students.get(students.size() - 1));
             } else if (source == createAccountButton) {
     			this.add(nameField);
     			this.add(gradeOptions);
@@ -92,14 +99,14 @@ public class TicketingSystem extends JPanel{
             repaint();
         }
 
-        private boolean studentExists(String id, String password) {
+        private int getStudentIndex(String id, String password) {
             for (int i = 0; i < students.size(); i++) {
                 if ((students.get(i).getId().equals(id)) && (students.get(i).getPassword().equals(password))) {
-                    return true;
+                    return i;
                 }
             }
 
-            return false;
+            return -1;
         }
         
     	private void writeLastStudent() {
