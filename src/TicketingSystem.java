@@ -34,12 +34,22 @@ public class TicketingSystem extends JPanel{
         this.loginPanel = new LoginPanel(this.getHeight(),this.getWidth());
 
         this.add(loginPanel);
-        
     }
-    
-    public void addTicketPanel() {
-    	this.remove(loginPanel);
-    	this.add(ticketPanel);
+
+    private void showTicket(){
+        this.remove(loginPanel);
+        this.add(this.ticketPanel);
+        ticketPanel.setVisible(true);
+        ticketPanel.requestFocus();
+        this.updateUI();
+    }
+
+    private void showLogin(){
+        this.remove(ticketPanel);
+        this.add(this.loginPanel);
+        loginPanel.setVisible(true);
+        loginPanel.requestFocus();
+        this.updateUI();
     }
 
     private class LoginPanel extends JPanel implements ActionListener {
@@ -55,6 +65,7 @@ public class TicketingSystem extends JPanel{
     		this.setBounds(windowWidth / 10, 0, windowWidth / 5, windowHeight);
     		this.setOpaque(false);
     		this.setLayout(new GridBagLayout());
+    		this.setVisible(true);
 
     		//studentButton = new StudentLoginButton(0, 0);
     		createAccountButton = new JButton("Don't have an account? Click here to sign up.");
@@ -75,7 +86,7 @@ public class TicketingSystem extends JPanel{
     		this.add(passwordField);
     		this.add(loginButton);
     		this.add(createAccountButton);
-    		
+
     	}
 
         public void actionPerformed(ActionEvent evt) {
@@ -86,15 +97,13 @@ public class TicketingSystem extends JPanel{
             if ((source == loginButton) && (studentIndex != -1)
     				&& ((StudentLoginButton) loginButton).isLoginButton()) {
             	ticketPanel = new TicketPanel(students.get(studentIndex));
-            	ticketPanel.setVisible(true);
-            	loginPanel.setVisible(false);
-            	//addTicketPanel();
+            	showTicket();
             } else if ((source == loginButton) && (!((StudentLoginButton) loginButton).isLoginButton())) {
     			students.add(new Student(nameField.getText(), inputId, 
     					gradeOptions.getSelectedItem().toString(), inputPassword));
     			writeLastStudent();
     			ticketPanel = new TicketPanel(students.get(students.size() - 1));
-    			addTicketPanel();
+                showTicket();
             } else if (source == createAccountButton) {
     			this.add(nameField);
     			this.add(gradeOptions);
@@ -133,14 +142,17 @@ public class TicketingSystem extends JPanel{
     private class TicketPanel extends JPanel{
         private Student selectedStudent;
         TicketPanel(Student student){
-    		this.setFocusable(false);
-    		this.setOpaque(false);
-        	this.setLayout(new BorderLayout());
-        	this.add(new JButton("TicketPanel"), BorderLayout.CENTER);
-        	this.setVisible(true);
-            this.selectedStudent = student;
-            // Ticketing stuff here
-            // or override paint component for graphics (preferred)
+            if (student != null) {
+                this.setLayout(new BorderLayout());
+                this.setVisible(true);
+                this.add(new JButton("TicketPanel"), BorderLayout.CENTER);
+                this.selectedStudent = student;
+                // Ticketing stuff here
+                // or override paint component for graphics (preferred)
+                JButton button = new JButton(student.getName());
+                this.add(button);
+                this.repaint();
+            }
         }
     }
 
