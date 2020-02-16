@@ -3,6 +3,7 @@ import java.awt.GridBagLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JButton;
@@ -10,6 +11,7 @@ import javax.swing.JTextField;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Scanner;
 
@@ -26,12 +28,20 @@ public class Prom extends JFrame {
 
     public Prom() {
         super("Prom");
-
-        this.setResizable(false);
+        
+        BufferedImage image = null;
+        try {
+          image = ImageIO.read(new File("src/loginBackground.jpg"));
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        setContentPane(new BackImage(image));
+        
+        //this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         this.setSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-
+        this.setLayout(new GridBagLayout());
         //loginButton.addActionListener(this);
 
         this.students = new ArrayList<Student>();

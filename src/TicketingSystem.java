@@ -1,7 +1,11 @@
 import java.awt.event.*;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -13,15 +17,18 @@ import javax.swing.*;
 public class TicketingSystem extends JPanel{
     private ArrayList<Student> students;
     private ArrayList<Table> tables;
-    private JTextField gradeField;
     private JTextField payField;
     private LoginPanel loginPanel;
     private TicketPanel ticketPanel = new TicketPanel(null);
     private File loginCredentials;
+    private final static int WINDOW_WIDTH = 1366;
+    private final static int WINDOW_HEIGHT = 768;
     
     public TicketingSystem(ArrayList<Student> students, ArrayList<Table> tables) {
-        this.students = students;
+        this.setLayout(new GridBagLayout());
+    	this.students = students;
         this.tables = tables;
+        this.setBackground(Color.BLACK);
 
         loginCredentials = new File("loginCredentials.txt");
 
@@ -30,10 +37,11 @@ public class TicketingSystem extends JPanel{
         } catch(Exception e) {
             e.printStackTrace();
         }
-
-        this.loginPanel = new LoginPanel(this.getHeight(),this.getWidth());
-
-        this.add(loginPanel);
+        
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(50, 50, 50, 50);
+        this.loginPanel = new LoginPanel(WINDOW_WIDTH, WINDOW_HEIGHT);
+        this.add(loginPanel, c);
     }
 
     private void showTicket(){
@@ -62,30 +70,49 @@ public class TicketingSystem extends JPanel{
 
     	LoginPanel(int windowHeight, int windowWidth) {
     		this.setFocusable(false);
-    		this.setBounds(windowWidth / 10, 0, windowWidth / 5, windowHeight);
     		this.setOpaque(false);
+    		
     		this.setLayout(new GridBagLayout());
     		this.setVisible(true);
-
+            
     		//studentButton = new StudentLoginButton(0, 0);
     		createAccountButton = new JButton("Don't have an account? Click here to sign up.");
     		createAccountButton.addActionListener(this);
-
+    		
+            GridBagConstraints c = new GridBagConstraints();
+            //c.fill = GridBagConstraints.HORIZONTAL;
+            c.gridx = 0;
+            c.gridy = 0;
+            c.anchor = GridBagConstraints.CENTER;
+            c.insets = new Insets(0, 0, 0, 0);
+            
     		idField = new JTextField(20);
+    		this.add(idField, c);
+    		
+    		c = new GridBagConstraints();
+    		c.gridy = 1;
     		passwordField = new JTextField(20);
-
+    		this.add(passwordField, c);
+    		
     		loginButton = new StudentLoginButton(0, 0);
     		loginButton.addActionListener(this);
-
+    		c.gridy = 4;
+    		c.anchor = GridBagConstraints.LINE_START;
+    		c.insets = new Insets(0, windowWidth / 20, 0, 0);
+    		this.add(loginButton, c);
+    		
+    		c.insets = new Insets(100, 0, 0, 0);
+    		c.gridy = 5;
+    		this.add(createAccountButton, c);
+    		
     		String[] grades = {"9", "10", "11", "12"};
     		nameField = new JTextField(20);
     		gradeOptions = new JComboBox(grades);
 
     		//this.add(studentButton);
-    		this.add(idField);
-    		this.add(passwordField);
-    		this.add(loginButton);
-    		this.add(createAccountButton);
+    		
+    		//this.add(loginButton);
+    		//this.add(createAccountButton);
 
     	}
 
@@ -105,8 +132,14 @@ public class TicketingSystem extends JPanel{
     			ticketPanel = new TicketPanel(students.get(students.size() - 1));
                 showTicket();
             } else if (source == createAccountButton) {
-    			this.add(nameField);
-    			this.add(gradeOptions);
+            	GridBagConstraints c = new GridBagConstraints();
+            	c.gridy = 2;
+    			this.add(nameField, c);
+    			
+    			c.anchor = GridBagConstraints.LINE_START;
+    			c.insets = new Insets(0, 50, 0, 0);
+    			c.gridy = 3;
+    			this.add(gradeOptions, c);
     			((StudentLoginButton) loginButton).switchButtonState();
     		}
 
