@@ -81,7 +81,7 @@ public class TicketingSystem extends JPanel{
     	private JTextField idField;
     	private JTextField nameField;
     	private JTextField passwordField;
-    	private StudentLoginButton loginButton;
+    	private LoginButton loginButton;
     	private JButton createAccountButton;
         private JComboBox gradeOptions;
         private Font fieldFont;
@@ -111,7 +111,7 @@ public class TicketingSystem extends JPanel{
     		passwordField = new JTextField();
     		addComponent(3, passwordField);
     		
-    		loginButton = new StudentLoginButton(0, 0);
+    		loginButton = new LoginButton(0, 0);
     		loginButton.addActionListener(this);
     		c = new GridBagConstraints();
     		c.gridy = 8;
@@ -159,10 +159,10 @@ public class TicketingSystem extends JPanel{
             String inputPassword = passwordField.getText();
             int studentIndex = getStudentIndex(inputId, inputPassword);
             if ((source == loginButton) && (studentIndex != -1)
-    				&& ((StudentLoginButton) loginButton).isLoginButton()) {
+    				&& (loginButton.isLoginButton())) {
             	ticketPanel = new TicketPanel(students.get(studentIndex));
             	showTicket();
-            } else if ((source == loginButton) && (!((StudentLoginButton) loginButton).isLoginButton())) {
+            } else if ((source == loginButton) && (!loginButton.isLoginButton())) {
     			students.add(new Student(nameField.getText(), inputId, 
     					gradeOptions.getSelectedItem().toString(), inputPassword));
     			writeLastStudent();
@@ -181,7 +181,7 @@ public class TicketingSystem extends JPanel{
     			this.add(gradeOptions, c);
     			//addComponent(6, new JLabel("Grade"));
     			//addComponent(6, gradeOptions);
-    			((StudentLoginButton) loginButton).switchButtonState();
+    			loginButton.switchButtonState();
     		}
 
             revalidate();
