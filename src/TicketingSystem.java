@@ -1,13 +1,6 @@
+import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -20,20 +13,16 @@ import javax.swing.*;
 public class TicketingSystem extends JPanel{
     private ArrayList<Student> students;
     private ArrayList<Table> tables;
-    private JTextField payField;
     private LoginPanel loginPanel;
-    private JPanel colourPanel;
     private TicketPanel ticketPanel = new TicketPanel(null);
+    // private FloorPlanSystem floorPlanPanel;
     private File loginCredentials;
-    private final static int WINDOW_WIDTH = 1366;
-    private final static int WINDOW_HEIGHT = 768;
-    
+
     public TicketingSystem(ArrayList<Student> students, ArrayList<Table> tables) {
-        this.setLayout(new GridBagLayout());
+        this.setLayout(new GridLayout(1,1));
     	this.students = students;
         this.tables = tables;
-        //this.setBackground(Color.BLACK);
-        
+
         loginCredentials = new File("loginCredentials.txt");
 
         try {
@@ -41,43 +30,41 @@ public class TicketingSystem extends JPanel{
         } catch(Exception e) {
             e.printStackTrace();
         }
-        
-        colourPanel = new JPanel(new GridBagLayout());
-        colourPanel.setBackground(Color.BLACK);
-        
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(50, 50, 50, 50);
-        loginPanel = new LoginPanel(WINDOW_WIDTH, WINDOW_HEIGHT);
-        
-        //backPanel.add(colourPanel);
-        colourPanel.add(loginPanel, c);
-        c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.CENTER;
-        
-        this.add(colourPanel);
-    }
-    
-    private void toBorderLayout() {
-    	this.setLayout(new BorderLayout());
+
+        loginPanel = new LoginPanel();
+
+        this.add(loginPanel);
+
+        this.setVisible(true);
     }
 
     private void showTicket(){
-        this.remove(colourPanel);
-        this.add(ticketPanel);
-        ticketPanel.setVisible(true);
-        ticketPanel.requestFocus();
+        this.removeAll();
+        this.add(this.ticketPanel);
+        this.ticketPanel.setVisible(true);
+        this.ticketPanel.requestFocus();
         this.updateUI();
     }
 
     private void showLogin(){
-        this.remove(ticketPanel);
-        this.add(this.colourPanel);
-        colourPanel.setVisible(true);
-        colourPanel.requestFocus();
+        this.removeAll();
+        this.add(this.loginPanel);
+        this.loginPanel.setVisible(true);
+        this.loginPanel.requestFocus();
         this.updateUI();
     }
 
-    private class LoginPanel extends JPanel implements ActionListener {
+    /*
+    private void showFloor(){
+        this.removeAll();
+        this.add(this.floorPlanPanel);
+        this.floorPlanPanel.setVisible(true);
+        this.floorPlanPanel.requestFocus();
+        this.updateUI();
+    }
+    **/
+
+    private class LoginPanel extends JPanel{
     	private JTextField idField;
     	private JTextField nameField;
     	private JTextField passwordField;
@@ -85,59 +72,132 @@ public class TicketingSystem extends JPanel{
     	private JButton createAccountButton;
         private JComboBox gradeOptions;
         private Font fieldFont;
+        BufferedImage image = null;
 
-    	LoginPanel(int windowHeight, int windowWidth) {
+    	LoginPanel() {
     		this.setFocusable(false);
-    		this.setOpaque(false);
-    		
-    		this.setLayout(new GridBagLayout());
-    		this.setVisible(true);
-    		
-    		fieldFont = new Font("Open Sans", Font.PLAIN, 20);
-            
-    		//studentButton = new StudentLoginButton(0, 0);
-    		createAccountButton = new JButton("Don't have an account? Click here to sign up.");
-    		createAccountButton.addActionListener(this);
-    		
-            GridBagConstraints c = new GridBagConstraints();
-            
-            addComponent(0, new JLabel("Student ID"));
-           
-    		idField = new JTextField();
-    		addComponent(1, idField);
-    		
-    		addComponent(2, new JLabel("Password"));
-    		
-    		passwordField = new JTextField();
-    		addComponent(3, passwordField);
-    		
-    		loginButton = new LoginButton(0, 0);
-    		loginButton.addActionListener(this);
-    		c = new GridBagConstraints();
-    		c.gridy = 8;
-    		c.anchor = GridBagConstraints.LINE_START;
-    		c.insets = new Insets(0, windowWidth / 20, 0, 0);
-    		this.add(loginButton, c);
-    		
-    		c.insets = new Insets(100, 0, 0, 0);
-    		c.gridy = 9;
-    		this.add(createAccountButton, c);
-    		
-    		String[] grades = {"9", "10", "11", "12"};
-    		nameField = new JTextField(20);
-    		gradeOptions = new JComboBox(grades);
+    		this.setOpaque(true);
 
-    		//this.add(studentButton);
-    		
-    		//this.add(loginButton);
-    		//this.add(createAccountButton);
+    		this.setLayout(new GridBagLayout());
+
+            try {
+                image = ImageIO.read(new File("src/loginBackground.jpg"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            //this.add(new InnerFrame());
+            this.setVisible(true);
+
+            GridBagConstraints c = new GridBagConstraints();
+            c.anchor = GridBagConstraints.CENTER;
+            c.insets = new Insets(50,50,50,50);
+
+            this.add(new InnerFrame(), c);
+
+            this.setVisible(true);
 
     	}
-    	
+
+        public void paintComponent(Graphics g){
+            if (this.image != null) {
+                System.out.println("Hi");
+                g.drawImage(this.image, 0, 0,this.getWidth(),this.getHeight(), this);
+            } else {
+                g.setColor(new Color(0,0,0));
+                g.fillRect(0,0,this.getWidth(),this.getHeight());
+            }
+        }
+
+    	private class InnerFrame extends JPanel implements ActionListener{
+
+    	    BufferedImage image = null;
+
+    	    InnerFrame() {
+    	        this.setLayout(new GridBagLayout());
+    	        this.setOpaque(false);
+                fieldFont = new Font("Open Sans", Font.PLAIN, 20);
+
+                //studentButton = new StudentLoginButton(0, 0);
+                createAccountButton = new JButton("Don't have an account? Click here to sign up.");
+                createAccountButton.addActionListener(this);
+
+                this.add(new JLabel("Student ID"));
+
+                idField = new JTextField();
+                this.add(idField);
+
+                this.add(new JLabel("Password"));
+
+                passwordField = new JTextField();
+                this.add(passwordField);
+
+                loginButton = new LoginButton(0, 0);
+                loginButton.addActionListener(this);
+                this.add(loginButton);
+
+                this.add(createAccountButton);
+
+                String[] grades = {"9", "10", "11", "12"};
+                nameField = new JTextField(20);
+                gradeOptions = new JComboBox(grades);
+
+                //this.add(studentButton);
+
+                //this.add(loginButton);
+                //this.add(createAccountButton);
+            }
+
+            public void paintComponent(Graphics g){
+                if (this.image != null) {
+                    System.out.println("Hi");
+                    g.drawImage(this.image, 0, 0,this.getWidth(),this.getHeight(), this);
+                } else {
+                    g.setColor(new Color(255,0,0));
+                    g.fillRect(0,0,this.getWidth(),this.getHeight());
+                }
+            }
+
+            public void actionPerformed(ActionEvent evt) {
+                Object source = evt.getSource();
+                String inputId = idField.getText();
+                String inputPassword = passwordField.getText();
+                int studentIndex = getStudentIndex(inputId, inputPassword);
+                if ((source == loginButton) && (studentIndex != -1)
+                        && (loginButton.isLoginButton())) {
+                    ticketPanel = new TicketPanel(students.get(studentIndex));
+                    showTicket();
+                } else if ((source == loginButton) && (!loginButton.isLoginButton())) {
+                    students.add(new Student(nameField.getText(), inputId,
+                            gradeOptions.getSelectedItem().toString(), inputPassword));
+                    writeLastStudent();
+                    ticketPanel = new TicketPanel(students.get(students.size() - 1));
+                    showTicket();
+                } else if (source == createAccountButton) {
+                    addComponent(4, new JLabel("Name"));
+                    addComponent(5, nameField);
+
+                    addComponent(6, new JLabel("Grade"));
+
+                    GridBagConstraints c = new GridBagConstraints();
+                    c.gridy = 7;
+                    c.anchor = GridBagConstraints.LINE_START;
+                    c.insets = new Insets(5, 0, 0, 0);
+                    this.add(gradeOptions, c);
+                    //addComponent(6, new JLabel("Grade"));
+                    //addComponent(6, gradeOptions);
+                    loginButton.switchButtonState();
+                }
+
+                revalidate();
+                repaint();
+            }
+        }
+
     	public void addComponent(int gridy, JComponent component) {
     		GridBagConstraints c = new GridBagConstraints();
     		c.gridy = gridy;
-    		
+
     		if (component instanceof JLabel) {
     			c.insets = new Insets(20, 0, 0, 0); // space in between
     			c.anchor = GridBagConstraints.LINE_START;
@@ -149,44 +209,11 @@ public class TicketingSystem extends JPanel{
     		} else if (component instanceof JComboBox) {
     			c.anchor = GridBagConstraints.LINE_START;
     		}
-    		
+
     		this.add(component, c);
     	}
 
-        public void actionPerformed(ActionEvent evt) {
-            Object source = evt.getSource();
-            String inputId = idField.getText();
-            String inputPassword = passwordField.getText();
-            int studentIndex = getStudentIndex(inputId, inputPassword);
-            if ((source == loginButton) && (studentIndex != -1)
-    				&& (loginButton.isLoginButton())) {
-            	ticketPanel = new TicketPanel(students.get(studentIndex));
-            	showTicket();
-            } else if ((source == loginButton) && (!loginButton.isLoginButton())) {
-    			students.add(new Student(nameField.getText(), inputId, 
-    					gradeOptions.getSelectedItem().toString(), inputPassword));
-    			writeLastStudent();
-    			ticketPanel = new TicketPanel(students.get(students.size() - 1));
-                showTicket();
-            } else if (source == createAccountButton) {
-            	addComponent(4, new JLabel("Name"));
-    			addComponent(5, nameField);
-    			
-    			addComponent(6, new JLabel("Grade"));
-    			
-    			GridBagConstraints c = new GridBagConstraints();
-    			c.gridy = 7;
-    			c.anchor = GridBagConstraints.LINE_START;
-    			c.insets = new Insets(5, 0, 0, 0);
-    			this.add(gradeOptions, c);
-    			//addComponent(6, new JLabel("Grade"));
-    			//addComponent(6, gradeOptions);
-    			loginButton.switchButtonState();
-    		}
 
-            revalidate();
-            repaint();
-        }
 
         private int getStudentIndex(String id, String password) {
             for (int i = 0; i < students.size(); i++) {
@@ -197,14 +224,14 @@ public class TicketingSystem extends JPanel{
 
             return -1;
         }
-        
+
     	private void writeLastStudent() {
     		try {
     			FileWriter studentRecords = new FileWriter(loginCredentials, true);
     			PrintWriter output = new PrintWriter(studentRecords);
     			Student curStudent = students.get(students.size() - 1);
     			output.println();
-    			output.print(curStudent.getName().replace(' ', '_') + " " + curStudent.getId() 
+    			output.print(curStudent.getName().replace(' ', '_') + " " + curStudent.getId()
     					+ " " + curStudent.getGrade() + " " + curStudent.getPassword());
     			output.close();
     		} catch (Exception e) {
@@ -213,11 +240,12 @@ public class TicketingSystem extends JPanel{
     	}
     }
 
-    private class TicketPanel extends JPanel{
+    private class TicketPanel extends JPanel {
         private Student selectedStudent;
         TicketPanel(Student student){
             if (student != null) {
-            	toBorderLayout();
+                //this panel is still incomplete dw about it most of the code should be re written for happy fun times
+            	//toBorderLayout();
                 this.setLayout(new BorderLayout()); // change to GridBagLayout
                 this.setVisible(true);
                 this.selectedStudent = student;
@@ -230,16 +258,11 @@ public class TicketingSystem extends JPanel{
         }
     }
 
-    public class txtInputListener implements ActionListener {
-        public void actionPerformed(ActionEvent event) {
-            //if event source or something = X button;
-        }
-    }
-    private void addStudent(Student student){
+    private void addStudent(Student student) {
         this.students.add(student);
     }
 
-    private void removeStudent(Student student){
+    private void removeStudent(Student student) {
         this.students.remove(student);
     }
 
