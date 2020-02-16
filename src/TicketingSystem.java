@@ -1,4 +1,5 @@
 import java.awt.event.*;
+import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.io.File;
@@ -19,7 +20,6 @@ public class TicketingSystem extends JPanel{
     private File loginCredentials;
     
     public TicketingSystem(ArrayList<Student> students, ArrayList<Table> tables) {
-    	super(new GridBagLayout()); //might be the wrong layout for this implementation
         this.students = students;
         this.tables = tables;
 
@@ -34,7 +34,12 @@ public class TicketingSystem extends JPanel{
         this.loginPanel = new LoginPanel(this.getHeight(),this.getWidth());
 
         this.add(loginPanel);
-        this.add(ticketPanel);
+        
+    }
+    
+    public void addTicketPanel() {
+    	this.remove(loginPanel);
+    	this.add(ticketPanel);
     }
 
     private class LoginPanel extends JPanel implements ActionListener {
@@ -70,6 +75,7 @@ public class TicketingSystem extends JPanel{
     		this.add(passwordField);
     		this.add(loginButton);
     		this.add(createAccountButton);
+    		
     	}
 
         public void actionPerformed(ActionEvent evt) {
@@ -82,13 +88,13 @@ public class TicketingSystem extends JPanel{
             	ticketPanel = new TicketPanel(students.get(studentIndex));
             	ticketPanel.setVisible(true);
             	loginPanel.setVisible(false);
+            	//addTicketPanel();
             } else if ((source == loginButton) && (!((StudentLoginButton) loginButton).isLoginButton())) {
     			students.add(new Student(nameField.getText(), inputId, 
     					gradeOptions.getSelectedItem().toString(), inputPassword));
     			writeLastStudent();
-    			ticketPanel.setVisible(true);
-            	loginPanel.setVisible(false);
     			ticketPanel = new TicketPanel(students.get(students.size() - 1));
+    			addTicketPanel();
             } else if (source == createAccountButton) {
     			this.add(nameField);
     			this.add(gradeOptions);
@@ -127,6 +133,11 @@ public class TicketingSystem extends JPanel{
     private class TicketPanel extends JPanel{
         private Student selectedStudent;
         TicketPanel(Student student){
+    		this.setFocusable(false);
+    		this.setOpaque(false);
+        	this.setLayout(new BorderLayout());
+        	this.add(new JButton("TicketPanel"), BorderLayout.CENTER);
+        	this.setVisible(true);
             this.selectedStudent = student;
             // Ticketing stuff here
             // or override paint component for graphics (preferred)
