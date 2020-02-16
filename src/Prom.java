@@ -35,13 +35,13 @@ public class Prom extends JFrame {
         } catch (Exception e) {
           e.printStackTrace();
         }
-        setContentPane(new BackImage(image));
+        //this.setContentPane(new BackImage(WINDOW_WIDTH, WINDOW_HEIGHT, image));
         
         //this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         this.setSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-        this.setLayout(new GridBagLayout());
+        //this.setLayout(new GridBagLayout());
         //loginButton.addActionListener(this);
 
         this.students = new ArrayList<Student>();
@@ -49,7 +49,7 @@ public class Prom extends JFrame {
 
         this.ticketingPanel = new TicketingSystem(students,tables);
 
-        this.add(ticketingPanel);
+        this.add(ticketingPanel, BorderLayout.CENTER);
 
         this.requestFocusInWindow();
         this.setVisible(true);

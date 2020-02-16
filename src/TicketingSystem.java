@@ -1,4 +1,5 @@
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -12,6 +13,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class TicketingSystem extends JPanel{
@@ -19,6 +21,7 @@ public class TicketingSystem extends JPanel{
     private ArrayList<Table> tables;
     private JTextField payField;
     private LoginPanel loginPanel;
+    private JPanel colourPanel;
     private TicketPanel ticketPanel = new TicketPanel(null);
     private File loginCredentials;
     private final static int WINDOW_WIDTH = 1366;
@@ -28,8 +31,8 @@ public class TicketingSystem extends JPanel{
         this.setLayout(new GridBagLayout());
     	this.students = students;
         this.tables = tables;
-        this.setBackground(Color.BLACK);
-
+        //this.setBackground(Color.BLACK);
+        
         loginCredentials = new File("loginCredentials.txt");
 
         try {
@@ -38,15 +41,28 @@ public class TicketingSystem extends JPanel{
             e.printStackTrace();
         }
         
+        colourPanel = new JPanel();
+        colourPanel.setBackground(Color.BLACK);
+        
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(50, 50, 50, 50);
-        this.loginPanel = new LoginPanel(WINDOW_WIDTH, WINDOW_HEIGHT);
-        this.add(loginPanel, c);
+        loginPanel = new LoginPanel(WINDOW_WIDTH, WINDOW_HEIGHT);
+        
+        //backPanel.add(colourPanel);
+        colourPanel.add(loginPanel);
+        c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.CENTER;
+        
+        this.add(colourPanel, c);
+    }
+    
+    private void toBorderLayout() {
+    	this.setLayout(new BorderLayout());
     }
 
     private void showTicket(){
-        this.remove(loginPanel);
-        this.add(this.ticketPanel);
+        this.remove(colourPanel);
+        this.add(ticketPanel);
         ticketPanel.setVisible(true);
         ticketPanel.requestFocus();
         this.updateUI();
@@ -54,9 +70,9 @@ public class TicketingSystem extends JPanel{
 
     private void showLogin(){
         this.remove(ticketPanel);
-        this.add(this.loginPanel);
-        loginPanel.setVisible(true);
-        loginPanel.requestFocus();
+        this.add(this.colourPanel);
+        colourPanel.setVisible(true);
+        colourPanel.requestFocus();
         this.updateUI();
     }
 
@@ -176,14 +192,14 @@ public class TicketingSystem extends JPanel{
         private Student selectedStudent;
         TicketPanel(Student student){
             if (student != null) {
-                this.setLayout(new BorderLayout());
+            	toBorderLayout();
+                this.setLayout(new BorderLayout()); // change to GridBagLayout
                 this.setVisible(true);
-                this.add(new JButton("TicketPanel"), BorderLayout.CENTER);
                 this.selectedStudent = student;
                 // Ticketing stuff here
                 // or override paint component for graphics (preferred)
                 JButton button = new JButton(student.getName());
-                this.add(button);
+                this.add(button, BorderLayout.LINE_START);
                 this.repaint();
             }
         }
