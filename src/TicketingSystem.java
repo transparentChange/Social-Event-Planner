@@ -2,6 +2,7 @@ import java.awt.event.*;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -78,7 +79,6 @@ public class TicketingSystem extends JPanel{
             int studentIndex = getStudentIndex(inputId, inputPassword);
             if ((source == loginButton) && (studentIndex != -1)
     				&& ((StudentLoginButton) loginButton).isLoginButton()) {
-            	System.out.println("yes login");
             	ticketPanel = new TicketPanel(students.get(studentIndex));
             	ticketPanel.setVisible(true);
             	loginPanel.setVisible(false);
@@ -111,12 +111,13 @@ public class TicketingSystem extends JPanel{
         
     	private void writeLastStudent() {
     		try {
-    			PrintWriter output = new PrintWriter(loginCredentials);
+    			FileWriter studentRecords = new FileWriter(loginCredentials, true);
+    			PrintWriter output = new PrintWriter(studentRecords);
     			Student curStudent = students.get(students.size() - 1);
+    			output.println();
     			output.print(curStudent.getName().replace(' ', '_') + " " + curStudent.getId() 
     					+ " " + curStudent.getGrade() + " " + curStudent.getPassword());
     			output.close();
-    			System.out.println("here");
     		} catch (Exception e) {
     			e.printStackTrace();
     		}
