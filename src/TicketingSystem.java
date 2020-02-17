@@ -3,8 +3,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
@@ -222,7 +220,7 @@ public class TicketingSystem extends JPanel {
                 loginButton = new LoginButton(0, 0);
                 loginButton.addActionListener(this);
 
-                this.add(loginButton,c);
+                this.add(loginButton, c);
 
 
                 c = new GridBagConstraints();
@@ -235,7 +233,7 @@ public class TicketingSystem extends JPanel {
                 createAccountButton = new JButton("Don't have an account? Click here to sign up.");
                 createAccountButton.addActionListener(this);
 
-                this.add(createAccountButton,c);
+                this.add(createAccountButton, c);
 
 
                 c = new GridBagConstraints();
@@ -252,14 +250,14 @@ public class TicketingSystem extends JPanel {
                 c.fill = GridBagConstraints.HORIZONTAL;
 
                 idField = new JTextField();
-                this.add(idField,c);
+                this.add(idField, c);
 
                 c = new GridBagConstraints();
                 c.gridy = 3;
                 c.gridx = 0;
                 c.anchor = GridBagConstraints.WEST;
 
-                this.add(new JLabel("Password"),c);
+                this.add(new JLabel("Password"), c);
 
                 c = new GridBagConstraints();
                 c.gridy = 3;
@@ -268,7 +266,7 @@ public class TicketingSystem extends JPanel {
                 c.fill = GridBagConstraints.HORIZONTAL;
 
                 passwordField = new JTextField();
-                this.add(passwordField,c);
+                this.add(passwordField, c);
 
                 String[] grades = {"9", "10", "11", "12"};
                 nameField = new JTextField(20);
@@ -295,7 +293,7 @@ public class TicketingSystem extends JPanel {
                     showTicket();  //switch ti ticket panel
                 } else if (source == createAccountButton) {
                     loginButton.switchButtonState();
-                    if (loginButton.isLoginButton()){
+                    if (loginButton.isLoginButton()) {
                         this.remove(nameText);
                         this.remove(nameField);
                         this.remove(gradeText);
@@ -357,31 +355,84 @@ public class TicketingSystem extends JPanel {
         }
     }
 
-    private class TicketPanel extends JPanel implements ActionListener{
+    private class TicketPanel extends JPanel{
         private Student selectedStudent;
+        private TicketListener listener;
         private JButton logout;
+        private JLabel infoMessage = new JLabel();
+        private JTextField cardNumber = new JTextField();
+        private JButton buyButton = new JButton("Buy now!");
+        private JButton refund = new JButton("Click here for a refund");
 
         TicketPanel(Student student) {
             if (student != null) {
+                listener = new TicketListener();
                 this.setLayout(new GridBagLayout());
                 this.setVisible(true);
                 this.selectedStudent = student;
 
                 //add all components
-                this.logout = new JButton("Logout" + student.getName());
+                this.logout = new JButton("Logout " + selectedStudent.getName());
+                if (selectedStudent.hasPaid() && selectedStudent.getPartners().size() == 0){
+                    this.infoMessage.setText("Woo! You're coming to Prom!\nMake sure to set your preferences");
+                } else if (selectedStudent.hasPaid()) {
+                    this.infoMessage.setText("Woo! You're set for Prom!\nYou can still add more or edit your preferences");
+                } else {
+                    this.infoMessage.setText("You're almost there!\nMake sure to purchase your ticket");
+                }
+                cardNumber.setText("This is the card number input");
 
                 //do all layout
                 this.add(logout);
+                this.add(infoMessage);
+                this.add(cardNumber);
+                this.add(buyButton);
+                this.add(refund);
 
+                if (selectedStudent.hasPaid()){
+                    cardNumber.setVisible(false);
+                    buyButton.setVisible(false);
+                    refund.setVisible(true);
+
+                } else {
+                    cardNumber.setVisible(true);
+                    buyButton.setVisible(true);
+                    refund.setVisible(false);
+                }
+
+                //add listener
+                logout.addActionListener(listener);
+                buyButton.addActionListener(listener);
+                refund.addActionListener(listener);
             }
         }
 
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == logout){
-                showLogin();
+        private class TicketListener implements ActionListener {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Object source = e.getSource();
+                if (source == logout){
+                    showLogin();
+                } else if (source == buyButton){
+                    cardNumber.setVisible(false);
+                    buyButton.setVisible(false);
+                    refund.setVisible(true);
+                    selectedStudent.setPaid(true);
+
+                } else if (source == refund){
+                    cardNumber.setVisible(true);
+                    buyButton.setVisible(true);
+                    refund.setVisible(false);
+                    selectedStudent.setPaid(false);
+                }
+                if (selectedStudent.hasPaid() && selectedStudent.getPartners().size() == 0){
+                    infoMessage.setText("Woo! You're coming to Prom!\nMake sure to set your preferences");
+                } else if (selectedStudent.hasPaid()) {
+                    infoMessage.setText("Woo! You're set for Prom!\nYou can still add more or edit your preferences");
+                } else {
+                    infoMessage.setText("You're almost there!\nMake sure to purchase your ticket");
+                }
             }
         }
     }
-
 }

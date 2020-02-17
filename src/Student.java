@@ -66,10 +66,6 @@ public class Student {
     
     @Override
     public boolean equals(Object obj) {
-    	if ((obj instanceof Student) && (((Student) obj).getId().equals(this.studentNumber))) {
-    		return true;
-    	} else {
-    		return false;
-    	}
+        return (obj instanceof Student) && (((Student) obj).getId().equals(this.studentNumber));
     }
 }
