@@ -48,6 +48,7 @@ public class TicketingSystem extends JPanel {
 
     private void showLogin() {
         this.removeAll();
+        this.loginPanel = new LoginPanel(); //reset the login panel
         this.add(this.loginPanel);
         this.loginPanel.setVisible(true);
         this.loginPanel.requestFocus();
@@ -311,15 +312,23 @@ public class TicketingSystem extends JPanel {
 
         TicketPanel(Student student) {
             if (student != null) {
-                //this panel is still incomplete dw about it most of the code should be re written for happy fun times
-                //toBorderLayout();
-                this.setLayout(new FlowLayout()); // change to GridBagLayout
+                this.setLayout(new BorderLayout()); // change to GridBagLayout
                 this.setVisible(true);
                 this.selectedStudent = student;
-                // Ticketing stuff here
-                // or override paint component for graphics (preferred)
-                JButton button = new JButton(student.getName());
-                this.add(button);
+
+                JButton logout = new JButton(student.getName() + " Logout");
+                logout.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        showLogin();
+                    }
+                });
+
+                JPanel j = new JPanel();
+                j.setLayout(new FlowLayout(FlowLayout.RIGHT));
+                j.add(logout);
+
+                this.add(j, BorderLayout.PAGE_START);
                 this.repaint();
             }
         }
