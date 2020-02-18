@@ -428,6 +428,7 @@ public class TicketingSystem extends JPanel {
                 this.setLayout(new GridBagLayout());
                 removes = new ArrayList<JButton>();
                 labels = new ArrayList<JLabel>();
+                errorLabel = new JLabel("");
                 GridBagConstraints c;
                 for (int i = 0; i < this.partners.size(); i++) {
                     c = new GridBagConstraints();
@@ -454,6 +455,7 @@ public class TicketingSystem extends JPanel {
                 c.gridx = 0;
                 c.gridy = this.partners.size();
                 this.add(addPartner, c);
+                addPartner.addActionListener(this);
 
                 c = new GridBagConstraints();
                 c.gridx = 1;
@@ -468,19 +470,53 @@ public class TicketingSystem extends JPanel {
                     Student foundStudent = null;
                     //add partner search code
                     System.out.println(partnerName.getText());
+                    GridBagConstraints c;
                     if (foundStudent == null){
                         errorLabel = new JLabel("Partner not Found. Ask them to register before you can add them");
-                        GridBagConstraints c = new GridBagConstraints();
+                        c = new GridBagConstraints();
                         c.gridx = 0;
                         c.gridwidth = 2;
                         c.gridy = this.partners.size() + 1;
                         this.add(errorLabel, c);
                     } else {
                         this.remove(errorLabel);
+
+                        remove(addPartner);
+                        remove(partnerName);
+
                         partners.add(foundStudent);
+
+                        c = new GridBagConstraints();
+                        c.gridx = 0;
+                        c.gridy = this.partners.size()-1;
+
+                        removes.add(new JButton("Remove"));
+                        removes.get(removes.size()-1).addActionListener(this);
+
+                        this.add(removes.get(removes.size()-1),c);
+
+                        c = new GridBagConstraints();
+                        c.gridx = 1;
+                        c.gridy = this.partners.size()-1;
+
+                        labels.add(new JLabel(this.partners.get(partners.size()-1).getName()));
+                        this.add(labels.get(labels.size()-1),c);
+
+                        c = new GridBagConstraints();
+                        c.gridx = 0;
+                        c.gridy = this.partners.size();
+                        this.add(addPartner, c);
+                        addPartner.addActionListener(this);
+
+                        c = new GridBagConstraints();
+                        c.gridx = 1;
+                        c.gridy = this.partners.size();
+                        this.add(partnerName, c);
+
+
                     }
                 } else {
-                    int index = removes.indexOf(e.getSource());
+                    int index = removes.indexOf(source);
 
                     this.remove(removes.get(index));
                     this.remove(labels.get(index));
