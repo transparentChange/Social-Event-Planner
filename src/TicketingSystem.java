@@ -19,10 +19,11 @@ public class TicketingSystem extends JPanel {
     private File loginCredentials;
 
     public TicketingSystem(ArrayList<Student> students, ArrayList<Table> tables) {
-        this.setLayout(new GridLayout(1, 1));
+        this.setLayout(new GridLayout());
         this.students = students;
         this.tables = tables;
-
+        
+        
         loginCredentials = new File("loginCredentials.txt");
 
         try {
@@ -32,7 +33,9 @@ public class TicketingSystem extends JPanel {
         }
 
         loginPanel = new LoginPanel();
-
+        
+        
+        
         this.add(loginPanel);
 
         this.setVisible(true);
@@ -135,15 +138,22 @@ public class TicketingSystem extends JPanel {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+            
+            JPanel colourPanel = new JPanel(new GridBagLayout());
+            colourPanel.setBackground(Color.BLACK);
+            
+            
+            GridBagConstraints c = new GridBagConstraints();
+            c.insets = new Insets(50, 50, 50, 50);
             //this.add(new InnerFrame());
             this.setVisible(true);
 
-            GridBagConstraints c = new GridBagConstraints();
-            c.anchor = GridBagConstraints.CENTER;
+            c = new GridBagConstraints();
+            //c.anchor = GridBagConstraints.CENTER;
             c.insets = new Insets(50, 50, 50, 50);
 
-            this.add(new InnerFrame(), c);
+            colourPanel.add(new InnerFrame(), c);
+            this.add(colourPanel);
 
             this.setVisible(true);
 
@@ -271,11 +281,6 @@ public class TicketingSystem extends JPanel {
                 String[] grades = {"9", "10", "11", "12"};
                 nameField = new JTextField(20);
                 gradeOptions = new JComboBox(grades);
-            }
-
-            public void paintComponent(Graphics g) {
-                g.setColor(new Color(114, 255, 162));
-                g.fillRect(0, 0, this.getWidth(), this.getHeight());
             }
 
             public void actionPerformed(ActionEvent evt) {
