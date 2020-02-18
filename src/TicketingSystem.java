@@ -23,7 +23,6 @@ public class TicketingSystem extends JPanel {
         this.students = students;
         this.tables = tables;
         
-        
         loginCredentials = new File("loginCredentials.txt");
 
         try {
@@ -140,7 +139,7 @@ public class TicketingSystem extends JPanel {
             }
             
             JPanel colourPanel = new JPanel(new GridBagLayout());
-            colourPanel.setBackground(Color.BLACK);
+            colourPanel.setBackground(new Color(75, 112, 68));
             
             
             GridBagConstraints c = new GridBagConstraints();
@@ -149,14 +148,13 @@ public class TicketingSystem extends JPanel {
             this.setVisible(true);
 
             c = new GridBagConstraints();
-            //c.anchor = GridBagConstraints.CENTER;
+            c.anchor = GridBagConstraints.CENTER;
             c.insets = new Insets(50, 50, 50, 50);
 
             colourPanel.add(new InnerFrame(), c);
             this.add(colourPanel);
 
             this.setVisible(true);
-
         }
 
         public void paintComponent(Graphics g) {
@@ -166,25 +164,6 @@ public class TicketingSystem extends JPanel {
                 g.setColor(new Color(0, 0, 0));
                 g.fillRect(0, 0, this.getWidth(), this.getHeight());
             }
-        }
-
-        public void addComponent(int gridy, JComponent component) {
-            GridBagConstraints c = new GridBagConstraints();
-            c.gridy = gridy;
-
-            if (component instanceof JLabel) {
-                c.insets = new Insets(20, 0, 0, 0); // space in between
-                c.anchor = GridBagConstraints.LINE_START;
-                component.setForeground(Color.WHITE);
-            } else if (component instanceof JTextField) {
-                c.insets = new Insets(5, 0, 0, 0);
-                c.fill = GridBagConstraints.HORIZONTAL;
-                component.setFont(fieldFont);
-            } else if (component instanceof JComboBox) {
-                c.anchor = GridBagConstraints.LINE_START;
-            }
-
-            this.add(component, c);
         }
 
         private int getStudentIndex(String id, String password) {
@@ -214,73 +193,64 @@ public class TicketingSystem extends JPanel {
         private class InnerFrame extends JPanel implements ActionListener {
 
             InnerFrame() {
-                this.setLayout(new GridBagLayout());
-                this.setOpaque(false);
+            	this.setFocusable(false);
+        		this.setOpaque(false);
+        		
+        		this.setLayout(new GridBagLayout());
+        		this.setVisible(true);
+        		
+        		fieldFont = new Font("Open Sans", Font.PLAIN, 20);
+                
+        		//studentButton = new StudentLoginButton(0, 0);
+        		createAccountButton = new JButton("Don't have an account? Click here to sign up.");
+        		createAccountButton.addActionListener(this);
+        		
+                GridBagConstraints c = new GridBagConstraints();
+                
+                addComponent(0, new JLabel("Student ID"));
+               
+        		idField = new JTextField();
+        		addComponent(1, idField);
+        		
+        		addComponent(2, new JLabel("Password"));
+        		
+        		passwordField = new JTextField();
+        		addComponent(3, passwordField);
+        		
+        		loginButton = new LoginButton(0, 0);
+        		loginButton.addActionListener(this);
+        		c = new GridBagConstraints();
+        		c.gridy = 8;
+        		c.anchor = GridBagConstraints.LINE_START;
+        		c.insets = new Insets(0, 20, 0, 0);
+        		this.add(loginButton, c);
+        		
+        		c.insets = new Insets(100, 0, 0, 0);
+        		c.gridy = 9;
+        		this.add(createAccountButton, c);
+        		
+        		String[] grades = {"9", "10", "11", "12"};
+        		nameField = new JTextField(20);
+        		gradeOptions = new JComboBox(grades);
+            }
+            
+            public void addComponent(int gridy, JComponent component) {
+                GridBagConstraints c = new GridBagConstraints();
+                c.gridy = gridy;
 
-                GridBagConstraints c;
+                if (component instanceof JLabel) {
+                    c.insets = new Insets(20, 0, 0, 0); // space in between
+                    c.anchor = GridBagConstraints.LINE_START;
+                    component.setForeground(Color.WHITE);
+                } else if (component instanceof JTextField) {
+                    c.insets = new Insets(5, 0, 0, 0);
+                    c.fill = GridBagConstraints.HORIZONTAL;
+                    component.setFont(fieldFont);
+                } else if (component instanceof JComboBox) {
+                    c.anchor = GridBagConstraints.LINE_START;
+                }
 
-                fieldFont = new Font("Open Sans", Font.PLAIN, 20);
-
-                c = new GridBagConstraints();
-                c.gridy = 0;
-                c.gridx = 0;
-                c.gridwidth = 2;
-                c.anchor = GridBagConstraints.WEST;
-
-                loginButton = new LoginButton(0, 0);
-                loginButton.addActionListener(this);
-
-                this.add(loginButton, c);
-
-
-                c = new GridBagConstraints();
-                c.gridy = 1;
-                c.gridx = 0;
-                c.gridwidth = 2;
-                c.anchor = GridBagConstraints.WEST;
-
-                //studentButton = new StudentLoginButton(0, 0);
-                createAccountButton = new JButton("Don't have an account? Click here to sign up.");
-                createAccountButton.addActionListener(this);
-
-                this.add(createAccountButton, c);
-
-
-                c = new GridBagConstraints();
-                c.gridy = 2;
-                c.gridx = 0;
-                c.anchor = GridBagConstraints.WEST;
-
-                this.add(new JLabel("Student ID"), c);
-
-                c = new GridBagConstraints();
-                c.gridy = 2;
-                c.gridx = 1;
-                c.weighty = 1.0;
-                c.fill = GridBagConstraints.HORIZONTAL;
-
-                idField = new JTextField();
-                this.add(idField, c);
-
-                c = new GridBagConstraints();
-                c.gridy = 3;
-                c.gridx = 0;
-                c.anchor = GridBagConstraints.WEST;
-
-                this.add(new JLabel("Password"), c);
-
-                c = new GridBagConstraints();
-                c.gridy = 3;
-                c.gridx = 1;
-                c.weighty = 1.0;
-                c.fill = GridBagConstraints.HORIZONTAL;
-
-                passwordField = new JTextField();
-                this.add(passwordField, c);
-
-                String[] grades = {"9", "10", "11", "12"};
-                nameField = new JTextField(20);
-                gradeOptions = new JComboBox(grades);
+                this.add(component, c);
             }
 
             public void actionPerformed(ActionEvent evt) {
@@ -304,31 +274,19 @@ public class TicketingSystem extends JPanel {
                         this.remove(gradeText);
                         this.remove(gradeOptions);
                     } else {
-                        GridBagConstraints c = new GridBagConstraints();
-                        c.gridy = 4;
-                        c.gridx = 0;
-                        nameText = new JLabel("Name");
-                        this.add(nameText, c);
-
-                        c = new GridBagConstraints();
-                        c.gridy = 4;
-                        c.gridx = 1;
-                        c.weightx = 1.0;
-                        c.fill = GridBagConstraints.HORIZONTAL;
-                        this.add(nameField, c);
-
-                        c = new GridBagConstraints();
-                        c.gridy = 5;
-                        c.gridx = 0;
-                        gradeText = new JLabel("Grade");
-                        this.add(gradeText, c);
-
-                        c = new GridBagConstraints();
-                        c.gridy = 5;
-                        c.gridx = 1;
-                        c.anchor = GridBagConstraints.WEST;
-                        //c.insets = new Insets(5, 0, 0, 0);
-                        this.add(gradeOptions, c);
+                    	addComponent(4, new JLabel("Name"));
+            			addComponent(5, nameField);
+            			
+            			addComponent(6, new JLabel("Grade"));
+            			
+            			GridBagConstraints c = new GridBagConstraints();
+            			c.gridy = 7;
+            			c.anchor = GridBagConstraints.LINE_START;
+            			c.insets = new Insets(5, 0, 0, 0);
+            			this.add(gradeOptions, c);
+            			//addComponent(6, new JLabel("Grade"));
+            			//addComponent(6, gradeOptions);
+            			loginButton.switchButtonState();
                     }
                 }
 
