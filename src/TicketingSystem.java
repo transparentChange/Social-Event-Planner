@@ -361,8 +361,10 @@ public class TicketingSystem extends JPanel {
         private JButton logout;
         private JLabel infoMessage = new JLabel();
         private JTextField cardNumber = new JTextField();
+        private JLabel cardLabel = new JLabel("Enter Card Number:");
         private JButton buyButton = new JButton("Buy now!");
         private JButton refund = new JButton("Click here for a refund");
+        private PartnerPanel partnerPanel;
 
         TicketPanel(Student student) {
             if (student != null) {
@@ -370,6 +372,8 @@ public class TicketingSystem extends JPanel {
                 this.setLayout(new GridBagLayout());
                 this.setVisible(true);
                 this.selectedStudent = student;
+
+                this.partnerPanel = new PartnerPanel(this.selectedStudent.getPartners());
 
                 //add all components
                 this.logout = new JButton("Logout " + selectedStudent.getName());
@@ -385,16 +389,20 @@ public class TicketingSystem extends JPanel {
                 //do all layout
                 this.add(logout);
                 this.add(infoMessage);
+                this.add(cardLabel);
                 this.add(cardNumber);
                 this.add(buyButton);
                 this.add(refund);
+                this.add(partnerPanel);
 
                 if (selectedStudent.hasPaid()){
+                    cardLabel.setVisible(false);
                     cardNumber.setVisible(false);
                     buyButton.setVisible(false);
                     refund.setVisible(true);
 
                 } else {
+                    cardLabel.setVisible(true);
                     cardNumber.setVisible(true);
                     buyButton.setVisible(true);
                     refund.setVisible(false);
@@ -406,6 +414,86 @@ public class TicketingSystem extends JPanel {
                 refund.addActionListener(listener);
             }
         }
+        private class PartnerPanel extends JPanel implements ActionListener{
+            private ArrayList<Student> partners;
+            private ArrayList<JButton> removes;
+            private ArrayList<JLabel> labels;
+            private JButton addPartner;
+            private JTextField partnerName;
+            private JLabel errorLabel;
+
+            PartnerPanel(ArrayList<Student> partners) {
+                this.setVisible(true);
+                this.partners = partners;
+                this.setLayout(new GridBagLayout());
+                removes = new ArrayList<JButton>();
+                labels = new ArrayList<JLabel>();
+                GridBagConstraints c;
+                for (int i = 0; i < this.partners.size(); i++) {
+                    c = new GridBagConstraints();
+                    c.gridx = 0;
+                    c.gridy = i;
+
+                    removes.add(new JButton("Remove"));
+                    removes.get(i).addActionListener(this);
+
+                    this.add(removes.get(i),c);
+
+                    c = new GridBagConstraints();
+                    c.gridx = 1;
+                    c.gridy = i;
+
+                    labels.add(new JLabel(this.partners.get(i).getName()));
+                    this.add(labels.get(i),c);
+                }
+
+                addPartner = new JButton("Add Partner");
+                partnerName = new JTextField("Partner Name here");
+
+                c = new GridBagConstraints();
+                c.gridx = 0;
+                c.gridy = this.partners.size();
+                this.add(addPartner, c);
+
+                c = new GridBagConstraints();
+                c.gridx = 1;
+                c.gridy = this.partners.size();
+                this.add(partnerName, c);
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Object source = e.getSource();
+                if (source == addPartner){
+                    Student foundStudent = null;
+                    //add partner search code
+                    System.out.println(partnerName.getText());
+                    if (foundStudent == null){
+                        errorLabel = new JLabel("Partner not Found. Ask them to register before you can add them");
+                        GridBagConstraints c = new GridBagConstraints();
+                        c.gridx = 0;
+                        c.gridwidth = 2;
+                        c.gridy = this.partners.size() + 1;
+                        this.add(errorLabel, c);
+                    } else {
+                        this.remove(errorLabel);
+                        partners.add(foundStudent);
+                    }
+                } else {
+                    int index = removes.indexOf(e.getSource());
+
+                    this.remove(removes.get(index));
+                    this.remove(labels.get(index));
+
+                    removes.remove(index);
+                    labels.remove(index);
+                    partners.remove(index);
+                }
+
+                revalidate();
+                repaint();
+            }
+        }
 
         private class TicketListener implements ActionListener {
             @Override
@@ -414,12 +502,14 @@ public class TicketingSystem extends JPanel {
                 if (source == logout){
                     showLogin();
                 } else if (source == buyButton){
+                    cardLabel.setVisible(false);
                     cardNumber.setVisible(false);
                     buyButton.setVisible(false);
                     refund.setVisible(true);
                     selectedStudent.setPaid(true);
 
                 } else if (source == refund){
+                    cardLabel.setVisible(true);
                     cardNumber.setVisible(true);
                     buyButton.setVisible(true);
                     refund.setVisible(false);
