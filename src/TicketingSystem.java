@@ -24,7 +24,6 @@ public class TicketingSystem extends JPanel {
         this.tables = tables;
         
         loginCredentials = new File("loginCredentials.txt");
-
         try {
             initializeStudents();
         } catch (Exception e) {
@@ -32,9 +31,6 @@ public class TicketingSystem extends JPanel {
         }
 
         loginPanel = new LoginPanel();
-        
-        
-        
         this.add(loginPanel);
 
         this.setVisible(true);
@@ -141,13 +137,7 @@ public class TicketingSystem extends JPanel {
             JPanel colourPanel = new JPanel(new GridBagLayout());
             colourPanel.setBackground(new Color(75, 112, 68));
             
-            
             GridBagConstraints c = new GridBagConstraints();
-            c.insets = new Insets(50, 50, 50, 50);
-            //this.add(new InnerFrame());
-            this.setVisible(true);
-
-            c = new GridBagConstraints();
             c.anchor = GridBagConstraints.CENTER;
             c.insets = new Insets(50, 50, 50, 50);
 
@@ -191,7 +181,6 @@ public class TicketingSystem extends JPanel {
         }
 
         private class InnerFrame extends JPanel implements ActionListener {
-
             InnerFrame() {
             	this.setFocusable(false);
         		this.setOpaque(false);
@@ -201,7 +190,6 @@ public class TicketingSystem extends JPanel {
         		
         		fieldFont = new Font("Open Sans", Font.PLAIN, 20);
                 
-        		//studentButton = new StudentLoginButton(0, 0);
         		createAccountButton = new JButton("Don't have an account? Click here to sign up.");
         		createAccountButton.addActionListener(this);
         		
@@ -284,8 +272,6 @@ public class TicketingSystem extends JPanel {
             			c.anchor = GridBagConstraints.LINE_START;
             			c.insets = new Insets(5, 0, 0, 0);
             			this.add(gradeOptions, c);
-            			//addComponent(6, new JLabel("Grade"));
-            			//addComponent(6, gradeOptions);
             			loginButton.switchButtonState();
                     }
                 }
