@@ -234,7 +234,7 @@ public class TicketingSystem extends JPanel {
         		createAccountButton.addActionListener(this);
         		
                 GridBagConstraints c = new GridBagConstraints();
-                
+
                 addComponent(0, new JLabel("Student ID"));
                
         		idField = new JTextField();
@@ -304,10 +304,13 @@ public class TicketingSystem extends JPanel {
                         this.remove(gradeText);
                         this.remove(gradeOptions);
                     } else {
-                    	addComponent(4, new JLabel("Name"));
+
+                        nameText = new JLabel("Name");
+                    	addComponent(4, nameText);
             			addComponent(5, nameField);
-            			
-            			addComponent(6, new JLabel("Grade"));
+
+            			gradeText = new JLabel("Grade");
+            			addComponent(6, gradeText);
             			
             			GridBagConstraints c = new GridBagConstraints();
             			c.gridy = 7;
@@ -444,7 +447,7 @@ public class TicketingSystem extends JPanel {
                 refund.addActionListener(listener);
             }
         }
-        private class PartnerPanel extends JPanel implements ActionListener{
+        private class PartnerPanel extends JPanel implements ActionListener {
             private ArrayList<Student> partners;
             private ArrayList<JButton> removes;
             private ArrayList<JLabel> labels;
@@ -456,107 +459,104 @@ public class TicketingSystem extends JPanel {
                 this.setVisible(true);
                 this.partners = partners;
                 this.setLayout(new GridBagLayout());
-                removes = new ArrayList<JButton>();
-                labels = new ArrayList<JLabel>();
-                errorLabel = new JLabel("");
+                this.removes = new ArrayList();
+                this.labels = new ArrayList();
+                this.errorLabel = new JLabel("");
+
                 GridBagConstraints c;
-                for (int i = 0; i < this.partners.size(); i++) {
+                for(int i = 0; i < this.partners.size(); ++i) {
                     c = new GridBagConstraints();
                     c.gridx = 0;
                     c.gridy = i;
-
-                    removes.add(new JButton("Remove"));
-                    removes.get(i).addActionListener(this);
-
-                    this.add(removes.get(i),c);
-
+                    this.removes.add(new JButton("Remove"));
+                    ((JButton)this.removes.get(i)).addActionListener(this);
+                    this.add((Component)this.removes.get(i), c);
                     c = new GridBagConstraints();
                     c.gridx = 1;
                     c.gridy = i;
-
-                    labels.add(new JLabel(this.partners.get(i).getName()));
-                    this.add(labels.get(i),c);
+                    this.labels.add(new JLabel(((Student)this.partners.get(i)).getName()));
+                    this.add((Component)this.labels.get(i), c);
                 }
 
-                addPartner = new JButton("Add Partner");
-                partnerName = new JTextField("Partner Name here");
-
+                this.addPartner = new JButton("Add Partner");
+                this.partnerName = new JTextField("Partner Name here");
                 c = new GridBagConstraints();
                 c.gridx = 0;
                 c.gridy = this.partners.size();
-                this.add(addPartner, c);
-                addPartner.addActionListener(this);
-
+                this.add(this.addPartner, c);
+                this.addPartner.addActionListener(this);
                 c = new GridBagConstraints();
                 c.gridx = 1;
                 c.gridy = this.partners.size();
-                this.add(partnerName, c);
+                this.add(this.partnerName, c);
             }
 
-            @Override
             public void actionPerformed(ActionEvent e) {
                 Object source = e.getSource();
-                if (source == addPartner){
-                    Student foundStudent = findStudentByName(partnerName.getText());
-                    System.out.println(partnerName.getText());
+                System.out.println(e.getActionCommand());
+                if (source == this.addPartner) {
+                    Student foundStudent = TicketingSystem.this.findStudentByName(this.partnerName.getText());
+                    System.out.println(this.partnerName.getText());
+                    this.remove(this.errorLabel);
                     GridBagConstraints c;
-                    if (foundStudent == null){
-                        errorLabel = new JLabel("Partner not Found. Ask them to register before you can add them");
+                    if (foundStudent == TicketPanel.this.selectedStudent) {
+                        this.errorLabel = new JLabel("You can't add yourself");
                         c = new GridBagConstraints();
                         c.gridx = 0;
                         c.gridwidth = 2;
-                        c.gridy = this.partners.size() + 1;
-                        this.add(errorLabel, c);
+                        c.gridy = -1;
+                        this.add(this.errorLabel, c);
+                    } else if (TicketPanel.this.selectedStudent.getPartners().contains(foundStudent)) {
+                        this.errorLabel = new JLabel("Person already added");
+                        c = new GridBagConstraints();
+                        c.gridx = 0;
+                        c.gridwidth = 2;
+                        c.gridy = -1;
+                        this.add(this.errorLabel, c);
+                    } else if (foundStudent == null) {
+                        this.errorLabel = new JLabel("Partner not Found. Ask them to register before you can add them");
+                        c = new GridBagConstraints();
+                        c.gridx = 0;
+                        c.gridwidth = 2;
+                        c.gridy = -1;
+                        this.add(this.errorLabel, c);
                     } else {
-                        this.remove(errorLabel);
-
-                        remove(addPartner);
-                        remove(partnerName);
-
-                        partners.add(foundStudent);
-
+                        this.remove(this.addPartner);
+                        this.remove(this.partnerName);
+                        this.partners.add(foundStudent);
                         c = new GridBagConstraints();
                         c.gridx = 0;
-                        c.gridy = this.partners.size()-1;
-
-                        removes.add(new JButton("Remove"));
-                        removes.get(removes.size()-1).addActionListener(this);
-
-                        this.add(removes.get(removes.size()-1),c);
-
+                        c.gridy = this.partners.size() - 1;
+                        this.removes.add(new JButton("Remove"));
+                        ((JButton)this.removes.get(this.removes.size() - 1)).addActionListener(this);
+                        this.add((Component)this.removes.get(this.removes.size() - 1), c);
                         c = new GridBagConstraints();
                         c.gridx = 1;
-                        c.gridy = this.partners.size()-1;
-
-                        labels.add(new JLabel(this.partners.get(partners.size()-1).getName()));
-                        this.add(labels.get(labels.size()-1),c);
-
+                        c.gridy = this.partners.size() - 1;
+                        this.labels.add(new JLabel(((Student)this.partners.get(this.partners.size() - 1)).getName()));
+                        this.add((Component)this.labels.get(this.labels.size() - 1), c);
                         c = new GridBagConstraints();
                         c.gridx = 0;
                         c.gridy = this.partners.size();
-                        this.add(addPartner, c);
-                        addPartner.addActionListener(this);
-
+                        this.add(this.addPartner, c);
+                        this.addPartner.addActionListener(this);
                         c = new GridBagConstraints();
                         c.gridx = 1;
                         c.gridy = this.partners.size();
-                        this.add(partnerName, c);
-
-
+                        this.add(this.partnerName, c);
                     }
                 } else {
-                    int index = removes.indexOf(source);
-
-                    this.remove(removes.get(index));
-                    this.remove(labels.get(index));
-
-                    removes.remove(index);
-                    labels.remove(index);
-                    partners.remove(index);
+                    int index = this.removes.indexOf(source);
+                    this.remove((Component)this.removes.get(index));
+                    this.remove((Component)this.labels.get(index));
+                    this.removes.remove(index);
+                    this.labels.remove(index);
+                    this.partners.remove(index);
                 }
 
-                revalidate();
-                repaint();
+                TicketingSystem.this.writeStudents();
+                this.revalidate();
+                this.repaint();
             }
         }
 
