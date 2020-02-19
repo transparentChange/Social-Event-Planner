@@ -147,7 +147,7 @@ public class TicketingSystem extends JPanel {
                 String partnerString = "";
                 ArrayList<Student> partnerArray = curStudent.getPartners();
                 for (int i = 0; i < partnerArray.size(); i++) {
-                    partnerString += curStudent.getName() + "#";
+                    partnerString += curStudent.getPartners().get(i).getName() + "#";
                 }
                 if (partnerArray.size() != 0) {
                     partnerString = partnerString.substring(0, partnerString.length() - 1);
@@ -295,7 +295,7 @@ public class TicketingSystem extends JPanel {
                     students.add(new Student(nameField.getText(), inputId, gradeOptions.getSelectedItem().toString(), inputPassword)); //create new student
                     writeStudents(); //write to file
                     ticketPanel = new TicketPanel(students.get(students.size() - 1)); //show the new student
-                    showTicket();  //switch ti ticket panel
+                    showTicket();  //switch to ticket panel
                 } else if (source == createAccountButton) {
                     loginButton.switchButtonState();
                     if (loginButton.isLoginButton()) {
@@ -348,37 +348,37 @@ public class TicketingSystem extends JPanel {
             }
         }
     }
-    
-    class ButtonPanel extends JPanel implements ActionListener {
+
+    private class ButtonPanel extends JPanel implements ActionListener {
         private JButton logout;
-    	
+
         ButtonPanel() {
           setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
           setBorder(new EmptyBorder(10, 0, 5, 0));
           setOpaque(false);
           setFocusable(false);
-          
+
           add(Box.createRigidArea(new Dimension(1100, 0)));
           logout = new JButton("Logout "); // add name, call showLogin()
           logout.addActionListener(this);
-          
+
           this.add(logout);
-          
+
           revalidate();
           repaint();
         }
-        
+
         public void paintComponent(Graphics g) {
           super.paintComponent(g);
-          
+
           Graphics2D g2 = (Graphics2D) g;
-          
+
           GradientPaint blackToGray = new GradientPaint(0, 0, new Color(25, 38, 23),
                                                         0, getHeight(), new Color(147, 222, 135));
           g2.setPaint(blackToGray);
           g2.fill(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
         }
-        
+
         public void actionPerformed(ActionEvent evt) {
         	showLogin();
         }
@@ -557,6 +557,41 @@ public class TicketingSystem extends JPanel {
                 TicketingSystem.this.writeStudents();
                 this.revalidate();
                 this.repaint();
+            }
+        }
+
+        private class ButtonPanel extends JPanel implements ActionListener {
+            private JButton logout;
+
+            ButtonPanel() {
+                setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+                setBorder(new EmptyBorder(10, 0, 5, 0));
+                setOpaque(false);
+                setFocusable(false);
+
+                add(Box.createRigidArea(new Dimension(1100, 0)));
+                logout = new JButton("Logout "); // add name, call showLogin()
+                logout.addActionListener(this);
+
+                this.add(logout);
+
+                revalidate();
+                repaint();
+            }
+
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                Graphics2D g2 = (Graphics2D) g;
+
+                GradientPaint blackToGray = new GradientPaint(0, 0, new Color(25, 38, 23),
+                        0, getHeight(), new Color(147, 222, 135));
+                g2.setPaint(blackToGray);
+                g2.fill(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
+            }
+
+            public void actionPerformed(ActionEvent evt) {
+                showLogin();
             }
         }
 
