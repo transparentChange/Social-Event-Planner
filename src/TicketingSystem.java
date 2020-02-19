@@ -348,41 +348,6 @@ public class TicketingSystem extends JPanel {
             }
         }
     }
-
-    private class ButtonPanel extends JPanel implements ActionListener {
-        private JButton logout;
-
-        ButtonPanel() {
-          setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-          setBorder(new EmptyBorder(10, 0, 5, 0));
-          setOpaque(false);
-          setFocusable(false);
-
-          add(Box.createRigidArea(new Dimension(1100, 0)));
-          logout = new JButton("Logout "); // add name, call showLogin()
-          logout.addActionListener(this);
-
-          this.add(logout);
-
-          revalidate();
-          repaint();
-        }
-
-        public void paintComponent(Graphics g) {
-          super.paintComponent(g);
-
-          Graphics2D g2 = (Graphics2D) g;
-
-          GradientPaint blackToGray = new GradientPaint(0, 0, new Color(25, 38, 23),
-                                                        0, getHeight(), new Color(147, 222, 135));
-          g2.setPaint(blackToGray);
-          g2.fill(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
-        }
-
-        public void actionPerformed(ActionEvent evt) {
-        	showLogin();
-        }
-      }
     
     private class TicketPanel extends JPanel{
         private Student selectedStudent;
