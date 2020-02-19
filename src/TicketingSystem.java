@@ -469,13 +469,13 @@ public class TicketingSystem extends JPanel {
                     c.gridx = 0;
                     c.gridy = i;
                     this.removes.add(new JButton("Remove"));
-                    ((JButton)this.removes.get(i)).addActionListener(this);
-                    this.add((Component)this.removes.get(i), c);
+                    this.removes.get(i).addActionListener(this);
+                    this.add(this.removes.get(i), c);
                     c = new GridBagConstraints();
                     c.gridx = 1;
                     c.gridy = i;
-                    this.labels.add(new JLabel(((Student)this.partners.get(i)).getName()));
-                    this.add((Component)this.labels.get(i), c);
+                    this.labels.add(new JLabel((this.partners.get(i)).getName()));
+                    this.add(this.labels.get(i), c);
                 }
 
                 this.addPartner = new JButton("Add Partner");
@@ -528,13 +528,13 @@ public class TicketingSystem extends JPanel {
                         c.gridx = 0;
                         c.gridy = this.partners.size() - 1;
                         this.removes.add(new JButton("Remove"));
-                        ((JButton)this.removes.get(this.removes.size() - 1)).addActionListener(this);
-                        this.add((Component)this.removes.get(this.removes.size() - 1), c);
+                        this.removes.get(this.removes.size() - 1).addActionListener(this);
+                        this.add(this.removes.get(this.removes.size() - 1), c);
                         c = new GridBagConstraints();
                         c.gridx = 1;
                         c.gridy = this.partners.size() - 1;
-                        this.labels.add(new JLabel(((Student)this.partners.get(this.partners.size() - 1)).getName()));
-                        this.add((Component)this.labels.get(this.labels.size() - 1), c);
+                        this.labels.add(new JLabel(this.partners.get(this.partners.size() - 1).getName()));
+                        this.add(this.labels.get(this.labels.size() - 1), c);
                         c = new GridBagConstraints();
                         c.gridx = 0;
                         c.gridy = this.partners.size();
@@ -547,8 +547,8 @@ public class TicketingSystem extends JPanel {
                     }
                 } else {
                     int index = this.removes.indexOf(source);
-                    this.remove((Component)this.removes.get(index));
-                    this.remove((Component)this.labels.get(index));
+                    this.remove(this.removes.get(index));
+                    this.remove(this.labels.get(index));
                     this.removes.remove(index);
                     this.labels.remove(index);
                     this.partners.remove(index);
