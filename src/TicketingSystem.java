@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class TicketingSystem extends JPanel {
@@ -71,40 +72,89 @@ public class TicketingSystem extends JPanel {
         this.students.remove(student);
     }
 
+    private Student findStudentByName(String name){
+        for (Student student : students){
+            if (name.compareToIgnoreCase(student.getName()) == 0){
+                return student;
+            }
+        }
+        return null;
+    }
+
     private void initializeStudents() {
         try {
             Scanner input = new Scanner(loginCredentials);
-            String id = "";
-            String password = "";
-            String grade = "";
-            String studentInfo;
-            String[] name = {};
-            int lenString, countSpaces;
-            int prevSpaceIndex = 0;
-            while (input.hasNext()) {
-                studentInfo = input.nextLine();
-                lenString = studentInfo.length();
+            ArrayList<String[]> partners = new ArrayList<String[]>();
 
-                countSpaces = 0;
-                int i = 0;
-                while (countSpaces != 3) {
-                    if (studentInfo.charAt(i) == ' ') {
-                        countSpaces++;
-                        if (countSpaces == 1) {
-                            name = studentInfo.substring(0, i).split("_");
-                        } else if (countSpaces == 2) {
-                            id = studentInfo.substring(prevSpaceIndex + 1, i);
-                        } else if (countSpaces == 3) {
-                            grade = studentInfo.substring(prevSpaceIndex + 1, i);
-                            password = studentInfo.substring(i + 1);
+            while (input.hasNext()) {
+                String student = input.nextLine();
+                if (!student.equals("")) {
+                    String[] ids = student.split(",");
+                    HashMap<String, String> keys = new HashMap();
+                    for (String key : ids) {
+                        String[] temp = key.split(":");
+                        if (temp.length > 1){
+                        keys.put(temp[0].replace("\"", ""), temp[1].replace("\"", ""));
+                        } else {
+                            keys.put(temp[0].replace("\"", ""), "");
                         }
-                        prevSpaceIndex = i;
                     }
-                    i++;
+
+                    String name = keys.get("name");
+                    String id = keys.get("id");
+                    String[] partnerString = keys.get("partners").split("#");
+
+                    Boolean hasPaid = Boolean.parseBoolean(keys.get("paid"));
+                    String password = keys.get("password");
+                    String grade = keys.get("grade");
+
+                    Student s = new Student(name, id, grade, password);
+                    s.setPaid(hasPaid);
+                    addStudent(s);
+                    partners.add(partnerString);
                 }
-                students.add(new Student(name[0] + " " + name[1], id, grade, password));
             }
-            input.close();
+
+            for (int i = 0; i < students.size(); i++) {
+                ArrayList<Student> studentPartners = students.get(i).getPartners();
+                for (int j = 0; j < partners.get(i).length; j++) {
+                    Student s = findStudentByName(partners.get(i)[j]);
+                    if (s != null){
+                        studentPartners.add(s);
+                    }
+                }
+            }
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void writeStudents() {
+        try {
+            FileWriter studentRecords = new FileWriter(loginCredentials, false);
+            PrintWriter output = new PrintWriter(studentRecords);
+
+            for (Student curStudent : students){
+                output.print("name:" + curStudent.getName() + ",");
+                output.print("id:" + curStudent.getId() + ",");
+                output.print("paid:" + curStudent.hasPaid() + ",");
+                output.print("grade:" + curStudent.getGrade() + ",");
+                output.print("password:" + curStudent.getPassword() + ",");
+                String partnerString = "";
+                ArrayList<Student> partnerArray = curStudent.getPartners();
+                for (int i = 0; i < partnerArray.size(); i++) {
+                    partnerString += curStudent.getName() + "#";
+                }
+                if (partnerArray.size() != 0) {
+                    partnerString = partnerString.substring(0, partnerString.length() - 1);
+                }
+                output.print("partners:" + partnerString);
+                output.println();
+            }
+
+            output.close();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -157,27 +207,14 @@ public class TicketingSystem extends JPanel {
         }
 
         private int getStudentIndex(String id, String password) {
+            System.out.println("hi");
             for (int i = 0; i < students.size(); i++) {
+                System.out.println(students.get(i).getId() + students.get(i).getPassword());
                 if ((students.get(i).getId().equals(id)) && (students.get(i).getPassword().equals(password))) {
                     return i;
                 }
             }
-
             return -1;
-        }
-
-        private void writeLastStudent() {
-            try {
-                FileWriter studentRecords = new FileWriter(loginCredentials, true);
-                PrintWriter output = new PrintWriter(studentRecords);
-                Student curStudent = students.get(students.size() - 1);
-                output.println();
-                output.print(curStudent.getName().replace(' ', '_') + " " + curStudent.getId()
-                        + " " + curStudent.getGrade() + " " + curStudent.getPassword());
-                output.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
         private class InnerFrame extends JPanel implements ActionListener {
@@ -246,12 +283,14 @@ public class TicketingSystem extends JPanel {
                 String inputId = idField.getText();
                 String inputPassword = passwordField.getText();
                 int studentIndex = getStudentIndex(inputId, inputPassword);
+                System.out.println(studentIndex);
+                System.out.println("oui");
                 if ((source == loginButton) && (studentIndex != -1) && (loginButton.isLoginButton())) { //if login button is clicked and is a login button and student is valid
                     ticketPanel = new TicketPanel(students.get(studentIndex)); //show selected student
                     showTicket(); //switch to ticket panel
                 } else if ((source == loginButton) && (!loginButton.isLoginButton())) { //if login button is a create account
                     students.add(new Student(nameField.getText(), inputId, gradeOptions.getSelectedItem().toString(), inputPassword)); //create new student
-                    writeLastStudent(); //write to file
+                    writeStudents(); //write to file
                     ticketPanel = new TicketPanel(students.get(students.size() - 1)); //show the new student
                     showTicket();  //switch ti ticket panel
                 } else if (source == createAccountButton) {
@@ -272,7 +311,7 @@ public class TicketingSystem extends JPanel {
             			c.anchor = GridBagConstraints.LINE_START;
             			c.insets = new Insets(5, 0, 0, 0);
             			this.add(gradeOptions, c);
-            			loginButton.switchButtonState();
+            			//loginButton.switchButtonState();
                     }
                 }
 
@@ -416,8 +455,7 @@ public class TicketingSystem extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 Object source = e.getSource();
                 if (source == addPartner){
-                    Student foundStudent = null;
-                    //add partner search code
+                    Student foundStudent = findStudentByName(partnerName.getText());
                     System.out.println(partnerName.getText());
                     GridBagConstraints c;
                     if (foundStudent == null){
