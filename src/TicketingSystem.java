@@ -1,8 +1,11 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
@@ -342,29 +345,69 @@ public class TicketingSystem extends JPanel {
             }
         }
     }
-
+    
+    class ButtonPanel extends JPanel implements ActionListener {
+        private JButton logout;
+    	
+        ButtonPanel() {
+          setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+          setBorder(new EmptyBorder(10, 0, 5, 0));
+          setOpaque(false);
+          setFocusable(false);
+          
+          add(Box.createRigidArea(new Dimension(1100, 0)));
+          logout = new JButton("Logout "); // add name, call showLogin()
+          logout.addActionListener(this);
+          
+          this.add(logout);
+          
+          revalidate();
+          repaint();
+        }
+        
+        public void paintComponent(Graphics g) {
+          super.paintComponent(g);
+          
+          Graphics2D g2 = (Graphics2D) g;
+          
+          GradientPaint blackToGray = new GradientPaint(0, 0, new Color(25, 38, 23),
+                                                        0, getHeight(), new Color(147, 222, 135));
+          g2.setPaint(blackToGray);
+          g2.fill(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
+        }
+        
+        public void actionPerformed(ActionEvent evt) {
+        	showLogin();
+        }
+      }
+    
     private class TicketPanel extends JPanel{
         private Student selectedStudent;
         private TicketListener listener;
-        private JButton logout;
         private JLabel infoMessage = new JLabel();
         private JTextField cardNumber = new JTextField();
-        private JLabel cardLabel = new JLabel("Enter Card Number:");
+        private final JLabel cardLabel = new JLabel("Enter Card Number:");
         private JButton buyButton = new JButton("Buy now!");
         private JButton refund = new JButton("Click here for a refund");
         private PartnerPanel partnerPanel;
+        private ButtonPanel upperPanel;
 
         TicketPanel(Student student) {
             if (student != null) {
                 listener = new TicketListener();
-                this.setLayout(new GridBagLayout());
+                this.setLayout(new BorderLayout());
                 this.setVisible(true);
                 this.selectedStudent = student;
-
+                
+                cardLabel.setText("adfs");
                 this.partnerPanel = new PartnerPanel(this.selectedStudent.getPartners());
 
                 //add all components
-                this.logout = new JButton("Logout " + selectedStudent.getName());
+                
+                upperPanel = new ButtonPanel();
+                this.add(upperPanel, BorderLayout.NORTH);
+                
+                
                 if (selectedStudent.hasPaid() && selectedStudent.getPartners().size() == 0){
                     this.infoMessage.setText("Woo! You're coming to Prom!\nMake sure to set your preferences");
                 } else if (selectedStudent.hasPaid()) {
@@ -375,12 +418,12 @@ public class TicketingSystem extends JPanel {
                 cardNumber.setText("This is the card number input");
 
                 //do all layout
-                this.add(logout);
-                this.add(infoMessage);
-                this.add(cardLabel);
-                this.add(cardNumber);
-                this.add(buyButton);
-                this.add(refund);
+                
+                this.add(infoMessage, BorderLayout.CENTER);
+                this.add(cardLabel, BorderLayout.CENTER);
+                this.add(cardNumber, BorderLayout.CENTER);
+                this.add(buyButton, BorderLayout.CENTER);
+                this.add(refund, BorderLayout.CENTER);
                 this.add(partnerPanel);
 
                 if (selectedStudent.hasPaid()){
@@ -397,7 +440,6 @@ public class TicketingSystem extends JPanel {
                 }
 
                 //add listener
-                logout.addActionListener(listener);
                 buyButton.addActionListener(listener);
                 refund.addActionListener(listener);
             }
@@ -522,9 +564,7 @@ public class TicketingSystem extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Object source = e.getSource();
-                if (source == logout){
-                    showLogin();
-                } else if (source == buyButton){
+                if (source == buyButton){
                     cardLabel.setVisible(false);
                     cardNumber.setVisible(false);
                     buyButton.setVisible(false);
