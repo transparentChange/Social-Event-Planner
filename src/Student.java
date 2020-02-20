@@ -1,3 +1,4 @@
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Student {
@@ -7,6 +8,7 @@ public class Student {
     private boolean hasPaid;
     private String password;
     private String grade;
+    private BufferedImage profilePic;
     
     public Student(String name, String studentNumber) {
         this.name = name;
@@ -63,7 +65,15 @@ public class Student {
     public String getPassword() {
     	return this.password;
     }
-    
+
+    public BufferedImage getPicture() {
+        return profilePic;
+    }
+
+    public void setPicture(BufferedImage image){
+        this.profilePic = image;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return (obj instanceof Student) && (((Student) obj).getId().equals(this.studentNumber));
