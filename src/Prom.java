@@ -12,7 +12,9 @@ public class Prom extends JFrame {
     private final static int WINDOW_WIDTH = 1366;
     private final static int WINDOW_HEIGHT = 768;
 
-    // private FloorPlanSystem floorPlanPanel;
+
+    public final static int maxTables = 5;
+    public final static int tableSize = 10;
 
     public Prom() {
         super("Prom");

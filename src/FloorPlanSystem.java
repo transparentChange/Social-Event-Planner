@@ -7,6 +7,7 @@ public class FloorPlanSystem extends JPanel {
     FloorPlanSystem(ArrayList<Table> tables) {
         this.setLayout(new FlowLayout());
         this.tables = tables;
+        this.add(new JLabel("Your panel here"));
         for (Table t : this.tables){
             this.add(new JLabel("This is a Table "));
         }

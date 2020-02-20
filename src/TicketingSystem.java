@@ -22,11 +22,16 @@ public class TicketingSystem extends JPanel {
     private FloorPlanPanel floorPanel;
     private FloorPlanSystem floorPlan;
     private File loginCredentials;
+    private int maxTables;
+    private int tableSize;
 
     public TicketingSystem(ArrayList<Student> students, ArrayList<Table> tables) {
         this.setLayout(new GridLayout());
         this.students = students;
         this.tables = tables;
+
+        this.maxTables = Prom.maxTables;
+        this.tableSize = Prom.tableSize;
         
         loginCredentials = new File("loginCredentials.txt");
         try {
@@ -619,14 +624,14 @@ public class TicketingSystem extends JPanel {
                     paidStudents.add(s);
                 }
             }
-            //tables = SeatingAssignmentSystem.assignTables(paidStudents, tables);
+            tables = SeatingAssignmentSystem.assignTables(paidStudents, maxTables, tableSize);
             floorPlan = new FloorPlanSystem(tables);
             this.fromPanel = fromPanel;
             this.exitButton = new JButton("Hide FloorPlan");
             this.setLayout(new BorderLayout());
             this.add(floorPlan, BorderLayout.CENTER);
             this.add(exitButton, BorderLayout.PAGE_START);
-            exitButton.addActionListener(this);
+            this.exitButton.addActionListener(this);
         }
 
         @Override
