@@ -3,15 +3,8 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class FloorPlanSystem extends JPanel {
-    ArrayList<Table> tables;
-    FloorPlanSystem(ArrayList<Table> tables) {
+    FloorPlanSystem(ArrayList<Table> t){
         this.setLayout(new FlowLayout());
-        this.tables = tables;
-        this.add(new JLabel("Your panel here"));
-        for (Table t : this.tables){
-            this.add(new JLabel("This is a Table "));
-        }
+        this.add(new JLabel("Floor Plan"));
     }
-
-
 }
