@@ -222,9 +222,7 @@ public class TicketingSystem extends JPanel {
 
         private class InnerFrame extends JPanel implements ActionListener {
             InnerFrame() {
-            	this.setFocusable(false);
         		this.setOpaque(false);
-        		
         		this.setLayout(new GridBagLayout());
         		this.setVisible(true);
         		
@@ -286,8 +284,6 @@ public class TicketingSystem extends JPanel {
                 String inputId = idField.getText();
                 String inputPassword = passwordField.getText();
                 int studentIndex = getStudentIndex(inputId, inputPassword);
-                System.out.println(studentIndex);
-                System.out.println("oui");
                 if ((source == loginButton) && (studentIndex != -1) && (loginButton.isLoginButton())) { //if login button is clicked and is a login button and student is valid
                     ticketPanel = new TicketPanel(students.get(studentIndex)); //show selected student
                     showTicket(); //switch to ticket panel
@@ -304,7 +300,6 @@ public class TicketingSystem extends JPanel {
                         this.remove(gradeText);
                         this.remove(gradeOptions);
                     } else {
-
                         nameText = new JLabel("Name");
                     	addComponent(4, nameText);
             			addComponent(5, nameField);
@@ -317,7 +312,6 @@ public class TicketingSystem extends JPanel {
             			c.anchor = GridBagConstraints.LINE_START;
             			c.insets = new Insets(5, 0, 0, 0);
             			this.add(gradeOptions, c);
-            			//loginButton.switchButtonState();
                     }
                 }
 
@@ -354,7 +348,7 @@ public class TicketingSystem extends JPanel {
         private TicketListener listener;
         private JLabel infoMessage = new JLabel();
         private JTextField cardNumber = new JTextField();
-        private final JLabel cardLabel = new JLabel("Enter Card Number:");
+        private JLabel cardLabel = new JLabel("Enter Card Number:");
         private JButton buyButton = new JButton("Buy now!");
         private JButton refund = new JButton("Click here for a refund");
         private PartnerPanel partnerPanel;
@@ -365,35 +359,39 @@ public class TicketingSystem extends JPanel {
                 listener = new TicketListener();
                 this.setLayout(new BorderLayout());
                 this.setVisible(true);
-                this.selectedStudent = student;
                 
-                cardLabel.setText("adfs");
+                this.selectedStudent = student;
                 this.partnerPanel = new PartnerPanel(this.selectedStudent.getPartners());
 
                 //add all components
-                
                 upperPanel = new ButtonPanel();
                 this.add(upperPanel, BorderLayout.NORTH);
                 
-                
-                if (selectedStudent.hasPaid() && selectedStudent.getPartners().size() == 0){
-                    this.infoMessage.setText("Woo! You're coming to Prom!\nMake sure to set your preferences");
+                /*
+                if ((selectedStudent.hasPaid()) && (selectedStudent.getPartners().size() == 0)) {
+                    infoMessage.setText("Woo! You're coming to Prom!\nMake sure to set your preferences");
                 } else if (selectedStudent.hasPaid()) {
-                    this.infoMessage.setText("Woo! You're set for Prom!\nYou can still add more or edit your preferences");
+                    infoMessage.setText("Woo! You're set for Prom!\nYou can still add more or edit your preferences");
                 } else {
-                    this.infoMessage.setText("You're almost there!\nMake sure to purchase your ticket");
+                    infoMessage.setText("You're almost there!\nMake sure to purchase your ticket");
                 }
                 cardNumber.setText("This is the card number input");
-
+				*/
+				
                 //do all layout
                 
-                this.add(infoMessage, BorderLayout.CENTER);
+                // this.add(infoMessage, BorderLayout.CENTER);
+                
+                /*
                 this.add(cardLabel, BorderLayout.CENTER);
                 this.add(cardNumber, BorderLayout.CENTER);
                 this.add(buyButton, BorderLayout.CENTER);
                 this.add(refund, BorderLayout.CENTER);
-                this.add(partnerPanel);
-
+                */
+                
+                this.add(partnerPanel, BorderLayout.WEST);
+                
+                /*
                 if (selectedStudent.hasPaid()){
                     cardLabel.setVisible(false);
                     cardNumber.setVisible(false);
@@ -406,62 +404,73 @@ public class TicketingSystem extends JPanel {
                     buyButton.setVisible(true);
                     refund.setVisible(false);
                 }
+                */
 
                 //add listener
-                buyButton.addActionListener(listener);
-                refund.addActionListener(listener);
+                //buyButton.addActionListener(listener);
+                //refund.addActionListener(listener);
             }
         }
         private class PartnerPanel extends JPanel implements ActionListener {
             private ArrayList<Student> partners;
-            private ArrayList<JButton> removes;
-            private ArrayList<JLabel> labels;
-            private JButton addPartner;
-            private JTextField partnerName;
+            private ArrayList<JButton> removeButtons;
+            private ArrayList<JLabel> partnerLabels;
+            private JButton addPartnerButton;
+            private JTextField partnerNameField;
             private JLabel errorLabel;
+            private JLabel title = new JLabel("Student Preferences for Seating");
 
             PartnerPanel(ArrayList<Student> partners) {
                 this.setVisible(true);
                 this.partners = partners;
                 this.setLayout(new GridBagLayout());
-                this.removes = new ArrayList();
-                this.labels = new ArrayList();
+                this.removeButtons = new ArrayList();
+                this.partnerLabels = new ArrayList();
                 this.errorLabel = new JLabel("");
+                
+                this.setBorder(new EmptyBorder(10, 10, 10, 10));
 
                 GridBagConstraints c;
                 for(int i = 0; i < this.partners.size(); ++i) {
                     c = new GridBagConstraints();
                     c.gridx = 0;
                     c.gridy = i;
-                    this.removes.add(new JButton("Remove"));
-                    this.removes.get(i).addActionListener(this);
-                    this.add(this.removes.get(i), c);
+                    removeButtons.add(new JButton("-"));
+                    removeButtons.get(i).addActionListener(this);
+                    
+                    this.add(removeButtons.get(i), c);
                     c = new GridBagConstraints();
                     c.gridx = 1;
                     c.gridy = i;
-                    this.labels.add(new JLabel((this.partners.get(i)).getName()));
-                    this.add(this.labels.get(i), c);
+                    this.partnerLabels.add(new JLabel((this.partners.get(i)).getName()));
+                    this.add(this.partnerLabels.get(i), c);
                 }
-
-                this.addPartner = new JButton("Add Partner");
-                this.partnerName = new JTextField("Partner Name here");
+                
+                addPartnerButton = new JButton("+");
+                partnerNameField = new JTextField("Partner Name here");
+                partnerNameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+                
                 c = new GridBagConstraints();
+                this.add(title, c);
+                
                 c.gridx = 0;
-                c.gridy = this.partners.size();
-                this.add(this.addPartner, c);
-                this.addPartner.addActionListener(this);
+                c.gridy = 1;
+                c.anchor = GridBagConstraints.LINE_START;
+                this.add(this.partnerNameField, c);
+                
                 c = new GridBagConstraints();
                 c.gridx = 1;
-                c.gridy = this.partners.size();
-                this.add(this.partnerName, c);
+                c.gridy = 1;
+               
+                this.add(this.addPartnerButton, c);
+                this.addPartnerButton.addActionListener(this);
             }
 
             public void actionPerformed(ActionEvent e) {
                 Object source = e.getSource();
                 System.out.println(e.getActionCommand());
-                if (source == this.addPartner) {
-                    Student foundStudent = TicketingSystem.this.findStudentByName(this.partnerName.getText());
-                    System.out.println(this.partnerName.getText());
+                if (source == this.addPartnerButton) {
+                    Student foundStudent = TicketingSystem.this.findStudentByName(this.partnerNameField.getText());
                     this.remove(this.errorLabel);
                     GridBagConstraints c;
                     if (foundStudent == TicketPanel.this.selectedStudent) {
@@ -486,37 +495,47 @@ public class TicketingSystem extends JPanel {
                         c.gridy = -1;
                         this.add(this.errorLabel, c);
                     } else {
-                        this.remove(this.addPartner);
-                        this.remove(this.partnerName);
+                    	// add a student
+                        this.remove(addPartnerButton);
+                        this.remove(partnerNameField);
                         this.partners.add(foundStudent);
+                        
                         c = new GridBagConstraints();
-                        c.gridx = 0;
-                        c.gridy = this.partners.size() - 1;
-                        this.removes.add(new JButton("Remove"));
-                        this.removes.get(this.removes.size() - 1).addActionListener(this);
-                        this.add(this.removes.get(this.removes.size() - 1), c);
-                        c = new GridBagConstraints();
-                        c.gridx = 1;
-                        c.gridy = this.partners.size() - 1;
-                        this.labels.add(new JLabel(this.partners.get(this.partners.size() - 1).getName()));
-                        this.add(this.labels.get(this.labels.size() - 1), c);
+                        c.gridx = 2;
+                        c.gridy = partners.size() + 1;
+                        c.anchor = GridBagConstraints.LINE_START;
+                        removeButtons.add(new JButton("-"));
+                        removeButtons.get(removeButtons.size() - 1).addActionListener(this);
+                        this.add(removeButtons.get(removeButtons.size() - 1), c);
+                        
                         c = new GridBagConstraints();
                         c.gridx = 0;
                         c.gridy = this.partners.size();
-                        this.add(this.addPartner, c);
-                        this.addPartner.addActionListener(this);
+                        c.anchor = GridBagConstraints.LINE_START;
+                        this.partnerLabels.add(new JLabel(this.partners.get(this.partners.size() - 1).getName()));
+                        this.add(this.partnerLabels.get(this.partnerLabels.size() - 1), c);
+                        
                         c = new GridBagConstraints();
                         c.gridx = 1;
-                        c.gridy = this.partners.size();
-                        this.add(this.partnerName, c);
+                        c.gridy = this.partners.size() + 1;
+                        this.add(this.addPartnerButton, c);
+                        this.addPartnerButton.addActionListener(this);
+                       
+                        partnerNameField = new JTextField("Partner name here");
+                        c = new GridBagConstraints();
+                        c.gridx = 0;
+                        c.gridy = partners.size() + 1;
+                        c.anchor = GridBagConstraints.LINE_START;
+                        this.add(partnerNameField, c);
                     }
                 } else {
-                    int index = this.removes.indexOf(source);
-                    this.remove(this.removes.get(index));
-                    this.remove(this.labels.get(index));
-                    this.removes.remove(index);
-                    this.labels.remove(index);
-                    this.partners.remove(index);
+                    //int index = this.remove.indexOf(source);
+                    //this.remove(this.removes.get(index));
+                    //this.remove(this.labels.get(index));
+                    //this.removes.remove(index);
+                	//this.remove(removeButton);
+                    //this.labels.remove(index);
+                    //this.partners.remove(index);
                 }
 
                 TicketingSystem.this.writeStudents();
