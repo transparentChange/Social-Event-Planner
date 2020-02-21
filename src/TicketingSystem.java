@@ -4,11 +4,15 @@ import javax.swing.border.EmptyBorder;
 
 //import TicketingSystem.TicketPanel.PartnerPanel.PreferenceRow;
 
+
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -422,21 +426,35 @@ public class TicketingSystem extends JPanel {
         
         
         private class PartnerPanel extends JPanel implements ActionListener {
-            private ArrayList<Student> partners;
+        	private ArrayList<Student> partners;
+        	
+        	private JPanel backgroundPanel;
+        	private PreferenceRow currentPreference;
+        	
+        	private JLabel title = new JLabel("Student Preferences for Seating");
+        	private JTextField nameField;
             private JButton addPartnerButton;
             private JLabel errorLabel;
-            private JLabel title = new JLabel("Student Preferences for Seating");
-            private JPanel backgroundPanel;
-            private PreferenceRow currentPreference;
-            private JTextField nameField;
-
+            
             PartnerPanel(ArrayList<Student> partners) {
                 this.setVisible(true);
-                this.partners = partners;
                 this.setLayout(new GridBagLayout());
+                
+                this.partners = partners;
                 
         		nameField = new JTextField("Partner Name here");
         		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+                nameField.addMouseListener(new MouseAdapter() {
+                	@Override
+                	public void mouseClicked(MouseEvent e) {
+                		nameField.setText("");
+                	}
+                });
+                
+                addPartnerButton = new JButton("Add Partner");
+                addPartnerButton.addActionListener(this);
+        		
+                errorLabel = new JLabel("");
                 
                 backgroundPanel = new JPanel();
                 backgroundPanel.setLayout(new BoxLayout(backgroundPanel, BoxLayout.PAGE_AXIS));
@@ -447,14 +465,9 @@ public class TicketingSystem extends JPanel {
                 }
                 
                 backgroundPanel.add(nameField);
-                
-                addPartnerButton = new JButton("Add Partner");
-                addPartnerButton.addActionListener(this);
                 backgroundPanel.add(addPartnerButton);
                 
                 this.add(backgroundPanel);
-                
-                this.errorLabel = new JLabel("sadfsasafd");
 
                 this.setBorder(new EmptyBorder(10, 10, 10, 10));
             }
@@ -480,12 +493,9 @@ public class TicketingSystem extends JPanel {
             public void actionPerformed(ActionEvent e) {
             	Object source = e.getSource();
             	if (source == addPartnerButton) {
-            		//Student foundStudent = TicketingSystem.this.findStudentByName(
-            			//	preferences.get(preferences.size() - 1).getName());
-            		System.out.println("clocked");
                     Student foundStudent = TicketingSystem.this.findStudentByName(nameField.getText());
-                    //System.out.println(currentPreference.getText() + " " + foundStudent.getName());
             		backgroundPanel.remove(errorLabel);
+            		
                     if (foundStudent == TicketPanel.this.selectedStudent) {
                         errorLabel = new JLabel("You can't add yourself");
                         backgroundPanel.add(errorLabel);
@@ -496,12 +506,11 @@ public class TicketingSystem extends JPanel {
                         errorLabel = new JLabel("Partner not Found. Ask them to register before you can add them");
                         backgroundPanel.add(errorLabel);
                     } else {
-                    	System.out.println("here");
-                    	
+                    	partners.add(foundStudent);
                         currentPreference = new PreferenceRow(nameField.getText());
                         backgroundPanel.add(currentPreference);
                         
-                        backgroundPanel.setComponentZOrder(currentPreference, partners.size());
+                        backgroundPanel.setComponentZOrder(currentPreference, partners.size() - 1);
                     }
             	}
             	
@@ -511,15 +520,13 @@ public class TicketingSystem extends JPanel {
             }
             
             private class PreferenceRow extends JComponent implements ActionListener {
-            	//private JButton addPartnerButton;
             	private JButton removeButton;
             	private JLabel nameLabel;
             	
             	PreferenceRow(String nameLabel) {
             		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
             		
-            		//addPartnerButton = new JButton("+"); // add action listener
-            		removeButton = new JButton("-"); // add action listener
+            		removeButton = new JButton("-");
             		removeButton.addActionListener(this);
             		
             		this.nameLabel = new JLabel(nameLabel);
