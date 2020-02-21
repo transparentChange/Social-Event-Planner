@@ -9,8 +9,8 @@ public class Prom extends JFrame {
     private ArrayList<Table> tables;
 
     // constants that hold game window size information
-    private final static int WINDOW_WIDTH = 1366;
-    private final static int WINDOW_HEIGHT = 768;
+    private final int WINDOW_WIDTH = (int) getToolkit().getScreenSize().getWidth();
+    private final int WINDOW_HEIGHT = (int) getToolkit().getScreenSize().getHeight();
 
     public final static int maxTables = 5;
     public final static int tableSize = 10;
@@ -19,9 +19,9 @@ public class Prom extends JFrame {
         super("Prom");
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         this.setSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-
+        this.setResizable(false);
+        
         this.students = new ArrayList<Student>();
         this.tables = new ArrayList<Table>();
         //tables.add(new Table());
