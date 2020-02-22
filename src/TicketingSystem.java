@@ -434,7 +434,6 @@ public class TicketingSystem extends JPanel {
         }
         
         class CenterPanel extends JPanel {
-        	private JPanel sectionPanel;
         	private JLabel title = new JLabel("Student Preferences for Seating");
         	private PartnerPanel partnerPanel;
         	
@@ -443,24 +442,19 @@ public class TicketingSystem extends JPanel {
                 this.setLayout(new GridBagLayout());
                 this.setBackground(new Color(235, 255, 246));
                 
-                partnerPanel = new PartnerPanel();
-        		
-                /*
-                sectionPanel = new JPanel(new GridBagLayout());
-                GridBagConstraints c = new GridBagConstraints();
-                c.anchor = GridBagConstraints.LINE_START;
-                sectionPanel.add(title, c);
+                title.setOpaque(true);
+                title.setBorder(new EmptyBorder(10, 10, 10, 10));
                 
-                c.gridy = 1;
-                c.insets = new Insets(0, 0, 0, 550);
-                sectionPanel.setBackground(Color.WHITE);
-                sectionPanel.add(partnerPanel, c);
-				*/
+                partnerPanel = new PartnerPanel();
 				
                 GridBagConstraints c = new GridBagConstraints();
                 c.anchor = GridBagConstraints.NORTHWEST;
+                c.weighty = 0.05;
+                c.ipadx = 400;
+                this.add(title, c);
+                
+                c.gridy = 1;
                 c.weighty = 1.0;
-                c.ipadx = 300;
                 this.add(partnerPanel, c);
                 
                 //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
@@ -488,7 +482,8 @@ public class TicketingSystem extends JPanel {
                 this.setVisible(true);
                 //this.setLayout(new GridBagLayout());
                 //this.setOpaque(false);
-                this.setBackground(Color.BLACK);
+                this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+                //this.setBackground(Color.WHITE);
                 
         		nameField = new JTextField("Partner Name here");
         		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
@@ -504,10 +499,9 @@ public class TicketingSystem extends JPanel {
         		
                 errorLabel = new JLabel("");
                 
-                this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-                
                 for (int i = 0; i < partners.size(); i++) {
                 	currentPreference = new PreferenceRow(partners.get(i).getName());
+                	currentPreference.setAlignmentX(Component.LEFT_ALIGNMENT);
                 	this.add(currentPreference);
                 }
                 
@@ -566,19 +560,23 @@ public class TicketingSystem extends JPanel {
             	this.repaint();
             }
             
-            private class PreferenceRow extends JComponent implements ActionListener {
+            private class PreferenceRow extends JPanel implements ActionListener {
             	private JButton removeButton;
             	private JLabel nameLabel;
             	
             	PreferenceRow(String nameLabel) {
             		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+            		this.setBackground(Color.WHITE);
+            		this.setMaximumSize(new Dimension(300, 100));
             		
             		removeButton = new JButton("-");
+            		removeButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
             		removeButton.addActionListener(this);
             		
             		this.nameLabel = new JLabel(nameLabel);
             		
             		this.add(this.nameLabel);
+            		this.add(Box.createHorizontalGlue());
             		this.add(removeButton);
             		
             	}
