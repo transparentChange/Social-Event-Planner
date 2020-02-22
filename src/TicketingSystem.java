@@ -370,8 +370,6 @@ public class TicketingSystem extends JPanel {
             }
         }
     }
-    
-
 
     private class TicketPanel extends JPanel{
         private Student selectedStudent;
@@ -408,9 +406,10 @@ public class TicketingSystem extends JPanel {
 
                 CenterPanel centerPanel = new CenterPanel();
                 mainPanel.add(centerPanel, c);
-              //JScrollPane pane = new JScrollPane(centerPanel);
+                //JScrollPane pane = new JScrollPane(centerPanel);
 
                 this.add(mainPanel);
+
                 /*
                 if ((selectedStudent.hasPaid()) && (selectedStudent.getPartners().size() == 0)) {
                     infoMessage.setText("Woo! You're coming to Prom!\nMake sure to set your preferences");
@@ -420,22 +419,17 @@ public class TicketingSystem extends JPanel {
                     infoMessage.setText("You're almost there!\nMake sure to purchase your ticket");
                 }
                 cardNumber.setText("This is the card number input");
-				*/
 
                 //do all layout
-                
-                // this.add(infoMessage, BorderLayout.CENTER);
+                this.add(infoMessage, BorderLayout.CENTER);
 
-                /*
                 this.add(cardLabel, BorderLayout.CENTER);
                 this.add(cardNumber, BorderLayout.CENTER);
                 this.add(buyButton, BorderLayout.CENTER);
                 this.add(refund, BorderLayout.CENTER);
-                */
 
-                //this.add(partnerPanel, BorderLayout.CENTER);
+                this.add(partnerPanel, BorderLayout.CENTER);
 
-                /*
                 if (selectedStudent.hasPaid()){
                     cardLabel.setVisible(false);
                     cardNumber.setVisible(false);
@@ -448,11 +442,11 @@ public class TicketingSystem extends JPanel {
                     buyButton.setVisible(true);
                     refund.setVisible(false);
                 }
-                */
 
                 //add listener
-                //buyButton.addActionListener(listener);
-                //refund.addActionListener(listener);
+                buyButton.addActionListener(listener);
+                refund.addActionListener(listener);
+                */
             }
         }
 
@@ -481,6 +475,12 @@ public class TicketingSystem extends JPanel {
                 this.add(partnerPanel, c);
 
                 //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
+
+                //added by daksh to test profile picture, you can change it
+                c = new GridBagConstraints();
+                c.gridy = 2;
+                this.add(new ProfilePanel(selectedStudent.getPicture()), c);
+
         	}
         }
 
