@@ -1,6 +1,7 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,7 +10,12 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -32,8 +38,10 @@ public class TicketingSystem extends JPanel {
 
         this.maxTables = Prom.maxTables;
         this.tableSize = Prom.tableSize;
-        
-        loginCredentials = new File("loginCredentials.txt");
+
+        Path programFilePath = Path.of(URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString() + "loginCredentials.txt"));
+        loginCredentials = new File(programFilePath.toString());
+
         try {
             initializeStudents();
         } catch (Exception e) {
@@ -116,10 +124,18 @@ public class TicketingSystem extends JPanel {
                     String password = keys.get("password");
                     String grade = keys.get("grade");
 
+                    String image = keys.get("image");
+
                     Student s = new Student(name, id, grade, password);
                     s.setPaid(hasPaid);
                     addStudent(s);
                     partners.add(partnerString);
+
+                    if (!image.equals("null")){
+                        Path programFilePath = Path.of(URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString() + "/studentImages/" + id + ".png"));
+                        BufferedImage studentImage = ImageIO.read(new File(programFilePath.toString()));
+                        s.setPicture(studentImage);
+                    }
                 }
             }
 
@@ -149,6 +165,14 @@ public class TicketingSystem extends JPanel {
                 output.print("paid:" + curStudent.hasPaid() + ",");
                 output.print("grade:" + curStudent.getGrade() + ",");
                 output.print("password:" + curStudent.getPassword() + ",");
+                if (curStudent.getPicture() != null) {
+                    Path programFilePath = Path.of(URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString()+ "/studentImages/" + curStudent.getId() + ".png"));
+                    System.out.println(programFilePath.toString());
+                    ImageIO.write(curStudent.getPicture(), "png", new File(programFilePath.toString()));
+                    output.print("image:" + curStudent.getId() + ".png,");
+                } else {
+                    output.print("image:null,");
+                }
                 String partnerString = "";
                 ArrayList<Student> partnerArray = curStudent.getPartners();
                 for (int i = 0; i < partnerArray.size(); i++) {
@@ -215,9 +239,7 @@ public class TicketingSystem extends JPanel {
         }
 
         private int getStudentIndex(String id, String password) {
-            System.out.println("hi");
             for (int i = 0; i < students.size(); i++) {
-                System.out.println(students.get(i).getId() + students.get(i).getPassword());
                 if ((students.get(i).getId().equals(id)) && (students.get(i).getPassword().equals(password))) {
                     return i;
                 }
@@ -396,6 +418,8 @@ public class TicketingSystem extends JPanel {
 
                 this.add(partnerPanel, BorderLayout.WEST);
 
+                this.add(new ProfilePanel(selectedStudent.getPicture()), BorderLayout.EAST);
+
                 /*
                 if (selectedStudent.hasPaid()){
                     cardLabel.setVisible(false);
@@ -469,6 +493,7 @@ public class TicketingSystem extends JPanel {
 
                 this.add(this.addPartnerButton, c);
                 this.addPartnerButton.addActionListener(this);
+
             }
 
             public void actionPerformed(ActionEvent e) {
@@ -611,6 +636,95 @@ public class TicketingSystem extends JPanel {
                 }
             }
         }
+
+        private class ProfilePanel extends JPanel implements ActionListener{
+            private BufferedImage studentImage;
+            private JLabel imageComponent;
+            private JFileChooser fileChooser;
+            private JButton selectImage;
+            private Path filePath;
+
+            private static final int imageSize = 200;
+
+            ProfilePanel(BufferedImage image){
+                this.setLayout(new GridBagLayout());
+
+                studentImage = image;
+
+                if (studentImage != null) {
+                    imageComponent = new JLabel(new ImageIcon(studentImage));
+                } else {
+                    imageComponent = new JLabel("No image");
+                }
+                selectImage = new JButton("Select Image");
+                fileChooser = new JFileChooser();
+                fileChooser.setFileFilter(new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes()));
+
+                GridBagConstraints c = new GridBagConstraints();
+                c.gridy = 0;
+                this.add(selectImage,c);
+                selectImage.addActionListener(this);
+
+                c = new GridBagConstraints();
+                c.gridy = 1;
+                this.add(imageComponent,c);
+
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Object source = e.getSource();
+                if (source == selectImage){
+                    int returnValue = fileChooser.showOpenDialog(null);
+
+                    if (returnValue == JFileChooser.APPROVE_OPTION) {
+                        try {
+                            File selectedFile = fileChooser.getSelectedFile();
+                            filePath = selectedFile.toPath();
+
+                            BufferedImage tempBufferedImage = ImageIO.read(new File(filePath.toString()));
+
+                            int w = tempBufferedImage.getWidth();
+                            int h = tempBufferedImage.getHeight();
+                            int s;
+                            if (w > h){
+                                s = h;
+                            } else {
+                                s = w;
+                            }
+
+                            tempBufferedImage = tempBufferedImage.getSubimage((w-s)/2,(h-s)/2, s, s);
+                            Image tempImage = tempBufferedImage.getScaledInstance(imageSize,imageSize, Image.SCALE_SMOOTH);
+
+                            studentImage = new BufferedImage(imageSize,imageSize,BufferedImage.TYPE_INT_ARGB);
+                            Graphics2D resize = (Graphics2D) studentImage.getGraphics();
+                            resize.drawImage(tempImage, 0, 0, null);
+                            resize.dispose();
+
+                            //remove old image
+                            this.remove(imageComponent);
+                            //add new image
+                            imageComponent = new JLabel(new ImageIcon(studentImage));
+
+                            GridBagConstraints c = new GridBagConstraints();
+                            c.gridy = 1;
+
+                            this.add(imageComponent,c);
+
+                            selectedStudent.setPicture(studentImage);
+
+                            writeStudents();
+                        } catch (Exception ex){
+                            ex.printStackTrace();
+                        }
+
+                        revalidate();
+                        repaint();
+                    }
+                }
+            }
+        }
+
     }
 
     private class FloorPlanPanel extends JPanel implements ActionListener{
