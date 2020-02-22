@@ -616,6 +616,7 @@ public class TicketingSystem extends JPanel {
 
         private class ButtonPanel extends JPanel implements ActionListener {
             private JButton logout;
+            private JButton showFloor;
 
             ButtonPanel() {
                 setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -627,7 +628,11 @@ public class TicketingSystem extends JPanel {
                 logout = new JButton("Logout "); // add name, call showLogin()
                 logout.addActionListener(this);
 
+                showFloor = new JButton("Floor Plan");
+                showFloor.addActionListener(this);
+
                 this.add(logout);
+                this.add(showFloor);
 
                 revalidate();
                 repaint();
@@ -645,7 +650,12 @@ public class TicketingSystem extends JPanel {
             }
 
             public void actionPerformed(ActionEvent evt) {
-                showLogin();
+                Object source = evt.getSource();
+                if (source == logout) {
+                    showLogin();
+                } else if (source == showFloor){
+                    showFloor(ticketPanel);
+                }
             }
         }
 
