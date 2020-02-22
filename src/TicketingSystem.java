@@ -352,13 +352,14 @@ public class TicketingSystem extends JPanel {
     
     private class TicketPanel extends JPanel{
         private Student selectedStudent;
+        private ArrayList<Student> partners;
+        
         private TicketListener listener;
         private JLabel infoMessage = new JLabel();
         private JTextField cardNumber = new JTextField();
         private JLabel cardLabel = new JLabel("Enter Card Number:");
         private JButton buyButton = new JButton("Buy now!");
         private JButton refund = new JButton("Click here for a refund");
-        private PartnerPanel partnerPanel;
         private ButtonPanel upperPanel;
         
         TicketPanel(Student student) {
@@ -368,8 +369,8 @@ public class TicketingSystem extends JPanel {
                 this.setVisible(true);
 
                 this.selectedStudent = student;
-                this.partnerPanel = new PartnerPanel(this.selectedStudent.getPartners());
-
+                partners = student.getPartners();
+                
                 //add all components
                 upperPanel = new ButtonPanel();
                 this.add(upperPanel, BorderLayout.NORTH);
@@ -435,12 +436,16 @@ public class TicketingSystem extends JPanel {
         class CenterPanel extends JPanel {
         	private JPanel sectionPanel;
         	private JLabel title = new JLabel("Student Preferences for Seating");
+        	private PartnerPanel partnerPanel;
         	
         	CenterPanel() {
         		this.setVisible(true);
                 this.setLayout(new GridBagLayout());
                 this.setBackground(new Color(235, 255, 246));
+                
+                partnerPanel = new PartnerPanel();
         		
+                /*
                 sectionPanel = new JPanel(new GridBagLayout());
                 GridBagConstraints c = new GridBagConstraints();
                 c.anchor = GridBagConstraints.LINE_START;
@@ -448,13 +453,15 @@ public class TicketingSystem extends JPanel {
                 
                 c.gridy = 1;
                 c.insets = new Insets(0, 0, 0, 550);
-                sectionPanel.setBackground(Color.GRAY);
+                sectionPanel.setBackground(Color.WHITE);
                 sectionPanel.add(partnerPanel, c);
-
-                c = new GridBagConstraints();
+				*/
+				
+                GridBagConstraints c = new GridBagConstraints();
                 c.anchor = GridBagConstraints.NORTHWEST;
                 c.weighty = 1.0;
-                this.add(sectionPanel, c);
+                c.ipadx = 300;
+                this.add(partnerPanel, c);
                 
                 //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
         	}
@@ -471,21 +478,17 @@ public class TicketingSystem extends JPanel {
         }
         
         private class PartnerPanel extends JPanel implements ActionListener {
-        	private ArrayList<Student> partners;
-        	
         	private PreferenceRow currentPreference;
         	
         	private JTextField nameField;
             private JButton addPartnerButton;
             private JLabel errorLabel;
             
-            PartnerPanel(ArrayList<Student> partners) {
+            PartnerPanel() {
                 this.setVisible(true);
                 //this.setLayout(new GridBagLayout());
                 //this.setOpaque(false);
                 this.setBackground(Color.BLACK);
-                
-                this.partners = partners;
                 
         		nameField = new JTextField("Partner Name here");
         		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
@@ -503,7 +506,7 @@ public class TicketingSystem extends JPanel {
                 
                 this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
                 
-                for (int i = 0; i < this.partners.size(); i++) {
+                for (int i = 0; i < partners.size(); i++) {
                 	currentPreference = new PreferenceRow(partners.get(i).getName());
                 	this.add(currentPreference);
                 }
