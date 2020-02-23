@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"<Unnamed>","c":"SeatingAssignmentSystem","l":"assignTables(ArrayList<Student>, int, int)","url":"assignTables(java.util.ArrayList,int,int)"},{"p":"<Unnamed>","c":"SeatingAssignmentSystem","l":"SeatingAssignmentSystem()","url":"%3Cinit%3E()"}]
