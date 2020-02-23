@@ -5,25 +5,16 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Scanner;
 
 public class TicketingSystem extends JPanel {
@@ -482,7 +473,10 @@ public class TicketingSystem extends JPanel {
                 c.weighty = 1.0;
                 c.weightx = 1.0; 
                 this.add(partnerPanel, c);
-                
+
+                c = new GridBagConstraints();
+                c.gridy = 2;
+                this.add(new ProfilePanel(selectedStudent.getPicture()),c);
                 //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
         	}
         }
@@ -596,7 +590,7 @@ public class TicketingSystem extends JPanel {
     					partners.remove(j);
     				}
     			}
-            	TicketingSystem.this.writeStudents();
+            	writeStudents();
             	
             	if (removePartner) {
             		Component[] componentList = this.getComponents();
@@ -624,7 +618,7 @@ public class TicketingSystem extends JPanel {
             		
             	}
             	
-            	TicketingSystem.this.writeStudents();
+            	writeStudents();
             	
             	this.revalidate();
             	this.repaint();
@@ -712,7 +706,7 @@ public class TicketingSystem extends JPanel {
             		
             		Object source = e.getSource();
             		if (source == okButton) {
-            			Student foundStudent = TicketingSystem.this.findStudentByName(nameField.getText());
+            			Student foundStudent = findStudentByName(nameField.getText());
                 		this.remove(errorLabel);
                         if (foundStudent == TicketPanel.this.selectedStudent) {
                             errorLabel = new JLabel("You can't add yourself");
@@ -730,7 +724,7 @@ public class TicketingSystem extends JPanel {
                         }
             		}
             		
-                	TicketingSystem.this.writeStudents();
+                	writeStudents();
                 	
                 	this.revalidate();
                 	this.repaint();
