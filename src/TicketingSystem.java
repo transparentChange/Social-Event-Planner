@@ -784,7 +784,7 @@ public class TicketingSystem extends JPanel {
         FloorPlanPanel(JPanel fromPanel) {
             ArrayList<Student> paidStudents = new ArrayList<Student>();
             for (Student s : students){
-                if (s.hasPaid()){
+                if (s.hasPaid() && paidStudents.size() < Prom.maxTables*Prom.tableSize){
                     paidStudents.add(s);
                 }
             }

@@ -12,7 +12,7 @@ public class Prom extends JFrame {
     private final int WINDOW_WIDTH = (int) getToolkit().getScreenSize().getWidth();
     private final int WINDOW_HEIGHT = (int) getToolkit().getScreenSize().getHeight();
 
-    public final static int maxTables = 5;
+    public final static int maxTables = 10;
     public final static int tableSize = 10;
 
     public Prom() {

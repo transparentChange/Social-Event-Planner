@@ -1,38 +1,57 @@
+import java.util.ArrayList;
+
 public class Table {
     private int size;
-    private Student[] students;
-    private int xPos;
-    private int yPos;
+    private ArrayList<Student> students;
+    private int x;
+    private int y;
+
+    Table(int size){
+        this.size = size;
+        this.students = new ArrayList<Student>();
+    }
 
     public int getSize() {
         return size;
     }
 
-    public void setSize(int size) {
-        this.size = size;
-    }
-
-    public Student[] getStudents() {
+    public ArrayList<Student> getStudents() {
         return students;
     }
 
-    public void setStudents(Student[] students) {
+    public void setStudents(ArrayList<Student> students) {
         this.students = students;
     }
 
-    public int getxPos() {
-        return xPos;
+    public int getX() {
+        return x;
     }
 
-    public void setxPos(int xPos) {
-        this.xPos = xPos;
+    public void setX(int x) {
+        this.x = x;
     }
 
-    public int getyPos() {
-        return yPos;
+    public int getY() {
+        return y;
     }
 
-    public void setyPos(int yPos) {
-        this.yPos = yPos;
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public void addStudent(Student student){
+        students.add(student);
+    }
+
+    public void removeStudent(Student s){
+        students.remove(s);
+    }
+
+    public boolean isFull(){
+        if (this.students.size() >= this.size){
+            return true;
+        } else {
+            return false;
+        }
     }
 }
