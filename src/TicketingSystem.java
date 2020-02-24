@@ -35,8 +35,8 @@ public class TicketingSystem extends JPanel {
         this.students = students;
         this.tables = tables;
 
-        Path programFilePath = Path.of(URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString() + "loginCredentials.txt"));
-        loginCredentials = new File(programFilePath.toString());
+        URI programFilePath = URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString() + "loginCredentials.txt");
+        loginCredentials = new File(programFilePath);
 
         try {
             initializeStudents();
@@ -128,8 +128,8 @@ public class TicketingSystem extends JPanel {
                     partners.add(partnerString);
 
                     if (!image.equals("null")){
-                        Path programFilePath = Path.of(URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString() + "/studentImages/" + id + ".png"));
-                        BufferedImage studentImage = ImageIO.read(new File(programFilePath.toString()));
+                        URI programFilePath = URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString() + "studentImages/" + id + ".png");
+                        BufferedImage studentImage = ImageIO.read(new File(programFilePath));
                         s.setPicture(studentImage);
                     }
                 }
@@ -162,9 +162,9 @@ public class TicketingSystem extends JPanel {
                 output.print("grade:" + curStudent.getGrade() + ",");
                 output.print("password:" + curStudent.getPassword() + ",");
                 if (curStudent.getPicture() != null) {
-                    Path programFilePath = Path.of(URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString()+ "/studentImages/" + curStudent.getId() + ".png"));
-                    System.out.println(programFilePath.toString());
-                    ImageIO.write(curStudent.getPicture(), "png", new File(programFilePath.toString()));
+                    URI programFilePath = URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString()+ "studentImages/" + curStudent.getId() + ".png");
+                    System.out.println(programFilePath);
+                    ImageIO.write(curStudent.getPicture(), "png", new File(programFilePath));
                     output.print("image:" + curStudent.getId() + ".png,");
                 } else {
                     output.print("image:null,");
@@ -208,7 +208,9 @@ public class TicketingSystem extends JPanel {
             this.setLayout(new GridBagLayout());
 
             try {
-                image = ImageIO.read(new File("src/loginBackground.jpg"));
+                URI loginBackgroundPath = URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString()+ "loginBackground.jpg");
+                System.out.println(loginBackgroundPath.toString());
+                image = ImageIO.read(new File(loginBackgroundPath));
             } catch (Exception e) {
                 e.printStackTrace();
             }
