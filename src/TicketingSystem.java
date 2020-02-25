@@ -201,6 +201,7 @@ public class TicketingSystem extends JPanel {
         private Font fieldFont;
         private JLabel nameText;
         private JLabel gradeText;
+        private JLabel errorLabel;
 
         LoginPanel() {
             this.setFocusable(false);
@@ -229,13 +230,13 @@ public class TicketingSystem extends JPanel {
             }
         }
 
-        private int getStudentIndex(String id, String password) {
-            for (int i = 0; i < students.size(); i++) {
-                if ((students.get(i).getId().equals(id)) && (students.get(i).getPassword().equals(password))) {
-                    return i;
+        private Student findStudentByID(String id) {
+            for (Student student : students){
+                if (student.getId().equals(id)){
+                    return student;
                 }
             }
-            return -1;
+            return null;
         }
 
         private class InnerFrame extends JPanel implements ActionListener {
@@ -247,7 +248,9 @@ public class TicketingSystem extends JPanel {
         		 this.setBackground(new Color(75, 112, 68));
 
         		fieldFont = new Font("Open Sans", Font.PLAIN, 20);
-                
+
+        		errorLabel = new JLabel("");
+
         		createAccountButton = new JButton("Don't have an account? Click here to sign up.");
         		createAccountButton.addActionListener(this);
         		
@@ -299,28 +302,56 @@ public class TicketingSystem extends JPanel {
                 this.add(component, c);
             }
 
+            public void showError(String error){
+                errorLabel = new JLabel(error);
+                GridBagConstraints c = new GridBagConstraints();
+                c.gridy = -1;
+                c.gridx = 0;
+                c.insets = new Insets(20, 0, 0, 0);
+                c.anchor = GridBagConstraints.CENTER;
+                this.add(errorLabel, c);
+                errorLabel.setVisible(true);
+            }
+
+            public void hideError(){
+                this.remove(errorLabel);
+            }
+
             public void actionPerformed(ActionEvent evt) {
                 Object source = evt.getSource();
                 String inputId = idField.getText();
                 String inputPassword = passwordField.getText();
-                int studentIndex = getStudentIndex(inputId, inputPassword);
-                if ((source == loginButton) && (studentIndex != -1) && (loginButton.isLoginButton())) { //if login button is clicked and is a login button and student is valid
-                    ticketPanel = new TicketPanel(students.get(studentIndex)); //show selected student
-                    showTicket(); //switch to ticket panel
+                Student enteredStudent = findStudentByID(inputId);
+
+                hideError();
+
+                if ((source == loginButton) && (enteredStudent == null)) {
+                    showError("Student doesn't exist");
+                } else if ((source == loginButton) && (loginButton.isLoginButton())) { //if login button is clicked and is a login button and student is valid
+                    if (enteredStudent.getPassword().equals(inputPassword)) {
+                        ticketPanel = new TicketPanel(enteredStudent); //show selected student
+                        showTicket(); //switch to ticket panel
+                    } else {
+                        showError("Password Incorrect");
+                    }
                 } else if ((source == loginButton) && (!loginButton.isLoginButton())) { //if login button is a create account
-                    students.add(new Student(nameField.getText(), inputId,
-                    		gradeOptions.getSelectedItem().toString(), inputPassword)); //create new student
+                    students.add(new Student(nameField.getText(), inputId, gradeOptions.getSelectedItem().toString(), inputPassword)); //create new student
                     writeStudents(); //write to file
                     ticketPanel = new TicketPanel(students.get(students.size() - 1)); //show the new student
                     showTicket();  //switch to ticket panel
                 } else if (source == createAccountButton) {
                     loginButton.switchButtonState();
                     if (loginButton.isLoginButton()) {
+                        createAccountButton.setText("Don't have an account? Click here to sign up.");
+
                         this.remove(nameText);
                         this.remove(nameField);
                         this.remove(gradeText);
                         this.remove(gradeOptions);
                     } else {
+
+                        createAccountButton.setText("Back to login");
+
                         nameText = new JLabel("Name");
                     	addComponent(4, nameText);
             			addComponent(5, nameField);
@@ -933,7 +964,7 @@ public class TicketingSystem extends JPanel {
 
     }
 
-    private class FloorPlanPanel extends JPanel implements ActionListener{
+   private class FloorPlanPanel extends JPanel implements ActionListener{
         private JPanel fromPanel;
         private JButton exitButton;
 
