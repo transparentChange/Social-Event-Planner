@@ -15,17 +15,23 @@ public class Student {
     public Student(String name, String studentNumber) {
         this.name = name;
         this.id = studentNumber;
+        this.grade = "";
+        this.password = "";
         this.partners = new ArrayList<Student>();
         this.hasPaid = false;
         this.accommodations = new ArrayList<String>();
+        this.blacklist = new ArrayList<Student>();
     }
     
     public Student(String name, String studentNumber, ArrayList<Student> partners) {
         this.name = name;
         this.id = studentNumber;
+        this.grade = "";
+        this.password = "";
         this.partners = partners;
         this.hasPaid = false;
         this.accommodations = new ArrayList<String>();
+        this.blacklist = new ArrayList<Student>();
     }
 
     public Student(String name, String id, String grade, String password) {
@@ -36,7 +42,7 @@ public class Student {
         this.partners = new ArrayList<Student>();
         this.hasPaid = false;
         this.accommodations = new ArrayList<String>();
-
+        this.blacklist = new ArrayList<Student>();
     }
 
     public String getName() {

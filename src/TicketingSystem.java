@@ -1,4 +1,3 @@
-
 import javax.imageio.ImageIO;
 
 import javax.swing.*;
@@ -9,10 +8,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.net.URI;
+
 import java.nio.file.Path;
 import java.util.*;
 
@@ -187,7 +187,6 @@ public class TicketingSystem extends JPanel {
                 output.print("grade:" + curStudent.getGrade() + ",");
                 output.print("password:" + curStudent.getPassword() + ",");
                 if (curStudent.getPicture() != null) {
-                    URI programFilePath = URI.create("studentImages/" + curStudent.getId() + ".png");
                     ImageIO.write(curStudent.getPicture(), "png", new File("studentImages/" + curStudent.getId() + ".png"));
                     output.print("image:" + curStudent.getId() + ".png,");
                 } else {
@@ -444,7 +443,7 @@ public class TicketingSystem extends JPanel {
         }
     }
 
-   private class TicketPanel extends JPanel{
+    private class TicketPanel extends JPanel{
         private Student selectedStudent;
         private ArrayList<Student> partners;
         
@@ -1007,6 +1006,7 @@ public class TicketingSystem extends JPanel {
                c.gridx = 0;
                c.gridy = this.accommodations.size();
                this.add(addAccommodation, c);
+               addAccommodation.addActionListener(this);
 
                c = new GridBagConstraints();
                c.gridx = 1;
@@ -1054,6 +1054,7 @@ public class TicketingSystem extends JPanel {
                c.gridx = 0;
                c.gridy = this.accommodations.size();
                this.add(addAccommodation, c);
+               addAccommodation.addActionListener(this);
 
                c = new GridBagConstraints();
                c.gridx = 1;
@@ -1066,7 +1067,7 @@ public class TicketingSystem extends JPanel {
        }
     }
 
-   private class FloorPlanPanel extends JPanel implements ActionListener{
+    private class FloorPlanPanel extends JPanel implements ActionListener{
         private JPanel fromPanel;
         private JButton exitButton;
 
