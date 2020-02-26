@@ -86,6 +86,14 @@ public class Student {
     public void setAccommodations(ArrayList<String> accommodations) {
         this.accommodations = accommodations;
     }
+
+    public ArrayList<Student> getBlacklist() {
+        return blacklist;
+    }
+
+    public void setBlacklist(ArrayList<Student> blacklist) {
+        this.blacklist = blacklist;
+    }
     
     @Override
     public boolean equals(Object obj) {

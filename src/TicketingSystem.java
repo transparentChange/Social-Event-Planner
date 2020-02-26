@@ -34,8 +34,7 @@ public class TicketingSystem extends JPanel {
         this.students = students;
         this.tables = tables;
 
-        URI programFilePath = URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString() + "loginCredentials.txt");
-        loginCredentials = new File(programFilePath);
+        loginCredentials = new File("loginCredentials.txt");
 
         try {
             initializeStudents();
@@ -92,10 +91,20 @@ public class TicketingSystem extends JPanel {
         return null;
     }
 
+    private Student findStudentByID(String id) {
+        for (Student student : students){
+            if (student.getId().equals(id)){
+                return student;
+            }
+        }
+        return null;
+    }
+
     private void initializeStudents() {
         try {
             Scanner input = new Scanner(loginCredentials);
             ArrayList<String[]> partners = new ArrayList<String[]>();
+            ArrayList<String[]> blackList = new ArrayList<String[]>();
 
             while (input.hasNext()) {
                 String student = input.nextLine();
@@ -133,13 +142,12 @@ public class TicketingSystem extends JPanel {
                     s.setAccommodations(accommodations);
 
                     addStudent(s);
+
                     partners.add(partnerString);
-
-
+                    blackList.add(blackListString);
 
                     if (!image.equals("null")){
-                        URI programFilePath = URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString() + "studentImages/" + id + ".png");
-                        BufferedImage studentImage = ImageIO.read(new File(programFilePath));
+                        BufferedImage studentImage = ImageIO.read(new File("studentImages/" + id + ".png"));
                         s.setPicture(studentImage);
                     }
                 }
@@ -147,10 +155,17 @@ public class TicketingSystem extends JPanel {
 
             for (int i = 0; i < students.size(); i++) {
                 ArrayList<Student> studentPartners = students.get(i).getPartners();
+                ArrayList<Student> blackListed = students.get(i).getBlacklist();
                 for (int j = 0; j < partners.get(i).length; j++) {
-                    Student s = findStudentByName(partners.get(i)[j]);
-                    if (s != null){
+                    Student s = findStudentByID(partners.get(i)[j]);
+                    if (s != null) {
                         studentPartners.add(s);
+                    }
+                }
+                for (int j = 0; j < blackList.get(i).length; j++) {
+                    Student s = findStudentByID(blackList.get(i)[j]);
+                    if (s != null) {
+                        blackListed.add(s);
                     }
                 }
             }
@@ -172,9 +187,8 @@ public class TicketingSystem extends JPanel {
                 output.print("grade:" + curStudent.getGrade() + ",");
                 output.print("password:" + curStudent.getPassword() + ",");
                 if (curStudent.getPicture() != null) {
-                    URI programFilePath = URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString()+ "studentImages/" + curStudent.getId() + ".png");
-                    System.out.println(programFilePath);
-                    ImageIO.write(curStudent.getPicture(), "png", new File(programFilePath));
+                    URI programFilePath = URI.create("studentImages/" + curStudent.getId() + ".png");
+                    ImageIO.write(curStudent.getPicture(), "png", new File("studentImages/" + curStudent.getId() + ".png"));
                     output.print("image:" + curStudent.getId() + ".png,");
                 } else {
                     output.print("image:null,");
@@ -182,17 +196,33 @@ public class TicketingSystem extends JPanel {
                 String partnerString = "";
                 ArrayList<Student> partnerArray = curStudent.getPartners();
                 for (int i = 0; i < partnerArray.size(); i++) {
-                    partnerString += curStudent.getPartners().get(i).getName() + "#";
+                    partnerString += partnerArray.get(i).getId() + "#";
                 }
-
-                if (partnerArray.size() != 0) {
+                if (partnerString.length() != 0) {
                     partnerString = partnerString.substring(0, partnerString.length() - 1);
                 }
 
-                output.print("partners:" + partnerString + ",");
-                output.print("accommodation:,");
-                output.print("blacklist:,");
+                String accommodationString = "";
+                ArrayList<String> accommodationArray = curStudent.getAccommodations();
+                for (int i = 0; i < accommodationArray.size(); i++){
+                    accommodationString += accommodationArray.get(i) + "#";
+                }
+                if (accommodationString.length() != 0){
+                    accommodationString = accommodationString.substring(0, accommodationString.length() - 1);
+                }
 
+                String blackListString = "";
+                ArrayList<Student> blackListArray = curStudent.getBlacklist();
+                for (int i = 0; i < blackListArray.size(); i++) {
+                    blackListString += blackListArray.get(i).getId() + "#";
+                }
+                if (blackListString.length() != 0){
+                    blackListString = blackListString.substring(0,blackListString.length() - 1);
+                }
+
+                output.print("partners:" + partnerString + ",");
+                output.print("accommodation:"+accommodationString+",");
+                output.print("blacklist:"+blackListString+",");
 
                 output.println();
             }
@@ -209,8 +239,10 @@ public class TicketingSystem extends JPanel {
         private JTextField idField;
         private JTextField nameField;
         private JTextField passwordField;
-        private LoginButton loginButton;
-        private JButton createAccountButton;
+        private JButton loginButton;
+        private JButton createAccount;
+        private JButton createToggle;
+        private boolean createIsToggled;
         private JComboBox gradeOptions;
         private Font fieldFont;
         private JLabel nameText;
@@ -223,9 +255,7 @@ public class TicketingSystem extends JPanel {
             this.setLayout(new GridBagLayout());
 
             try {
-                URI loginBackgroundPath = URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString()+ "loginBackground.jpg");
-                System.out.println(loginBackgroundPath.toString());
-                image = ImageIO.read(new File(loginBackgroundPath));
+                image = ImageIO.read(new File("loginBackground.jpg"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -233,6 +263,8 @@ public class TicketingSystem extends JPanel {
             this.add(new InnerFrame());
 
             this.setVisible(true);
+
+            createIsToggled = false;
         }
 
         public void paintComponent(Graphics g) {
@@ -242,15 +274,6 @@ public class TicketingSystem extends JPanel {
                 g.setColor(new Color(0, 0, 0));
                 g.fillRect(0, 0, this.getWidth(), this.getHeight());
             }
-        }
-
-        private Student findStudentByID(String id) {
-            for (Student student : students){
-                if (student.getId().equals(id)){
-                    return student;
-                }
-            }
-            return null;
         }
 
         private class InnerFrame extends JPanel implements ActionListener {
@@ -265,10 +288,10 @@ public class TicketingSystem extends JPanel {
 
         		errorLabel = new JLabel("");
 
-        		createAccountButton = new JButton("Don't have an account? Click here to sign up.");
-        		createAccountButton.addActionListener(this);
+        		createToggle = new JButton("Don't have an account? Click here to sign up.");
+        		createToggle.addActionListener(this);
         		
-                GridBagConstraints c = new GridBagConstraints();
+                GridBagConstraints c;
 
                 addComponent(0, new JLabel("Student ID"));
                
@@ -280,7 +303,7 @@ public class TicketingSystem extends JPanel {
         		passwordField = new JTextField();
         		addComponent(3, passwordField);
         		
-        		loginButton = new LoginButton(0, 0);
+        		loginButton = new JButton("Login");
         		loginButton.addActionListener(this);
         		c = new GridBagConstraints();
         		c.gridy = 8;
@@ -290,11 +313,14 @@ public class TicketingSystem extends JPanel {
         		
         		c.insets = new Insets(100, 0, 0, 0); // change
         		c.gridy = 9;
-        		this.add(createAccountButton, c);
+        		this.add(createToggle, c);
         		
         		String[] grades = {"9", "10", "11", "12"};
         		nameField = new JTextField(20);
         		gradeOptions = new JComboBox(grades);
+
+        		createAccount = new JButton("Create Account");
+        		createAccount.addActionListener(this);
             }
             
             public void addComponent(int gridy, JComponent component) {
@@ -339,72 +365,81 @@ public class TicketingSystem extends JPanel {
 
                 hideError();
 
-                if ((source == loginButton) && (enteredStudent == null)) {
-                    showError("Student doesn't exist");
-                } else if ((source == loginButton) && (loginButton.isLoginButton())) { //if login button is clicked and is a login button and student is valid
-                    if (enteredStudent.getPassword().equals(inputPassword)) {
-                        ticketPanel = new TicketPanel(enteredStudent); //show selected student
-                        showTicket(); //switch to ticket panel
+                if (source == loginButton) {
+                    if (enteredStudent != null){
+                        if (enteredStudent.getPassword().equals(inputPassword)) {
+                            ticketPanel = new TicketPanel(enteredStudent); //show selected student
+                            showTicket(); //switch to ticket panel
+                        }
                     } else {
-                        showError("Password Incorrect");
+                        showError("Student doesn't exist");
                     }
-                } else if ((source == loginButton) && (!loginButton.isLoginButton())) { //if login button is a create account
-                    students.add(new Student(nameField.getText(), inputId, gradeOptions.getSelectedItem().toString(), inputPassword)); //create new student
-                    writeStudents(); //write to file
-                    ticketPanel = new TicketPanel(students.get(students.size() - 1)); //show the new student
-                    showTicket();  //switch to ticket panel
-                } else if (source == createAccountButton) {
-                    loginButton.switchButtonState();
-                    if (loginButton.isLoginButton()) {
-                        createAccountButton.setText("Don't have an account? Click here to sign up.");
+                } else if (source == createAccount) {
+                    String name = nameField.getText();
+                    String grade = String.valueOf(gradeOptions.getSelectedIndex());
+                    if (inputId.equals("")) {
+                        showError("Id cannot be blank");
+                    } else if (idExists(inputId)) {
+                        showError("Id already taken");
+                    } else if (inputPassword.equals("")) {
+                        showError("Pasword cannot be blank");
+                    } else if (name.equals("")){
+                        showError("Name cannot be blank");
+                    } else {
+                        Student s = new Student(name, inputId, grade, inputPassword);
+                        students.add(s);
+                        writeStudents();
+                        ticketPanel = new TicketPanel(s);
+                        showTicket();
+                    }
+                } else if (source == createToggle) {
+                    if (createIsToggled){
+                        createToggle.setText("Don't have an account? Click here to sign up.");
 
                         this.remove(nameText);
                         this.remove(nameField);
                         this.remove(gradeText);
                         this.remove(gradeOptions);
+                        this.remove(createAccount);
                     } else {
+                        createToggle.setText("Back to login");
 
-                        createAccountButton.setText("Back to login");
+                        this.remove(loginButton);
 
                         nameText = new JLabel("Name");
-                    	addComponent(4, nameText);
-            			addComponent(5, nameField);
+                        addComponent(4, nameText);
+                        addComponent(5, nameField);
 
-            			gradeText = new JLabel("Grade");
-            			addComponent(6, gradeText);
-            			
-            			GridBagConstraints c = new GridBagConstraints();
-            			c.gridy = 7;
-            			c.anchor = GridBagConstraints.LINE_START;
-            			c.insets = new Insets(5, 0, 0, 0);
-            			this.add(gradeOptions, c);
+                        gradeText = new JLabel("Grade");
+                        addComponent(6, gradeText);
+
+                        GridBagConstraints c = new GridBagConstraints();
+                        c.gridy = 7;
+                        c.anchor = GridBagConstraints.LINE_START;
+                        c.insets = new Insets(5, 0, 0, 0);
+                        this.add(gradeOptions, c);
+
+                        c = new GridBagConstraints();
+                        c.gridy = 8;
+                        c.anchor = GridBagConstraints.LINE_START;
+                        c.insets = new Insets(0, 20, 0, 0); // change
+                        this.add(createAccount, c);
+
                     }
+                    createIsToggled = !createIsToggled;
                 }
 
                 revalidate();
                 repaint();
             }
-        }
 
-        private class LoginButton extends JButton {
-            private boolean login;
-
-            LoginButton(int gridX, int gridY) {
-                this.login = true;
-                setText("Login");
-            }
-
-            public boolean isLoginButton() {
-                return login;
-            }
-
-            public void switchButtonState() {
-                login = !login;
-                if (login) {
-                    this.setText("Login");
-                } else {
-                    this.setText("Create Account");
+            public boolean idExists(String inputId) {
+                for (Student s : students){
+                    if (inputId.equals(s.getId())){
+                        return true;
+                    }
                 }
+                return false;
             }
         }
     }
