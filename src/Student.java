@@ -17,16 +17,7 @@ public class Student {
         this.id = studentNumber;
         this.partners = new ArrayList<Student>();
         this.hasPaid = false;
-    }
-
-    public Student(String name, String studentNumber, String grade, String password) {
-        this.name = name;
-        this.id = studentNumber;
-        this.partners = new ArrayList<Student>();
-        this.grade = grade;
-        this.password = password;
-        
-        this.hasPaid = false;
+        this.accommodations = new ArrayList<String>();
     }
     
     public Student(String name, String studentNumber, ArrayList<Student> partners) {
@@ -34,6 +25,18 @@ public class Student {
         this.id = studentNumber;
         this.partners = partners;
         this.hasPaid = false;
+        this.accommodations = new ArrayList<String>();
+    }
+
+    public Student(String name, String id, String grade, String password) {
+        this.name = name;
+        this.id = id;
+        this.grade = grade;
+        this.password = password;
+        this.partners = new ArrayList<Student>();
+        this.hasPaid = false;
+        this.accommodations = new ArrayList<String>();
+
     }
 
     public String getName() {

@@ -1,3 +1,4 @@
+
 import javax.imageio.ImageIO;
 
 import javax.swing.*;
@@ -13,9 +14,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 public class TicketingSystem extends JPanel {
     private ArrayList<Student> students;
@@ -114,7 +113,9 @@ public class TicketingSystem extends JPanel {
 
                     String name = keys.get("name");
                     String id = keys.get("id");
+
                     String[] partnerString = keys.get("partners").split("#");
+                    String[] blackListString = keys.get("blacklist").split("#");
 
                     Boolean hasPaid = Boolean.parseBoolean(keys.get("paid"));
                     String password = keys.get("password");
@@ -122,10 +123,19 @@ public class TicketingSystem extends JPanel {
 
                     String image = keys.get("image");
 
+                    ArrayList<String> accommodations = new ArrayList<String>();
+                    if (keys.get("accommodation").length() > 0) {
+                        accommodations.addAll(Arrays.asList(keys.get("accommodation").split("#")));
+                    }
+
                     Student s = new Student(name, id, grade, password);
                     s.setPaid(hasPaid);
+                    s.setAccommodations(accommodations);
+
                     addStudent(s);
                     partners.add(partnerString);
+
+
 
                     if (!image.equals("null")){
                         URI programFilePath = URI.create(this.getClass().getProtectionDomain().getCodeSource().getLocation().toString() + "studentImages/" + id + ".png");
@@ -179,7 +189,11 @@ public class TicketingSystem extends JPanel {
                     partnerString = partnerString.substring(0, partnerString.length() - 1);
                 }
 
-                output.print("partners:" + partnerString);
+                output.print("partners:" + partnerString + ",");
+                output.print("accommodation:,");
+                output.print("blacklist:,");
+
+
                 output.println();
             }
 
@@ -432,51 +446,8 @@ public class TicketingSystem extends JPanel {
                 c.ipadx = 400;
                 
                 mainPanel.add(centerPanel, c);
-              //JScrollPane pane = new JScrollPane(centerPanel);
                 
                 this.add(mainPanel);
-                /*
-                if ((selectedStudent.hasPaid()) && (selectedStudent.getPartners().size() == 0)) {
-                    infoMessage.setText("Woo! You're coming to Prom!\nMake sure to set your preferences");
-                } else if (selectedStudent.hasPaid()) {
-                    infoMessage.setText("Woo! You're set for Prom!\nYou can still add more or edit your preferences");
-                } else {
-                    infoMessage.setText("You're almost there!\nMake sure to purchase your ticket");
-                }
-                cardNumber.setText("This is the card number input");
-				*/
-
-                //do all layout
-                
-                // this.add(infoMessage, BorderLayout.CENTER);
-
-                /*
-                this.add(cardLabel, BorderLayout.CENTER);
-                this.add(cardNumber, BorderLayout.CENTER);
-                this.add(buyButton, BorderLayout.CENTER);
-                this.add(refund, BorderLayout.CENTER);
-                */
-                
-                //this.add(partnerPanel, BorderLayout.CENTER);
-
-                /*
-                if (selectedStudent.hasPaid()){
-                    cardLabel.setVisible(false);
-                    cardNumber.setVisible(false);
-                    buyButton.setVisible(false);
-                    refund.setVisible(true);
-
-                } else {
-                    cardLabel.setVisible(true);
-                    cardNumber.setVisible(true);
-                    buyButton.setVisible(true);
-                    refund.setVisible(false);
-                }
-                */
-
-                //add listener
-                //buyButton.addActionListener(listener);
-                //refund.addActionListener(listener);
             }
         }
         
@@ -509,8 +480,8 @@ public class TicketingSystem extends JPanel {
 
                 c = new GridBagConstraints();
                 c.gridy = 2;
-                this.add(new ProfilePanel(selectedStudent.getPicture()),c);
-                //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
+                //this.add(new ProfilePanel(selectedStudent.getPicture()),c);
+                this.add(new AccommodationPanel(selectedStudent.getAccommodations()));
         	}
         }
         
@@ -962,6 +933,102 @@ public class TicketingSystem extends JPanel {
             }
         }
 
+        private class AccommodationPanel extends JPanel implements ActionListener{
+            private ArrayList<String> accommodations;
+            private ArrayList<JButton> removes;
+            private ArrayList<JLabel> labels;
+            private JButton addAccommodation;
+            private JTextField accommodationInput;
+
+            AccommodationPanel(ArrayList<String> accommodations) {
+                this.setVisible(true);
+                this.accommodations = accommodations;
+                this.setLayout(new GridBagLayout());
+                removes = new ArrayList<JButton>();
+                labels = new ArrayList<JLabel>();
+                GridBagConstraints c;
+                for (int i = 0; i < this.accommodations.size(); i++) {
+                    c = new GridBagConstraints();
+                    c.gridx = 0;
+                    c.gridy = i;
+
+                    removes.add(new JButton("Remove"));
+                    removes.get(i).addActionListener(this);
+
+                    this.add(removes.get(i),c);
+
+                   c = new GridBagConstraints();
+                   c.gridx = 1;
+                   c.gridy = i;
+
+                   labels.add(new JLabel(this.accommodations.get(i)));
+                   this.add(labels.get(i),c);
+               }
+
+               addAccommodation = new JButton("Add Accommodation");
+               accommodationInput = new JTextField("Accommodation Here");
+
+               c = new GridBagConstraints();
+               c.gridx = 0;
+               c.gridy = this.accommodations.size();
+               this.add(addAccommodation, c);
+
+               c = new GridBagConstraints();
+               c.gridx = 1;
+               c.gridy = this.accommodations.size();
+               this.add(accommodationInput, c);
+           }
+
+           @Override
+           public void actionPerformed(ActionEvent e) {
+               Object source = e.getSource();
+
+               this.remove(addAccommodation);
+               this.remove(accommodationInput);
+
+               if ((source == addAccommodation) && (!accommodationInput.getText().equals("Accommodation Here"))){
+
+                       accommodations.add(accommodationInput.getText());
+
+                       GridBagConstraints c = new GridBagConstraints();
+                       c.gridx = 0;
+                       c.gridy = accommodations.size()-1;
+                       removes.add(new JButton("Remove"));
+                       removes.get(removes.size()-1).addActionListener(this);
+
+                       c = new GridBagConstraints();
+                       c.gridx = 1;
+                       c.gridy = this.accommodations.size()-1;
+                       this.add(new JLabel(accommodationInput.getText()));
+
+                       writeStudents();
+               } else {
+                   int index = removes.indexOf(e.getSource());
+
+                   this.remove(removes.get(index));
+                   this.remove(labels.get(index));
+
+                   removes.remove(index);
+                   labels.remove(index);
+                   accommodations.remove(index);
+
+                   writeStudents();
+               }
+
+               GridBagConstraints c = new GridBagConstraints();
+               c.gridx = 0;
+               c.gridy = this.accommodations.size();
+               this.add(addAccommodation, c);
+
+               c = new GridBagConstraints();
+               c.gridx = 1;
+               c.gridy = this.accommodations.size();
+               this.add(accommodationInput, c);
+
+               revalidate();
+               repaint();
+           }
+       }
     }
 
    private class FloorPlanPanel extends JPanel implements ActionListener{
