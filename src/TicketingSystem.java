@@ -221,7 +221,7 @@ public class TicketingSystem extends JPanel {
 
                 output.print("partners:" + partnerString + ",");
                 output.print("accommodation:"+accommodationString+",");
-                output.print("blacklist:"+blackListString+",");
+                output.print("blacklist:"+blackListString);
 
                 output.println();
             }
@@ -400,6 +400,13 @@ public class TicketingSystem extends JPanel {
                         this.remove(gradeText);
                         this.remove(gradeOptions);
                         this.remove(createAccount);
+
+                        GridBagConstraints c = new GridBagConstraints();
+                        c.gridy = 8;
+                        c.anchor = GridBagConstraints.LINE_START;
+                        c.insets = new Insets(0, 20, 0, 0); // change
+                        this.add(loginButton, c);
+
                     } else {
                         createToggle.setText("Back to login");
 
