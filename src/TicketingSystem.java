@@ -458,16 +458,6 @@ public class TicketingSystem extends JPanel {
         	}
         }
         
-        private class TitleLabel extends JLabel {
-        	private Font titleFont;
-        	
-        	TitleLabel(String text) {
-        		this.setText(text);
-        		
-        		titleFont = new Font("Open Sans", Font.PLAIN, 20);
-        	}
-        }
-        
         private class PartnerPanel extends JPanel implements ActionListener {
         	private JTextField nameField;
             private JButton addPreferenceButton;
