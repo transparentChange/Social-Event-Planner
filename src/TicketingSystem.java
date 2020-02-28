@@ -256,7 +256,7 @@ public class TicketingSystem extends JPanel {
             try {
                 image = ImageIO.read(new File("loginBackground.jpg"));
             } catch (Exception e) {
-                e.printStackTrace();
+                e.printStackTrace();	
             }
 
             this.add(new InnerFrame());
@@ -437,6 +437,8 @@ public class TicketingSystem extends JPanel {
         private JLabel infoMessage = new JLabel();
         private ButtonPanel upperPanel;
         
+        private int X_PADDING = 200;
+        
         TicketPanel(Student student) {
             if (student != null) {
                 this.setLayout(new BorderLayout());
@@ -454,13 +456,17 @@ public class TicketingSystem extends JPanel {
                 CenterPanel centerPanel = new CenterPanel();
                 centerPanel.setBackground(Color.WHITE);
                 
+                JScrollPane scrollFrame = new JScrollPane(centerPanel);
+                centerPanel.setAutoscrolls(true);
+                scrollFrame.setMaximumSize(new Dimension(400, 400));
+                
                 GridBagConstraints c = new GridBagConstraints();
                 c.anchor = GridBagConstraints.CENTER;
                 c.weighty = 1.0;
                 c.fill = GridBagConstraints.VERTICAL;
-                c.ipadx = 400;
+                c.ipadx = X_PADDING;
                 
-                mainPanel.add(centerPanel, c);
+                mainPanel.add(scrollFrame, c);
               //JScrollPane pane = new JScrollPane(centerPanel);
 
                 this.add(mainPanel);
@@ -485,6 +491,7 @@ public class TicketingSystem extends JPanel {
         	CenterPanel() {
         		this.setVisible(true);
         		//this.setOpaque(false);
+        		//this.setMaximumSize(new Dimension(WINDOW_WIDTH - X_PADDING * 2, WINDOW_HEIGHT));
                 this.setLayout(new GridBagLayout());
                 this.setBackground(new Color(235, 255, 246));
                 
@@ -519,8 +526,6 @@ public class TicketingSystem extends JPanel {
                 c.weighty = 1.0;
                 this.add(paymentPanel, c);
 
-
-
                 //Daksh added this stuff and he has no idea how to lay it out properly
                 c = new GridBagConstraints();
                 c.gridy = 4;
@@ -536,23 +541,10 @@ public class TicketingSystem extends JPanel {
                 //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
         	}
         }
-
-        /*
-        private class TitleLabel extends JLabel {
-        	private Font titleFont;
-
-        	TitleLabel(String text) {
-        		this.setText(text);
-
-        		titleFont = new Font("Open Sans", Font.PLAIN, 20);
-        	}
-        }
-         */
         
         private class PartnerPanel extends JPanel implements ActionListener {
         	private JTextField nameField;
             private JButton addPreferenceButton;
-            private JLabel errorLabel;
             private JLabel instructLabel = new JLabel("List of students you would like to sit with: ");
             
             PartnerPanel() {
@@ -563,6 +555,7 @@ public class TicketingSystem extends JPanel {
                 this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
                 //this.setBackground(Color.WHITE);
                 
+                /*
         		nameField = new JTextField("New student's name");
         		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
                 nameField.addMouseListener(new MouseAdapter() {
@@ -579,17 +572,15 @@ public class TicketingSystem extends JPanel {
                     }
                 });
                 nameField.setMaximumSize(new Dimension(800, 50));
-                
+                */
                 addPreferenceButton = new JButton("Add Partner");
                 addPreferenceButton.addActionListener(this);
-        		
-                errorLabel = new JLabel("");
                 
                 this.add(instructLabel);
                 
                 EditingRow row;
                 if (partners.size() == 0) {
-	            	this.add(new EditingRow(""));
+	            	this.add(new EditingRow("New student's name"));
                 } else {
 	                for (int i = 0; i < partners.size(); i++) {
 	                	this.add(new FixedRow(partners.get(i).getName()));
@@ -606,6 +597,7 @@ public class TicketingSystem extends JPanel {
                 this.setBorder(new EmptyBorder(10, 10, 10, 10));
             }
             
+            /*
             public void showEditingRow(FixedRow row) {
             	Component[] componentList = this.getComponents();
             	int index = getIndex(componentList, row);
@@ -614,14 +606,31 @@ public class TicketingSystem extends JPanel {
     			((PreferenceRow) componentList[index + 1]).setText(row.getText());
             }
             
-            public void showFixedRow(EditingRow row, JLabel label) {
+            public void showFixedRow(EditingRow row) {
             	Component[] componentList = this.getComponents();
             	int index = getIndex(componentList, row);
 
             	FixedRow rowToShow = (FixedRow) componentList[index - 1];
-            	rowToShow.addErrorLabel();
             	rowToShow.setText(row.getText());
             	rowToShow.setVisible(true);
+            }
+            */
+            
+            public PreferenceRow toggleRowState(PreferenceRow row) {
+            	Component[] componentList = this.getComponents();
+            	int index = getIndex(componentList, row);
+            	
+            	PreferenceRow rowToShow;
+            	if (row instanceof EditingRow) {
+            		rowToShow = (FixedRow) componentList[index - 1];
+            	} else {
+            		rowToShow = (EditingRow) componentList[index + 1];
+            	}
+            	
+            	rowToShow.setText(row.getText());
+            	rowToShow.setVisible(true);
+            	
+            	return rowToShow;
             }
 
             public int getIndex(Component[] componentList, PreferenceRow row) {
@@ -671,7 +680,7 @@ public class TicketingSystem extends JPanel {
             			this.add(currentRow);
                     	currentRow.setVisible(false);
 
-            			currentRow = new EditingRow("");
+            			currentRow = new EditingRow("New student's name");
                     	this.add(currentRow);
                     	
                     	this.add(addPreferenceButton);
@@ -710,15 +719,7 @@ public class TicketingSystem extends JPanel {
         			return nameLabel.getText();
             	}
             	
-            	public void addErrorLabel() {
-            		if (personAddedLabel == null) {
-            			personAddedLabel = new JLabel("Person already added");
-            			this.add(Box.createRigidArea(new Dimension(5, 0)));
-            			this.add(personAddedLabel);
-            			this.setBorder(new EmptyBorder(3, 3, 3,
-            					(int) (200 - personAddedLabel.getPreferredSize().getWidth())));
-            		}
-            	}
+
             	
             	public void actionPerformed(ActionEvent e) {
             		super.actionPerformed(e);
@@ -726,7 +727,7 @@ public class TicketingSystem extends JPanel {
             		Object source = e.getSource();
             		if (source == editButton) {
             			this.setVisible(false);
-            			showEditingRow(this);
+            			toggleRowState(this);
             		}
             	}
 
@@ -743,7 +744,35 @@ public class TicketingSystem extends JPanel {
             	EditingRow(String nameLabel) {
             		super(nameLabel);
             		this.setBackground(Color.WHITE);
+            		
             		nameField = new JTextField(nameLabel);
+            		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+                    nameField.addMouseListener(new MouseAdapter() {
+                    	@Override
+                    	public void mouseClicked(MouseEvent e) {
+                    		nameField.setText("");
+                    	}
+                    });
+                    nameField.setMaximumSize(new Dimension(300, 100));
+                    //nameField.setMaximumSize(new Dimension(1, 50));
+            		/*
+            		nameField = new JTextField("New student's name");
+            		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+                    nameField.addMouseListener(new MouseAdapter() {
+                    	@Override
+                    	public void mouseClicked(MouseEvent e) {
+                    		nameField.setText("");
+                    	}
+                    });
+                    nameField.addKeyListener(new KeyAdapter() {
+                        @Override
+                        public void keyTyped(KeyEvent e) {
+                            if (nameField.getText().length() >= 50) // limit to 50 characters
+                                e.consume();
+                        }
+                    });
+                    nameField.setMaximumSize(new Dimension(800, 50));
+            		*/
             		
             		okButton = new JButton("OK");
             		okButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
@@ -765,19 +794,18 @@ public class TicketingSystem extends JPanel {
             		Object source = e.getSource();
             		if (source == okButton) {
             			Student foundStudent = findStudentByName(nameField.getText());
-                		this.remove(errorLabel);
+                		// remove error?
                         if (foundStudent == TicketPanel.this.selectedStudent) {
-                            errorLabel = new JLabel("You can't add yourself");
-                            this.add(errorLabel);
+                            this.addErrorLabel("You can't add yourself");
                         } else if (TicketPanel.this.selectedStudent.getPartners().contains(foundStudent)) {
                             this.setVisible(false);
-                            showFixedRow(this, errorLabel);
+                            PreferenceRow row = toggleRowState(this);
+                            row.addErrorLabel("Person already added");
                         } else if (foundStudent == null) {
-                            errorLabel = new JLabel("Partner not Found. Ask them to register before you can add them");
-                            this.add(errorLabel);
+                            this.addErrorLabel("Partner not Found. Ask them to register before you can add them");
                         } else {
                         	this.setVisible(false);
-                        	showFixedRow(this, null);
+                        	toggleRowState(this);
                         	
                         	partners.add(foundStudent);
                         }
@@ -798,13 +826,15 @@ public class TicketingSystem extends JPanel {
             	protected JButton removeButton;
             	abstract public String getText();
             	abstract public void setText(String newText);
+            	private JLabel errorLabel;
+            	private final int RIGHT_BORDER = 400;
             	
             	PreferenceRow(String nameLabel) {
             		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
             		this.setFocusable(true);
             		
-            		this.setMaximumSize(new Dimension(500, 100));
-            		this.setBorder(new EmptyBorder(3, 3, 3, 200));
+            		//this.setMaximumSize(new Dimension(WINDOW_WIDTH, 100));
+            		this.setBorder(new EmptyBorder(3, 3, 3, RIGHT_BORDER));
             		this.setAlignmentX(Component.LEFT_ALIGNMENT);
             		
             		removeButton = new JButton("-");
@@ -816,6 +846,20 @@ public class TicketingSystem extends JPanel {
             		Object source = e.getSource();
             		if (source == removeButton) {
             			removeRow(this);
+            		}
+            	}
+            	
+            	public void addErrorLabel(String errorText) {
+            		if (errorLabel == null) {
+            			errorLabel = new JLabel(errorText);
+            			//personAddedLabel = new JLabel("Person already added");
+            			this.add(Box.createRigidArea(new Dimension(5, 0)));
+            			this.add(errorLabel);
+            			System.out.println(RIGHT_BORDER - errorLabel.getPreferredSize().getWidth());
+            			this.setBorder(new EmptyBorder(3, 3, 3,
+            					(int) (RIGHT_BORDER - errorLabel.getPreferredSize().getWidth())));
+            		} else {
+            			errorLabel.setText(errorText);;
             		}
             	}
             	
@@ -879,7 +923,7 @@ public class TicketingSystem extends JPanel {
         }
 
         private class PaymentPanel extends JPanel implements ActionListener {
-            private JTextField cardNumber = new JTextField();
+            //private JTextField cardNumber = new JTextField();
             private JLabel cardLabel = new JLabel("Enter Card Number:");
             private JButton buyButton = new JButton("Buy now!");
             private JButton refundButton = new JButton("Click here for a refund");
@@ -896,7 +940,7 @@ public class TicketingSystem extends JPanel {
         		refundButton.addActionListener(this);
 
                 this.add(cardLabel);
-                this.add(cardNumber);
+                //this.add(cardNumber);
                 this.add(buyButton);
                 this.add(refundButton);
         	}
@@ -906,14 +950,14 @@ public class TicketingSystem extends JPanel {
                 Object source = e.getSource();
                 if (source == buyButton){
                     cardLabel.setVisible(false);
-                    cardNumber.setVisible(false);
+                    //cardNumber.setVisible(false);
                     buyButton.setVisible(false);
                     refundButton.setVisible(true);
                     selectedStudent.setPaid(true);
 
                 } else if (source == refundButton) {
                     cardLabel.setVisible(true);
-                    cardNumber.setVisible(true);
+                    //cardNumber.setVisible(true);
                     buyButton.setVisible(true);
                     refundButton.setVisible(false);
                     selectedStudent.setPaid(false);
