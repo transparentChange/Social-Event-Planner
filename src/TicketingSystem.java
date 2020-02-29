@@ -499,10 +499,12 @@ public class TicketingSystem extends JPanel {
         /*
         public void paintComponent(Graphics g) {
         	super.paintComponent(g);
+        	
         	this.revalidate();
         	this.repaint();
         }
         */
+        
         
         class CenterPanel extends JPanel {
         	private JLabel title = new JLabel("Student Preferences for Seating");
@@ -588,6 +590,7 @@ public class TicketingSystem extends JPanel {
         	private JTextField nameField;
             private JButton addPreferenceButton;
             private JLabel instructLabel = new JLabel("List of students you would like to sit with: ");
+            private int editingIndex;
             
             PartnerPanel() {
                 this.setVisible(true);
@@ -619,288 +622,308 @@ public class TicketingSystem extends JPanel {
                 addPreferenceButton.addActionListener(this);
                 
                 this.add(instructLabel);
-                
-                PreferenceRow row;
+
                 if (partners.size() == 0) {
-                	row = new FixedRow("");
-                	this.add(row);
-                	row.setVisible(false);
-                	
-                	this.add(new EditingRow("New student's name"));
+                	RowPair partnerPair = new RowPair("New Studet's Name", false);
+                	this.add(partnerPair);
                 } else {
 	                for (int i = 0; i < partners.size(); i++) {
-	                	this.add(new FixedRow(partners.get(i).getName()));
-
-	                	row = new EditingRow(partners.get(i).getName());
-	                	this.add(row);
-	                	row.setVisible(false);
+	                	RowPair partnerPair = new RowPair(partners.get(i).getName(), true);
+	                	this.add(partnerPair);
 	                }
                 }
+                
+                editingIndex = -1;
                 
                 this.add(addPreferenceButton);
                 addPreferenceButton.addActionListener(this);
                 
                 this.setBorder(new EmptyBorder(10, 10, 10, 10));
                 toUniversalFont(this);
-                
-            }
-            
-            public PreferenceRow toggleRowState(PreferenceRow row) {
-            	Component[] componentList = this.getComponents();
-            	int index = getIndex(componentList, row);
-            	
-            	//System.out.println(index);
-            	PreferenceRow rowToShow;
-            	if (row instanceof EditingRow) {
-            		rowToShow = (FixedRow) componentList[index - 1];
-            	} else {
-            		rowToShow = (EditingRow) componentList[index + 1];
-            	}
-            	
-            	rowToShow.setText(row.getText());
-            	rowToShow.setVisible(true);
-            	
-            	return rowToShow;
-            }
-
-            private int getIndex(Component[] componentList, PreferenceRow row) {
-            	int rowIndex = 0;
-            	while (!row.equals(componentList[rowIndex])) {
-            		rowIndex++;
-            	}
-            	
-            	return rowIndex;
-            }
-            
-            public void removeRow(PreferenceRow row) {
-            	row.setVisible(false);
-            	
-            	for (int j = 0; j < partners.size(); j++) {
-    				if (partners.get(j).getName().equals(row.getText())) {
-    					partners.remove(j);
-    				}
-    			}
-            	writeStudents();
-            	
-        		Component[] componentList = this.getComponents();
-        		// changes last one to EditingRow
-        		if (componentList[componentList.length - 2].isVisible()) {
-        			this.remove(addPreferenceButton);
-        			componentList[componentList.length - 2].setVisible(false);
-        			componentList[componentList.length - 3].setVisible(true);
-
-                	this.add(addPreferenceButton);
-                	addPreferenceButton.addActionListener(this);
-        		}
-            	
-            	this.revalidate();
-            	this.repaint();
             }
             
             public void actionPerformed(ActionEvent e) {
             	Object source = e.getSource();
             	if (source == addPreferenceButton) {
             		Component[] componentList = this.getComponents();
-            		// adds new editing row
-            		if (!(componentList[componentList.length - 2].isVisible())) {
-            			PreferenceRow currentRow = new FixedRow("");
-
-            			this.remove(addPreferenceButton);
-
-            			this.add(currentRow);
-                    	currentRow.setVisible(false);
-
-            			currentRow = new EditingRow("New student's name");
-                    	this.add(currentRow);
-                    	
-                    	this.add(addPreferenceButton);
-                    	addPreferenceButton.addActionListener(this);
+            		int index = componentList.length - 2;
+            		if (index == 0) {
+            			RowPair partnerPair = new RowPair("New Studet's Name", false);
+                    	this.add(partnerPair);
+            		} else {
+	            		while ((index != 0) && (!((RowPair) componentList[index]).isVisible())) {
+	            			index--;
+	            		}
+	            		
+	            		if ((componentList[componentList.length - 2] instanceof RowPair) &&
+	            				(!(((RowPair) componentList[componentList.length - 2]).editingIsVisible()))) {
+	            			this.remove(addPreferenceButton);
+	
+	            			RowPair partnerPair = new RowPair("New Studet's Name", false);
+	                    	this.add(partnerPair);
+	                    	
+	                    	this.add(addPreferenceButton);
+	                    	addPreferenceButton.addActionListener(this);
+	            		}
+	            		
+	            		editingIndex = componentList.length - 1;
             		}
             	}
-            	
-            	writeStudents();
             	
             	this.revalidate();
             	this.repaint();
             }
             
-            private class FixedRow extends PreferenceRow implements ActionListener {
-            	private JButton editButton;
-            	private JLabel nameLabel;
-            	private JLabel personAddedLabel;
-
-            	FixedRow(String nameLabel) {
-            		super(nameLabel);
-            		
-            		//this.setBackground(Color.BLACK);
-            		this.nameLabel = new JLabel(nameLabel);
-            		
-            		editButton = new JButton("%"); // change later
-            		editButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-            		editButton.addActionListener(this);
-
-            		this.add(this.nameLabel);
-            		this.add(Box.createHorizontalGlue());
-            		this.add(editButton);
-            		this.add(removeButton);
-            		
-            		toUniversalFont(this);
-            	}
+            private class RowPair extends JPanel {
+            	private FixedRow fixed;
+            	private EditingRow editing;
             	
-            	public String getText() {	
-        			return nameLabel.getText();
-            	}
-            	
-            	public void actionPerformed(ActionEvent e) {
-            		super.actionPerformed(e);
+            	RowPair(String text, boolean fixedVisiblity) {
+            		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
             		
-            		Object source = e.getSource();
-            		if (source == editButton) {
-            			this.setVisible(false);
-            			toggleRowState(this);
-            		}
-            	}
-
-				@Override
-				public void setText(String newText) {
-					nameLabel.setText(newText);
-				}
-            }
-            
-            private class EditingRow extends PreferenceRow implements ActionListener {
-            	private JButton okButton;
-            	private JTextField nameField;
-            	
-            	EditingRow(String nameLabel) {
-            		super(nameLabel);
-            		this.setBackground(Color.WHITE);
+            		fixed = new FixedRow(text);
+            		editing = new EditingRow(text);
             		
-            		nameField = new JTextField(nameLabel);
-            		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
-                    nameField.addMouseListener(new MouseAdapter() {
-                    	@Override
-                    	public void mouseClicked(MouseEvent e) {
-                    		nameField.setText("");
-                    	}
-                    });
-                    
-                    nameField.setMaximumSize(new Dimension(300, 100));
-            		/*
-                    nameField.addKeyListener(new KeyAdapter() {
-                        @Override
-                        public void keyTyped(KeyEvent e) {
-                            if (nameField.getText().length() >= 50) // limit to 50 characters
-                                e.consume();
-                        }
-                    });
-            		*/
-            		
-            		okButton = new JButton("OK");
-            		okButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-            		okButton.addActionListener(this);
-            		
-            		this.add(nameField);
-            		this.add(Box.createHorizontalGlue());
-            		this.add(okButton);
-            		this.add(removeButton);
-            		
-            		toUniversalFont(this);
-            	}
-            	
-            	public String getText() {	
-        			return nameField.getText();
-            	}
-            	
-            	public void actionPerformed(ActionEvent e) {
-            		super.actionPerformed(e);
-            		
-            		Object source = e.getSource();
-            		if (source == okButton) {
-            			ArrayList<Student> foundStudents = findStudentsWithName(nameField.getText());
-                		
-            			if (foundStudents == null) {
-                            this.addErrorLabel("Partner not Found. Ask them to register before you can add them");
-                        } else if (foundStudents.size() == 1) {
-                        	if (foundStudents.get(0) == TicketPanel.this.selectedStudent) {
-	                            this.addErrorLabel("You can't add yourself");
-	                        } else if (TicketPanel.this.selectedStudent.getPartners().contains(foundStudents.get(0))) {
-	                            this.setVisible(false);
-	                            PreferenceRow row = toggleRowState(this);
-	                            row.addErrorLabel("Person already added");
-	                        } else {
-	                        	this.setVisible(false);
-	                        	toggleRowState(this);
-	                        	
-	                        	partners.add(foundStudents.get(0));
-	                        }
-                        } else {
-                        	this.addErrorLabel("More than one student with that name");
-                        }
-            		}
-                	writeStudents();
-                	
-                	this.revalidate();
-                	this.repaint();
-            	}
-
-				@Override
-				public void setText(String newText) {
-					nameField.setText(newText);
-				}
-            }
-            
-            abstract private class PreferenceRow extends JPanel implements ActionListener {
-            	protected JButton removeButton;
-            	abstract public String getText();
-            	abstract public void setText(String newText);
-            	private JLabel errorLabel;
-            	private final int RIGHT_BORDER = 400;
-            	
-            	PreferenceRow(String nameLabel) {
-            		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-            		this.setFocusable(true);
-            		
-            		//this.setMaximumSize(new Dimension(WINDOW_WIDTH, 100));
-            		this.setBorder(new EmptyBorder(3, 3, 3, RIGHT_BORDER));
-            		this.setAlignmentX(Component.LEFT_ALIGNMENT);
-            		
-            		removeButton = new JButton("-");
-            		removeButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-            		removeButton.addActionListener(this);
-            	}
-            	
-            	public void actionPerformed(ActionEvent e) {
-            		Object source = e.getSource();
-            		if (source == removeButton) {
-            			removeRow(this);
-            		}
-            	}
-            	
-            	public void addErrorLabel(String errorText) {
-            		if (errorLabel == null) {
-            			errorLabel = new JLabel(errorText);
-            			//personAddedLabel = new JLabel("Person already added");
-            			this.add(Box.createRigidArea(new Dimension(5, 0)));
-            			this.add(errorLabel);
-            			System.out.println(RIGHT_BORDER - errorLabel.getPreferredSize().getWidth());
-            			this.setBorder(new EmptyBorder(3, 3, 3,
-            					(int) (RIGHT_BORDER - errorLabel.getPreferredSize().getWidth())));
+            		if (fixedVisiblity) {
+            			toFixedVisibility();
             		} else {
-            			errorLabel.setText(errorText);;
+            			toEditingVisibility();
             		}
+            		
+            		this.add(fixed);
+            		this.add(editing);
             	}
             	
-            	@Override
-            	public boolean equals(Object obj) {
-            		if (!obj.getClass().equals(this.getClass())) {
-            			//System.out.println("not ")
-            			return false;
-            		} else if (((PreferenceRow) obj).getText().equals(this.getText())) {
+            	private void copyToFixed() {
+            		fixed.setText(editing.getText());
+            	}
+            	
+            	private void copyToEditing() {
+            		editing.setText(fixed.getText());
+            	}
+            	
+            	private void addErrorToFixed(String text) {
+            		fixed.addErrorLabel(text);
+            	}
+            	
+            	public void toFixedVisibility() {
+            		fixed.setVisible(true);
+            		editing.setVisible(false);
+            	}
+            	
+            	private void toEditingVisibility() {
+            		fixed.setVisible(false);
+            		editing.setVisible(true);
+            	}
+            	
+            	public boolean editingIsVisible() {
+            		if (editing.isVisible()) {
             			return true;
             		} else {
             			return false;
             		}
             	}
+            	
+            	private void hidePair() {
+                	this.setVisible(false);
+                	
+                	/*
+                	if (row instanceof EditingRow) {
+                		editingIndex = -1;
+                	}
+                	*/
+                	
+                	for (int j = 0; j < partners.size(); j++) {
+        				if (partners.get(j).getName().equals(fixed.getText())) {
+        					partners.remove(j);
+        				}
+        			}
+                	writeStudents();
+            	}
+            	
+                private class FixedRow extends PreferenceRow implements ActionListener {
+                	private JButton editButton;
+                	private JLabel nameLabel;
+                	private JLabel personAddedLabel;
+
+                	FixedRow(String nameLabel) {
+                		super(nameLabel);
+                		
+                		//this.setBackground(Color.BLACK);
+                		this.nameLabel = new JLabel(nameLabel);
+                		
+                		editButton = new JButton("%"); // change later
+                		editButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
+                		editButton.addActionListener(this);
+
+                		this.add(this.nameLabel);
+                		this.add(Box.createHorizontalGlue());
+                		this.add(editButton);
+                		this.add(removeButton);
+                		
+                		toUniversalFont(this);
+                	}
+                	
+                	public String getText() {	
+            			return nameLabel.getText();
+                	}
+                	
+                	public void actionPerformed(ActionEvent e) {
+                		super.actionPerformed(e);
+                		
+                		Object source = e.getSource();
+                		if (source == editButton) {
+                			copyToEditing();
+                			toEditingVisibility();
+                			
+                			if (editingIndex != -1) {
+                				
+                			}
+                			
+                		}
+                	}
+
+    				@Override
+    				public void setText(String newText) {
+    					nameLabel.setText(newText);
+    				}
+                }
+                
+                private class EditingRow extends PreferenceRow implements ActionListener {
+                	private JButton okButton;
+                	private JTextField nameField;
+                	
+                	EditingRow(String nameLabel) {
+                		super(nameLabel);
+                		this.setBackground(Color.WHITE);
+                		
+                		nameField = new JTextField(nameLabel);
+                		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+                        nameField.addMouseListener(new MouseAdapter() {
+                        	@Override
+                        	public void mouseClicked(MouseEvent e) {
+                        		nameField.setText("");
+                        	}
+                        });
+                        
+                        nameField.setMaximumSize(new Dimension(300, 100));
+                		/*
+                        nameField.addKeyListener(new KeyAdapter() {
+                            @Override
+                            public void keyTyped(KeyEvent e) {
+                                if (nameField.getText().length() >= 50) // limit to 50 characters
+                                    e.consume();
+                            }
+                        });
+                		*/
+                		
+                		okButton = new JButton("OK");
+                		okButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
+                		okButton.addActionListener(this);
+                		
+                		this.add(nameField);
+                		this.add(Box.createHorizontalGlue());
+                		this.add(okButton);
+                		this.add(removeButton);
+                		
+                		toUniversalFont(this);
+                	}
+                	
+                	public String getText() {	
+            			return nameField.getText();
+                	}
+                	
+                	public void actionPerformed(ActionEvent e) {
+                		super.actionPerformed(e);
+                		
+                		Object source = e.getSource();
+                		if (source == okButton) {
+                			ArrayList<Student> foundStudents = findStudentsWithName(nameField.getText());
+                    		
+                			if (foundStudents == null) {
+                                this.addErrorLabel("Partner not Found. Ask them to register before you can add them");
+                            } else if (foundStudents.size() == 1) {
+                            	if (foundStudents.get(0) == TicketPanel.this.selectedStudent) {
+    	                            this.addErrorLabel("You can't add yourself");
+    	                        } else if (TicketPanel.this.selectedStudent.getPartners().contains(foundStudents.get(0))) {
+    	                            copyToFixed();
+    	                            toFixedVisibility();
+    	                            addErrorToFixed("Person already added");
+    	                        } else {
+    	                        	copyToFixed();
+    	                            toFixedVisibility();
+    	                        	
+    	                        	partners.add(foundStudents.get(0));
+    	                        }
+                            } else {
+                            	this.addErrorLabel("More than one student with that name");
+                            }
+                		}
+                    	writeStudents();
+                    	
+                    	this.revalidate();
+                    	this.repaint();
+                	}
+
+    				@Override
+    				public void setText(String newText) {
+    					nameField.setText(newText);
+    				}
+                }
+                
+                abstract private class PreferenceRow extends JPanel implements ActionListener {
+                	protected JButton removeButton;
+                	abstract public String getText();
+                	abstract public void setText(String newText);
+                	private JLabel errorLabel;
+                	private final int RIGHT_BORDER = 400;
+                	
+                	PreferenceRow(String nameLabel) {
+                		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+                		this.setFocusable(true);
+                		
+                		//this.setMaximumSize(new Dimension(WINDOW_WIDTH, 100));
+                		this.setBorder(new EmptyBorder(3, 3, 3, RIGHT_BORDER));
+                		this.setAlignmentX(Component.LEFT_ALIGNMENT);
+                		
+                		removeButton = new JButton("-");
+                		removeButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
+                		removeButton.addActionListener(this);
+                	}
+                	
+                	public void actionPerformed(ActionEvent e) {
+                		Object source = e.getSource();
+                		if (source == removeButton) {
+                			hidePair();
+                		}
+                	}
+                	
+                	public void addErrorLabel(String errorText) {
+                		if (errorLabel == null) {
+                			errorLabel = new JLabel(errorText);
+                			//personAddedLabel = new JLabel("Person already added");
+                			this.add(Box.createRigidArea(new Dimension(5, 0)));
+                			this.add(errorLabel);
+                			System.out.println(RIGHT_BORDER - errorLabel.getPreferredSize().getWidth() - 5);
+                			this.setBorder(new EmptyBorder(3, 3, 3,
+                					(int) (RIGHT_BORDER - errorLabel.getPreferredSize().getWidth() - 5)));
+                		} else {
+                			errorLabel.setText(errorText);
+                		}
+                	}
+                	
+                	@Override
+                	public boolean equals(Object obj) {
+                		if (!obj.getClass().equals(this.getClass())) {
+                			//System.out.println("not ")
+                			return false;
+                		} else if (((PreferenceRow) obj).getText().equals(this.getText())) {
+                			return true;
+                		} else {
+                			return false;
+                		}
+                	}
+                }
             }
         }
 
@@ -929,19 +952,6 @@ public class TicketingSystem extends JPanel {
                 revalidate();
                 repaint();
             }
-            
-            /*
-            public void paintComponent(Graphics g) {
-                super.paintComponent(g);
-
-                Graphics2D g2 = (Graphics2D) g;
-
-                GradientPaint blackToGray = new GradientPaint(0, 0, new Color(25, 38, 23),
-                        0, getHeight(), new Color(147, 222, 135));
-                g2.setPaint(blackToGray);
-                g2.fill(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
-            }
-            */
 
             public void actionPerformed(ActionEvent evt) {
                 Object source = evt.getSource();
@@ -1247,8 +1257,8 @@ public class TicketingSystem extends JPanel {
     }
     
     public static final class DesignConstants {
-		public static final Color BACK_COLOUR = new Color((float) (130 / 255.0), (float) (235 / 255.0), 
-    			(float) (33 / 255.0), (float) 0.3);
+		public static final Color BACK_COLOUR = Color.BLACK;//new Color((float) (130 / 255.0), (float) (235 / 255.0), 
+    			//(float) (33 / 255.0), (float) 0.3);
         public static final Color MAIN_COLOUR = new Color(75, 112, 68);
         
         public static final Font LARGE_FONT = new Font("Garamond", Font.PLAIN, 20);
