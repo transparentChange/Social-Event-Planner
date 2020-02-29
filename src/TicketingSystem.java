@@ -496,6 +496,14 @@ public class TicketingSystem extends JPanel {
             }
         }
         
+        /*
+        public void paintComponent(Graphics g) {
+        	super.paintComponent(g);
+        	this.revalidate();
+        	this.repaint();
+        }
+        */
+        
         class CenterPanel extends JPanel {
         	private JLabel title = new JLabel("Student Preferences for Seating");
         	private PartnerPanel partnerPanel;
@@ -507,7 +515,7 @@ public class TicketingSystem extends JPanel {
         		this.setPreferredSize(new Dimension(500, 2000));
         		//this.setMaximumSize(new Dimension(WINDOW_WIDTH - X_PADDING * 2, WINDOW_HEIGHT));
                 this.setLayout(new GridBagLayout());
-                //this.setBackground(new Color(235, 255, 246));
+                this.setBackground(DesignConstants.BACK_COLOUR);
                 
                 partnerPanel = new PartnerPanel();
 				
@@ -535,14 +543,15 @@ public class TicketingSystem extends JPanel {
         		GridBagConstraints c = new GridBagConstraints();
         		if (component instanceof JLabel) {
         			System.out.println(((JLabel) component).getText());
-        			yPadding = 10;
+        			yPadding = 20;
                     component.setBorder(BorderFactory.createLineBorder(Color.WHITE, 10, true));
                     component.setFont(DesignConstants.MEDIUM_FONT);
         		} else {
-        			yPadding = 3;
-        			component.setBorder(BorderFactory.createLineBorder(Color.WHITE, 10, true));
+        			yPadding = 5;
+        			component.setBorder(BorderFactory.createLineBorder(Color.WHITE, 20, true));
         		}
         		
+        		/*
         		JPanel spacePanel = new JPanel();
                 spacePanel.setBackground(DesignConstants.BACK_COLOUR);
                 c.gridy = gridy - 1;
@@ -551,6 +560,12 @@ public class TicketingSystem extends JPanel {
             	
                 c.fill = GridBagConstraints.HORIZONTAL;
                 this.add(spacePanel, c);
+        		*/
+        		c.gridy = gridy - 1;
+                c.weightx = 1.0;
+                c.ipady = yPadding;
+                c.fill = GridBagConstraints.HORIZONTAL;
+        		this.add(Box.createRigidArea(new Dimension(0, 0)), c);
         		
                 c = new GridBagConstraints();
         		if (gridy == 13) {
