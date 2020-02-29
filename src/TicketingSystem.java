@@ -6,7 +6,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import java.io.File;
@@ -82,13 +81,15 @@ public class TicketingSystem extends JPanel {
         this.students.remove(student);
     }
 
-    private Student findStudentByName(String name){
-        for (Student student : students){
-            if (name.compareToIgnoreCase(student.getName()) == 0){
-                return student;
+    private ArrayList<Student> findStudentsWithName(String name) {
+    	ArrayList<Student> studentsWithName = new ArrayList<Student>();
+        for (Student student : students) {
+            if (name.equals(student.getName())){
+            	System.out.println("here");
+                studentsWithName.add(student);
             }
         }
-        return null;
+        return studentsWithName;
     }
 
     private Student findStudentByID(String id) {
@@ -110,7 +111,7 @@ public class TicketingSystem extends JPanel {
                 String student = input.nextLine();
                 if (!student.equals("")) {
                     String[] ids = student.split(",");
-                    HashMap<String, String> keys = new HashMap();
+                    HashMap<String, String> keys = new HashMap<String, String>();
                     for (String key : ids) {
                         String[] temp = key.split(":");
                         if (temp.length > 1){
@@ -140,7 +141,7 @@ public class TicketingSystem extends JPanel {
                     Student s = new Student(name, id, grade, password);
                     s.setPaid(hasPaid);
                     s.setAccommodations(accommodations);
-
+                    
                     addStudent(s);
 
                     partners.add(partnerString);
@@ -152,6 +153,7 @@ public class TicketingSystem extends JPanel {
                     }
                 }
             }
+            input.close();
 
             for (int i = 0; i < students.size(); i++) {
                 ArrayList<Student> studentPartners = students.get(i).getPartners();
@@ -232,6 +234,17 @@ public class TicketingSystem extends JPanel {
             e.printStackTrace();
         }
     }
+    
+    public void toUniversalFont(JPanel panel) {
+    	Component[] componentList = panel.getComponents();
+    	
+    	for (Component component : componentList) {
+    		component.setFont(DesignConstants.SMALL_FONT);
+    	}
+    	
+        revalidate();
+        repaint();
+    }
 
     private class LoginPanel extends JPanel {
         BufferedImage image = null;
@@ -243,7 +256,6 @@ public class TicketingSystem extends JPanel {
         private JButton createToggle;
         private boolean createIsToggled;
         private JComboBox gradeOptions;
-        private Font fieldFont;
         private JLabel nameText;
         private JLabel gradeText;
         private JLabel errorLabel;
@@ -281,9 +293,7 @@ public class TicketingSystem extends JPanel {
         		this.setVisible(true);
         		this.setBorder(new EmptyBorder(WINDOW_WIDTH / 40, WINDOW_WIDTH / 40,
         				WINDOW_WIDTH / 40, WINDOW_WIDTH / 40));
-        		 this.setBackground(new Color(75, 112, 68));
-
-        		fieldFont = new Font("Open Sans", Font.PLAIN, 20);
+        		 this.setBackground(DesignConstants.MAIN_COLOUR);
 
         		errorLabel = new JLabel("");
 
@@ -323,10 +333,11 @@ public class TicketingSystem extends JPanel {
                     c.insets = new Insets(10, 0, 0, 0); // space in between
                     c.anchor = GridBagConstraints.LINE_START;
                     component.setForeground(Color.WHITE);
+                    component.setFont(DesignConstants.SMALL_FONT);
                 } else if (component instanceof JTextField) {
                     c.insets = new Insets(5, 0, 0, 0);
                     c.fill = GridBagConstraints.HORIZONTAL;
-                    component.setFont(fieldFont);
+                    component.setFont(DesignConstants.LARGE_FONT);
                 } else if (component instanceof JComboBox) {
                     c.anchor = GridBagConstraints.LINE_START;
                 } else if (component instanceof  JButton) {
@@ -451,14 +462,15 @@ public class TicketingSystem extends JPanel {
                 this.add(upperPanel, BorderLayout.NORTH);
                 
                 JPanel mainPanel = new JPanel(new GridBagLayout());
-                mainPanel.setBackground(new Color(235, 255, 246));
+                mainPanel.setBackground(DesignConstants.BACK_COLOUR);
                 
                 CenterPanel centerPanel = new CenterPanel();
-                centerPanel.setBackground(Color.WHITE);
+                //centerPanel.setBackground(Color.WHITE);
                 
                 JScrollPane scrollFrame = new JScrollPane(centerPanel);
-                centerPanel.setAutoscrolls(true);
-                scrollFrame.setMaximumSize(new Dimension(400, 400));
+                //centerPanel.setAutoscrolls(true);
+                scrollFrame.setPreferredSize(new Dimension(600, 400));
+                scrollFrame.setBorder(null);
                 
                 GridBagConstraints c = new GridBagConstraints();
                 c.anchor = GridBagConstraints.CENTER;
@@ -487,58 +499,73 @@ public class TicketingSystem extends JPanel {
         class CenterPanel extends JPanel {
         	private JLabel title = new JLabel("Student Preferences for Seating");
         	private PartnerPanel partnerPanel;
+        	private int currentYPos = 1;
         	
         	CenterPanel() {
         		this.setVisible(true);
         		//this.setOpaque(false);
+        		this.setPreferredSize(new Dimension(500, 2000));
         		//this.setMaximumSize(new Dimension(WINDOW_WIDTH - X_PADDING * 2, WINDOW_HEIGHT));
                 this.setLayout(new GridBagLayout());
-                this.setBackground(new Color(235, 255, 246));
-                
-                title.setOpaque(true);
-                title.setBorder(new EmptyBorder(10, 10, 10, 10));
+                //this.setBackground(new Color(235, 255, 246));
                 
                 partnerPanel = new PartnerPanel();
 				
-                GridBagConstraints c = new GridBagConstraints();
-                c.anchor = GridBagConstraints.NORTHWEST;
-                c.weighty = 0.01;
+                JLabel studentPreferences = new JLabel("Student Preferences for Seating");
+                //studentPreferences.setBackground(Color.WHITE);
+                //studentPreferences.setOpaque(true);
+                addComponent(currentYPos, studentPreferences);
+                
+                addComponent(currentYPos, partnerPanel);
+                addComponent(currentYPos, new JLabel("ID"));
+                
+                addComponent(currentYPos, new JLabel("Local School Cash"));
+                addComponent(currentYPos, new PaymentPanel());
+                addComponent(currentYPos, new AccommodationPanel());
+                addComponent(currentYPos, new ProfilePanel(selectedStudent.getPicture()));
+                //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
+        	}
+        	
+        	public void addComponent(int gridy, JComponent component) {
+        		currentYPos += 2;
+        		
+        		component.setBackground(Color.WHITE);
+        		component.setOpaque(true);
+        		int yPadding;
+        		GridBagConstraints c = new GridBagConstraints();
+        		if (component instanceof JLabel) {
+        			System.out.println(((JLabel) component).getText());
+        			yPadding = 10;
+                    component.setBorder(BorderFactory.createLineBorder(Color.WHITE, 10, true));
+                    component.setFont(DesignConstants.MEDIUM_FONT);
+        		} else {
+        			yPadding = 3;
+        			component.setBorder(BorderFactory.createLineBorder(Color.WHITE, 10, true));
+        		}
+        		
+        		JPanel spacePanel = new JPanel();
+                spacePanel.setBackground(DesignConstants.BACK_COLOUR);
+                c.gridy = gridy - 1;
+                c.weightx = 1.0;
+                c.ipady = yPadding;
+            	
+                c.fill = GridBagConstraints.HORIZONTAL;
+                this.add(spacePanel, c);
+        		
+                c = new GridBagConstraints();
+        		if (gridy == 13) {
+        			c.anchor = GridBagConstraints.NORTHWEST;
+        			c.weighty = 1.0;
+
+        		} else {
+        			c.anchor = GridBagConstraints.LINE_START;
+        		}
+        		
+        		c.gridy = gridy;
                 c.weightx = 1.0;
                 c.fill = GridBagConstraints.HORIZONTAL;
-                this.add(title, c);
-                
-                c.gridy = 1;
-                c.weighty = 0.05; // changes next component
-                c.weightx = 1.0; 
-                this.add(partnerPanel, c);
-
-                c.gridy = 2;
-                c.weighty = 0.01;
-
-                title = new JLabel("Local School Cash");
-                title.setOpaque(true);
-                title.setBorder(new EmptyBorder(10, 10, 10, 10));
-                this.add(title, c);
-
-
-                PaymentPanel paymentPanel = new PaymentPanel();
-                c.gridy = 3;
-                c.weighty = 1.0;
-                this.add(paymentPanel, c);
-
-                //Daksh added this stuff and he has no idea how to lay it out properly
-                c = new GridBagConstraints();
-                c.gridy = 4;
-                c.weightx = 1.0;
-                c.weighty = 1.0;
-                c.anchor = GridBagConstraints.NORTHWEST;
-                this.add(new AccommodationPanel(),c);
-
-
-                c.gridy = 5;
-                this.add(new ProfilePanel(selectedStudent.getPicture()),c);
-
-                //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
+                //component.setBorder(new EmptyBorder(10, 10, 10, 10));
+                this.add(component, c);
         	}
         }
         
@@ -578,9 +605,13 @@ public class TicketingSystem extends JPanel {
                 
                 this.add(instructLabel);
                 
-                EditingRow row;
+                PreferenceRow row;
                 if (partners.size() == 0) {
-	            	this.add(new EditingRow("New student's name"));
+                	row = new FixedRow("");
+                	this.add(row);
+                	row.setVisible(false);
+                	
+                	this.add(new EditingRow("New student's name"));
                 } else {
 	                for (int i = 0; i < partners.size(); i++) {
 	                	this.add(new FixedRow(partners.get(i).getName()));
@@ -595,31 +626,15 @@ public class TicketingSystem extends JPanel {
                 addPreferenceButton.addActionListener(this);
                 
                 this.setBorder(new EmptyBorder(10, 10, 10, 10));
+                toUniversalFont(this);
+                
             }
-            
-            /*
-            public void showEditingRow(FixedRow row) {
-            	Component[] componentList = this.getComponents();
-            	int index = getIndex(componentList, row);
-
-    			componentList[index + 1].setVisible(true);
-    			((PreferenceRow) componentList[index + 1]).setText(row.getText());
-            }
-            
-            public void showFixedRow(EditingRow row) {
-            	Component[] componentList = this.getComponents();
-            	int index = getIndex(componentList, row);
-
-            	FixedRow rowToShow = (FixedRow) componentList[index - 1];
-            	rowToShow.setText(row.getText());
-            	rowToShow.setVisible(true);
-            }
-            */
             
             public PreferenceRow toggleRowState(PreferenceRow row) {
             	Component[] componentList = this.getComponents();
             	int index = getIndex(componentList, row);
             	
+            	//System.out.println(index);
             	PreferenceRow rowToShow;
             	if (row instanceof EditingRow) {
             		rowToShow = (FixedRow) componentList[index - 1];
@@ -633,7 +648,7 @@ public class TicketingSystem extends JPanel {
             	return rowToShow;
             }
 
-            public int getIndex(Component[] componentList, PreferenceRow row) {
+            private int getIndex(Component[] componentList, PreferenceRow row) {
             	int rowIndex = 0;
             	while (!row.equals(componentList[rowIndex])) {
             		rowIndex++;
@@ -702,7 +717,7 @@ public class TicketingSystem extends JPanel {
             	FixedRow(String nameLabel) {
             		super(nameLabel);
             		
-            		this.setBackground(Color.BLACK);
+            		//this.setBackground(Color.BLACK);
             		this.nameLabel = new JLabel(nameLabel);
             		
             		editButton = new JButton("%"); // change later
@@ -713,13 +728,13 @@ public class TicketingSystem extends JPanel {
             		this.add(Box.createHorizontalGlue());
             		this.add(editButton);
             		this.add(removeButton);
+            		
+            		toUniversalFont(this);
             	}
             	
             	public String getText() {	
         			return nameLabel.getText();
             	}
-            	
-
             	
             	public void actionPerformed(ActionEvent e) {
             		super.actionPerformed(e);
@@ -753,17 +768,9 @@ public class TicketingSystem extends JPanel {
                     		nameField.setText("");
                     	}
                     });
+                    
                     nameField.setMaximumSize(new Dimension(300, 100));
-                    //nameField.setMaximumSize(new Dimension(1, 50));
             		/*
-            		nameField = new JTextField("New student's name");
-            		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
-                    nameField.addMouseListener(new MouseAdapter() {
-                    	@Override
-                    	public void mouseClicked(MouseEvent e) {
-                    		nameField.setText("");
-                    	}
-                    });
                     nameField.addKeyListener(new KeyAdapter() {
                         @Override
                         public void keyTyped(KeyEvent e) {
@@ -771,7 +778,6 @@ public class TicketingSystem extends JPanel {
                                 e.consume();
                         }
                     });
-                    nameField.setMaximumSize(new Dimension(800, 50));
             		*/
             		
             		okButton = new JButton("OK");
@@ -782,6 +788,8 @@ public class TicketingSystem extends JPanel {
             		this.add(Box.createHorizontalGlue());
             		this.add(okButton);
             		this.add(removeButton);
+            		
+            		toUniversalFont(this);
             	}
             	
             	public String getText() {	
@@ -793,21 +801,25 @@ public class TicketingSystem extends JPanel {
             		
             		Object source = e.getSource();
             		if (source == okButton) {
-            			Student foundStudent = findStudentByName(nameField.getText());
-                		// remove error?
-                        if (foundStudent == TicketPanel.this.selectedStudent) {
-                            this.addErrorLabel("You can't add yourself");
-                        } else if (TicketPanel.this.selectedStudent.getPartners().contains(foundStudent)) {
-                            this.setVisible(false);
-                            PreferenceRow row = toggleRowState(this);
-                            row.addErrorLabel("Person already added");
-                        } else if (foundStudent == null) {
+            			ArrayList<Student> foundStudents = findStudentsWithName(nameField.getText());
+                		
+            			if (foundStudents == null) {
                             this.addErrorLabel("Partner not Found. Ask them to register before you can add them");
+                        } else if (foundStudents.size() == 1) {
+                        	if (foundStudents.get(0) == TicketPanel.this.selectedStudent) {
+	                            this.addErrorLabel("You can't add yourself");
+	                        } else if (TicketPanel.this.selectedStudent.getPartners().contains(foundStudents.get(0))) {
+	                            this.setVisible(false);
+	                            PreferenceRow row = toggleRowState(this);
+	                            row.addErrorLabel("Person already added");
+	                        } else {
+	                        	this.setVisible(false);
+	                        	toggleRowState(this);
+	                        	
+	                        	partners.add(foundStudents.get(0));
+	                        }
                         } else {
-                        	this.setVisible(false);
-                        	toggleRowState(this);
-                        	
-                        	partners.add(foundStudent);
+                        	this.addErrorLabel("More than one student with that name");
                         }
             		}
                 	writeStudents();
@@ -884,8 +896,8 @@ public class TicketingSystem extends JPanel {
             ButtonPanel() {
                 setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
                 setBorder(new EmptyBorder(10, 0, 5, 0));
-                setOpaque(false);
                 setFocusable(false);
+                setBackground(DesignConstants.MAIN_COLOUR);
 
                 add(Box.createRigidArea(new Dimension(1100, 0)));
                 logout = new JButton("Logout "); // add name, call showLogin()
@@ -893,14 +905,17 @@ public class TicketingSystem extends JPanel {
 
                 showFloor = new JButton("Floor Plan");
                 showFloor.addActionListener(this);
-
+                
                 this.add(logout);
                 this.add(showFloor);
-
+                
+                toUniversalFont(this);
+                
                 revalidate();
                 repaint();
             }
-
+            
+            /*
             public void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
@@ -911,6 +926,7 @@ public class TicketingSystem extends JPanel {
                 g2.setPaint(blackToGray);
                 g2.fill(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
             }
+            */
 
             public void actionPerformed(ActionEvent evt) {
                 Object source = evt.getSource();
@@ -1212,6 +1228,20 @@ public class TicketingSystem extends JPanel {
                     showTicket();
                 }
             }
+        }
+    }
+    
+    public static final class DesignConstants {
+		public static final Color BACK_COLOUR = new Color((float) (130 / 255.0), (float) (235 / 255.0), 
+    			(float) (33 / 255.0), (float) 0.3);
+        public static final Color MAIN_COLOUR = new Color(75, 112, 68);
+        
+        public static final Font LARGE_FONT = new Font("Garamond", Font.PLAIN, 20);
+        public static final Font MEDIUM_FONT = new Font("Garamond", Font.BOLD, 15);
+        public static final Font SMALL_FONT = new Font("Garamond", Font.BOLD, 13);
+
+        DesignConstants() {
+        	throw new AssertionError();
         }
     }
 }

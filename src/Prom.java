@@ -26,7 +26,7 @@ public class Prom extends JFrame {
         this.tables = new ArrayList<Table>();
         //tables.add(new Table());
 
-        this.ticketingPanel = new TicketingSystem(students,tables);
+        this.ticketingPanel = new TicketingSystem(students, tables);
 
         this.add(ticketingPanel);
 
