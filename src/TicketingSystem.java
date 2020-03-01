@@ -1125,10 +1125,12 @@ public class TicketingSystem extends JPanel {
             		buyButton.addActionListener(this);
             		refundButton.addActionListener(this);
 
-                    this.add(cardLabel);
-                    //this.add(cardNumber);
-                    this.add(buyButton);
-                    this.add(refundButton);
+            		if (selectedStudent.hasPaid()){
+                        this.add(refundButton);
+                    } else {
+                        this.add(cardLabel);
+                        this.add(buyButton);
+                    }
             	}
 
                 @Override
