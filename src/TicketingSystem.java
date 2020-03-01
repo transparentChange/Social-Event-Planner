@@ -119,12 +119,16 @@ public class TicketingSystem extends JPanel {
     private ArrayList<Student> findStudentsWithName(String name) {
     	ArrayList<Student> studentsWithName = new ArrayList<Student>();
         for (Student student : students) {
-            if (name.equals(student.getName())){
-            	System.out.println("here");
+            if (name.equals(student.getName())) {
                 studentsWithName.add(student);
             }
         }
-        return studentsWithName;
+        
+        if (studentsWithName.size() == 0) {
+        	return null;
+        } else {
+        	return studentsWithName;
+        }
     }
 
     /**
@@ -551,428 +555,6 @@ public class TicketingSystem extends JPanel {
         }
         */
         
-        
-        class CenterPanel extends JPanel {
-        	private JLabel title = new JLabel("Student Preferences for Seating");
-        	private PartnerPanel partnerPanel;
-        	private int currentYPos = 1;
-        	
-        	CenterPanel() {
-        		this.setVisible(true);
-        		//this.setOpaque(false);
-        		this.setPreferredSize(new Dimension(500, 2000));
-        		//this.setMaximumSize(new Dimension(WINDOW_WIDTH - X_PADDING * 2, WINDOW_HEIGHT));
-                this.setLayout(new GridBagLayout());
-                this.setBackground(DesignConstants.BACK_COLOUR);
-                
-                partnerPanel = new PartnerPanel();
-				
-                JLabel studentPreferences = new JLabel("Student Preferences for Seating");
-                //studentPreferences.setBackground(Color.WHITE);
-                //studentPreferences.setOpaque(true);
-                addComponent(currentYPos, studentPreferences);
-                
-                addComponent(currentYPos, partnerPanel);
-                addComponent(currentYPos, new JLabel("ID"));
-                
-                addComponent(currentYPos, new JLabel("Local School Cash"));
-                addComponent(currentYPos, new PaymentPanel());
-                addComponent(currentYPos, new AccommodationPanel());
-                addComponent(currentYPos, new ProfilePanel(selectedStudent.getPicture()));
-                //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
-        	}
-        	
-        	public void addComponent(int gridy, JComponent component) {
-        		currentYPos += 2;
-        		
-        		component.setBackground(Color.WHITE);
-        		component.setOpaque(true);
-        		int yPadding;
-        		GridBagConstraints c = new GridBagConstraints();
-        		if (component instanceof JLabel) {
-        			System.out.println(((JLabel) component).getText());
-        			yPadding = 20;
-                    component.setBorder(BorderFactory.createLineBorder(Color.WHITE, 10, true));
-                    component.setFont(DesignConstants.MEDIUM_FONT);
-        		} else {
-        			yPadding = 5;
-        			component.setBorder(BorderFactory.createLineBorder(Color.WHITE, 20, true));
-        		}
-        		
-        		/*
-        		JPanel spacePanel = new JPanel();
-                spacePanel.setBackground(DesignConstants.BACK_COLOUR);
-                c.gridy = gridy - 1;
-                c.weightx = 1.0;
-                c.ipady = yPadding;
-            	
-                c.fill = GridBagConstraints.HORIZONTAL;
-                this.add(spacePanel, c);
-        		*/
-        		c.gridy = gridy - 1;
-                c.weightx = 1.0;
-                c.ipady = yPadding;
-                c.fill = GridBagConstraints.HORIZONTAL;
-        		this.add(Box.createRigidArea(new Dimension(0, 0)), c);
-        		
-                c = new GridBagConstraints();
-        		if (gridy == 13) {
-        			c.anchor = GridBagConstraints.NORTHWEST;
-        			c.weighty = 1.0;
-
-        		} else {
-        			c.anchor = GridBagConstraints.LINE_START;
-        		}
-        		
-        		c.gridy = gridy;
-                c.weightx = 1.0;
-                c.fill = GridBagConstraints.HORIZONTAL;
-                //component.setBorder(new EmptyBorder(10, 10, 10, 10));
-                this.add(component, c);
-        	}
-        }
-        
-        private class PartnerPanel extends JPanel implements ActionListener {
-        	private JTextField nameField;
-            private JButton addPreferenceButton;
-            private JLabel instructLabel = new JLabel("List of students you would like to sit with: ");
-            private int editingIndex;
-            
-            PartnerPanel() {
-                this.setVisible(true);
-                //this.setLayout(new GridBagLayout());
-                //this.setOpaque(false);
-                this.setFocusable(true);
-                this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-                //this.setBackground(Color.WHITE);
-                
-                /*
-        		nameField = new JTextField("New student's name");
-        		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
-                nameField.addMouseListener(new MouseAdapter() {
-                	@Override
-                	public void mouseClicked(MouseEvent e) {
-                		nameField.setText("");
-                	}
-                });
-                nameField.addKeyListener(new KeyAdapter() {
-                    @Override
-                    public void keyTyped(KeyEvent e) {
-                        if (nameField.getText().length() >= 50) // limit to 50 characters
-                            e.consume();
-                    }
-                });
-                nameField.setMaximumSize(new Dimension(800, 50));
-                */
-                addPreferenceButton = new JButton("Add Partner");
-                addPreferenceButton.addActionListener(this);
-                
-                this.add(instructLabel);
-
-                if (partners.size() == 0) {
-                	RowPair partnerPair = new RowPair("New Studet's Name", false);
-                	this.add(partnerPair);
-                } else {
-	                for (int i = 0; i < partners.size(); i++) {
-	                	RowPair partnerPair = new RowPair(partners.get(i).getName(), true);
-	                	this.add(partnerPair);
-	                }
-                }
-                
-                editingIndex = -1;
-                
-                this.add(addPreferenceButton);
-                addPreferenceButton.addActionListener(this);
-                
-                this.setBorder(new EmptyBorder(10, 10, 10, 10));
-                toUniversalFont(this);
-            }
-            
-            public void actionPerformed(ActionEvent e) {
-            	Object source = e.getSource();
-            	if (source == addPreferenceButton) {
-            		Component[] componentList = this.getComponents();
-            		int index = componentList.length - 2;
-            		if (index == 0) {
-            			RowPair partnerPair = new RowPair("New Studet's Name", false);
-                    	this.add(partnerPair);
-            		} else {
-	            		while ((index != 0) && (!((RowPair) componentList[index]).isVisible())) {
-	            			index--;
-	            		}
-	            		
-	            		if ((componentList[componentList.length - 2] instanceof RowPair) &&
-	            				(!(((RowPair) componentList[componentList.length - 2]).editingIsVisible()))) {
-	            			this.remove(addPreferenceButton);
-	
-	            			RowPair partnerPair = new RowPair("New Studet's Name", false);
-	                    	this.add(partnerPair);
-	                    	
-	                    	this.add(addPreferenceButton);
-	                    	addPreferenceButton.addActionListener(this);
-	            		}
-	            		
-	            		editingIndex = componentList.length - 1;
-            		}
-            	}
-            	
-            	this.revalidate();
-            	this.repaint();
-            }
-            
-            private class RowPair extends JPanel {
-            	private FixedRow fixed;
-            	private EditingRow editing;
-            	
-            	RowPair(String text, boolean fixedVisiblity) {
-            		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-            		
-            		fixed = new FixedRow(text);
-            		editing = new EditingRow(text);
-            		
-            		if (fixedVisiblity) {
-            			toFixedVisibility();
-            		} else {
-            			toEditingVisibility();
-            		}
-            		
-            		this.add(fixed);
-            		this.add(editing);
-            	}
-            	
-            	private void copyToFixed() {
-            		fixed.setText(editing.getText());
-            	}
-            	
-            	private void copyToEditing() {
-            		editing.setText(fixed.getText());
-            	}
-            	
-            	private void addErrorToFixed(String text) {
-            		fixed.addErrorLabel(text);
-            	}
-            	
-            	public void toFixedVisibility() {
-            		fixed.setVisible(true);
-            		editing.setVisible(false);
-            	}
-            	
-            	private void toEditingVisibility() {
-            		fixed.setVisible(false);
-            		editing.setVisible(true);
-            	}
-            	
-            	public boolean editingIsVisible() {
-            		if (editing.isVisible()) {
-            			return true;
-            		} else {
-            			return false;
-            		}
-            	}
-            	
-            	private void hidePair() {
-                	this.setVisible(false);
-                	
-                	/*
-                	if (row instanceof EditingRow) {
-                		editingIndex = -1;
-                	}
-                	*/
-                	
-                	for (int j = 0; j < partners.size(); j++) {
-        				if (partners.get(j).getName().equals(fixed.getText())) {
-        					partners.remove(j);
-        				}
-        			}
-                	writeStudents();
-            	}
-            	
-                private class FixedRow extends PreferenceRow implements ActionListener {
-                	private JButton editButton;
-                	private JLabel nameLabel;
-                	private JLabel personAddedLabel;
-
-                	FixedRow(String nameLabel) {
-                		super(nameLabel);
-                		
-                		//this.setBackground(Color.BLACK);
-                		this.nameLabel = new JLabel(nameLabel);
-                		
-                		editButton = new JButton("%"); // change later
-                		editButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-                		editButton.addActionListener(this);
-
-                		this.add(this.nameLabel);
-                		this.add(Box.createHorizontalGlue());
-                		this.add(editButton);
-                		this.add(removeButton);
-                		
-                		toUniversalFont(this);
-                	}
-                	
-                	public String getText() {	
-            			return nameLabel.getText();
-                	}
-                	
-                	public void actionPerformed(ActionEvent e) {
-                		super.actionPerformed(e);
-                		
-                		Object source = e.getSource();
-                		if (source == editButton) {
-                			copyToEditing();
-                			toEditingVisibility();
-                			
-                			if (editingIndex != -1) {
-                				
-                			}
-                			
-                		}
-                	}
-
-    				@Override
-    				public void setText(String newText) {
-    					nameLabel.setText(newText);
-    				}
-                }
-                
-                private class EditingRow extends PreferenceRow implements ActionListener {
-                	private JButton okButton;
-                	private JTextField nameField;
-                	
-                	EditingRow(String nameLabel) {
-                		super(nameLabel);
-                		this.setBackground(Color.WHITE);
-                		
-                		nameField = new JTextField(nameLabel);
-                		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
-                        nameField.addMouseListener(new MouseAdapter() {
-                        	@Override
-                        	public void mouseClicked(MouseEvent e) {
-                        		nameField.setText("");
-                        	}
-                        });
-                        
-                        nameField.setMaximumSize(new Dimension(300, 100));
-                		/*
-                        nameField.addKeyListener(new KeyAdapter() {
-                            @Override
-                            public void keyTyped(KeyEvent e) {
-                                if (nameField.getText().length() >= 50) // limit to 50 characters
-                                    e.consume();
-                            }
-                        });
-                		*/
-                		
-                		okButton = new JButton("OK");
-                		okButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-                		okButton.addActionListener(this);
-                		
-                		this.add(nameField);
-                		this.add(Box.createHorizontalGlue());
-                		this.add(okButton);
-                		this.add(removeButton);
-                		
-                		toUniversalFont(this);
-                	}
-                	
-                	public String getText() {	
-            			return nameField.getText();
-                	}
-                	
-                	public void actionPerformed(ActionEvent e) {
-                		super.actionPerformed(e);
-                		
-                		Object source = e.getSource();
-                		if (source == okButton) {
-                			ArrayList<Student> foundStudents = findStudentsWithName(nameField.getText());
-                    		
-                			if (foundStudents == null) {
-                                this.addErrorLabel("Partner not Found. Ask them to register before you can add them");
-                            } else if (foundStudents.size() == 1) {
-                            	if (foundStudents.get(0) == TicketPanel.this.selectedStudent) {
-    	                            this.addErrorLabel("You can't add yourself");
-    	                        } else if (TicketPanel.this.selectedStudent.getPartners().contains(foundStudents.get(0))) {
-    	                            copyToFixed();
-    	                            toFixedVisibility();
-    	                            addErrorToFixed("Person already added");
-    	                        } else {
-    	                        	copyToFixed();
-    	                            toFixedVisibility();
-    	                        	
-    	                        	partners.add(foundStudents.get(0));
-    	                        }
-                            } else {
-                            	this.addErrorLabel("More than one student with that name");
-                            }
-                		}
-                    	writeStudents();
-                    	
-                    	this.revalidate();
-                    	this.repaint();
-                	}
-
-    				@Override
-    				public void setText(String newText) {
-    					nameField.setText(newText);
-    				}
-                }
-                
-                abstract private class PreferenceRow extends JPanel implements ActionListener {
-                	protected JButton removeButton;
-                	abstract public String getText();
-                	abstract public void setText(String newText);
-                	private JLabel errorLabel;
-                	private final int RIGHT_BORDER = 400;
-                	
-                	PreferenceRow(String nameLabel) {
-                		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-                		this.setFocusable(true);
-                		
-                		//this.setMaximumSize(new Dimension(WINDOW_WIDTH, 100));
-                		this.setBorder(new EmptyBorder(3, 3, 3, RIGHT_BORDER));
-                		this.setAlignmentX(Component.LEFT_ALIGNMENT);
-                		
-                		removeButton = new JButton("-");
-                		removeButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-                		removeButton.addActionListener(this);
-                	}
-                	
-                	public void actionPerformed(ActionEvent e) {
-                		Object source = e.getSource();
-                		if (source == removeButton) {
-                			hidePair();
-                		}
-                	}
-                	
-                	public void addErrorLabel(String errorText) {
-                		if (errorLabel == null) {
-                			errorLabel = new JLabel(errorText);
-                			//personAddedLabel = new JLabel("Person already added");
-                			this.add(Box.createRigidArea(new Dimension(5, 0)));
-                			this.add(errorLabel);
-                			System.out.println(RIGHT_BORDER - errorLabel.getPreferredSize().getWidth() - 5);
-                			this.setBorder(new EmptyBorder(3, 3, 3,
-                					(int) (RIGHT_BORDER - errorLabel.getPreferredSize().getWidth() - 5)));
-                		} else {
-                			errorLabel.setText(errorText);
-                		}
-                	}
-                	
-                	@Override
-                	public boolean equals(Object obj) {
-                		if (!obj.getClass().equals(this.getClass())) {
-                			//System.out.println("not ")
-                			return false;
-                		} else if (((PreferenceRow) obj).getText().equals(this.getText())) {
-                			return true;
-                		} else {
-                			return false;
-                		}
-                	}
-                }
-            }
-        }
-
         private class ButtonPanel extends JPanel implements ActionListener {
             private JButton logout;
             private JButton showFloor;
@@ -1008,264 +590,782 @@ public class TicketingSystem extends JPanel {
                 }
             }
         }
-
-        private class PaymentPanel extends JPanel implements ActionListener {
-            //private JTextField cardNumber = new JTextField();
-            private JLabel cardLabel = new JLabel("Enter Card Number:");
-            private JButton buyButton = new JButton("Buy now!");
-            private JButton refundButton = new JButton("Click here for a refund");
-
-        	PaymentPanel() {
-        		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-                //do all layout
-
-        		this.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-                // this.add(infoMessage, BorderLayout.CENTER);
-
-        		buyButton.addActionListener(this);
-        		refundButton.addActionListener(this);
-
-                this.add(cardLabel);
-                //this.add(cardNumber);
-                this.add(buyButton);
-                this.add(refundButton);
-        	}
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Object source = e.getSource();
-                if (source == buyButton){
-                    cardLabel.setVisible(false);
-                    //cardNumber.setVisible(false);
-                    buyButton.setVisible(false);
-                    refundButton.setVisible(true);
-                    selectedStudent.setPaid(true);
-
-                } else if (source == refundButton) {
-                    cardLabel.setVisible(true);
-                    //cardNumber.setVisible(true);
-                    buyButton.setVisible(true);
-                    refundButton.setVisible(false);
-                    selectedStudent.setPaid(false);
-                }
-                if (selectedStudent.hasPaid() && selectedStudent.getPartners().size() == 0){
-                    infoMessage.setText("Woo! You're coming to Prom!\nMake sure to set your preferences");
-                } else if (selectedStudent.hasPaid()) {
-                    infoMessage.setText("Woo! You're set for Prom!\nYou can still add more or edit your preferences");
-                } else {
-                    infoMessage.setText("You're almost there!\nMake sure to purchase your ticket");
-                }
-            }
-        }
-
-        private class ProfilePanel extends JPanel implements ActionListener{
-            private BufferedImage studentImage;
-            private JLabel imageComponent;
-            private JFileChooser fileChooser;
-            private JButton selectImage;
-            private Path filePath;
-
-            private static final int imageSize = 200;
-
-            ProfilePanel(BufferedImage image){
+        
+        class CenterPanel extends JPanel {
+        	private int currentYPos = 1;
+        	private ResolveNamesPanel resolvePanel;
+        	private PartnerPanel partnerPanel;
+        	
+        	CenterPanel() {
+        		this.setVisible(true);
+        		//this.setOpaque(false);
+        		this.setPreferredSize(new Dimension(500, 2000));
+        		//this.setMaximumSize(new Dimension(WINDOW_WIDTH - X_PADDING * 2, WINDOW_HEIGHT));
                 this.setLayout(new GridBagLayout());
-
-                studentImage = image;
-
-                if (studentImage != null) {
-                    imageComponent = new JLabel(new ImageIcon(studentImage));
-                } else {
-                    imageComponent = new JLabel("No image");
-                }
-                selectImage = new JButton("Select Image");
-                fileChooser = new JFileChooser();
-                fileChooser.setFileFilter(new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes()));
-
-                GridBagConstraints c = new GridBagConstraints();
-                c.gridy = 0;
-                this.add(selectImage,c);
-                selectImage.addActionListener(this);
-
+                this.setBackground(DesignConstants.BACK_COLOUR);
+                
+                partnerPanel = new PartnerPanel();
+                resolvePanel = new ResolveNamesPanel();
+				
+                addComponent(currentYPos, new JLabel("Student Preferences for Seating"));
+                addComponent(currentYPos, partnerPanel);
+                addComponent(currentYPos, new JLabel("Specify Students' IDs"));
+                addComponent(currentYPos, resolvePanel);
+                addComponent(currentYPos, new JLabel("Local School Cash"));
+                addComponent(currentYPos, new PaymentPanel());
+                addComponent(currentYPos, new AccommodationPanel());
+                addComponent(currentYPos, new ProfilePanel(selectedStudent.getPicture()));
+                //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
+        	}
+        	
+        	public void addComponent(int gridy, JComponent component) {
+        		currentYPos += 2;
+        		
+        		component.setBackground(Color.WHITE);
+        		component.setOpaque(true);
+        		int yInterPadding;
+        		GridBagConstraints c = new GridBagConstraints();
+        		if (component instanceof JLabel) {
+        			System.out.println(((JLabel) component).getText());
+        			yInterPadding = 20;
+                    component.setBorder(BorderFactory.createLineBorder(Color.WHITE, 10, true));
+                    component.setFont(DesignConstants.MEDIUM_FONT);
+        		} else {
+        			yInterPadding = 5;
+        			component.setBorder(BorderFactory.createMatteBorder(15, 10, 15, 10, Color.WHITE));
+        		}
+        		
+        		c.gridy = gridy - 1;
+                c.weightx = 1.0;
+                c.ipady = yInterPadding;
+                c.fill = GridBagConstraints.HORIZONTAL;
+        		this.add(Box.createRigidArea(new Dimension(0, 0)), c);
+        		
                 c = new GridBagConstraints();
-                c.gridy = 1;
-                this.add(imageComponent,c);
+        		if (gridy == 15) {
+        			c.anchor = GridBagConstraints.NORTHWEST;
+        			c.weighty = 1.0;
+        		} else {
+        			c.anchor = GridBagConstraints.LINE_START;
+        		}
+        		
+        		c.gridy = gridy;
+                c.weightx = 1.0;
+                c.fill = GridBagConstraints.HORIZONTAL;
+                //component.setBorder(new EmptyBorder(10, 10, 10, 10));
+                this.add(component, c);
+        	}
+        	
+        	private class PartnerPanel extends JPanel implements ActionListener {
+            	private JTextField nameField;
+                private JButton addPreferenceButton;
+                private JLabel instructLabel = new JLabel("List of students you would like to sit with: ");
+                private int editingIndex;
+                
+                private final String NEW_STUDENT_TEXT = "New Student's Name";
+                
+                PartnerPanel() {
+                    this.setVisible(true);
+                    //this.setLayout(new GridBagLayout());
+                    //this.setOpaque(false);
+                    this.setFocusable(true);
+                    this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+                    //this.setBackground(Color.WHITE);
+                    
+                    /*
+            		nameField = new JTextField("New student's name");
+            		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+                    nameField.addMouseListener(new MouseAdapter() {
+                    	@Override
+                    	public void mouseClicked(MouseEvent e) {
+                    		nameField.setText("");
+                    	}
+                    });
+                    nameField.addKeyListener(new KeyAdapter() {
+                        @Override
+                        public void keyTyped(KeyEvent e) {
+                            if (nameField.getText().length() >= 50) // limit to 50 characters
+                                e.consume();
+                        }
+                    });
+                    nameField.setMaximumSize(new Dimension(800, 50));
+                    */
+                    addPreferenceButton = new JButton("Add Partner");
+                    addPreferenceButton.addActionListener(this);
+                    
+                    this.add(instructLabel);
 
+                    if (partners.size() == 0) {
+                    	RowPair partnerPair = new RowPair(NEW_STUDENT_TEXT);
+                    	this.add(partnerPair);
+                    } else {
+    	                for (int i = 0; i < partners.size(); i++) {
+    	                	RowPair partnerPair = new RowPair(partners.get(i).getName(), partners.get(i).getId());
+    	                	this.add(partnerPair);
+    	                }
+                    }
+                    
+                    editingIndex = -1;
+                    
+                    this.add(addPreferenceButton);
+                    
+                    this.setBorder(new EmptyBorder(10, 10, 10, 10));
+                    toUniversalFont(this);
+                }
+                
+                public int getIndex(PreferenceRow row) {
+                	Component[] componentList = this.getComponents();
+
+                	for (int i = 0; i < componentList.length; i++) {
+                		if ((componentList[i] instanceof RowPair) && (((RowPair) componentList[i]).hasRow(row))) {
+                			return i;
+                		}
+                	}
+                	
+                	return -1;
+                }
+                
+                public boolean showFixed(int index) {
+                	Component[] componentList = this.getComponents();
+                	if (componentList[index] instanceof RowPair) {
+                		if ((index == componentList.length - 2) && 
+                				(((RowPair) componentList[index]).getFixedText().equals(NEW_STUDENT_TEXT))) {
+                			this.remove(componentList[index]);
+                		} else {
+                			((RowPair) componentList[index]).toFixedVisibility(((RowPair) componentList[index]).getStudentID());
+                		}
+                		return true;
+                	} else {
+                		return false;
+                	}
+                }
+            	
+                private void addPairToBottom(String text, String id) {
+                	Component[] componentList = this.getComponents();
+                	
+                	if (id == null) {
+	                	if (editingIndex != -1) {
+	        				showFixed(editingIndex);
+	        			} 
+	                	editingIndex = componentList.length - 1;
+                	} else {
+                		editingIndex = -1;
+                	}
+            		
+        			this.remove(addPreferenceButton);
+        			
+        			RowPair pairToAdd;
+        			if (id == null) {
+        				pairToAdd = new RowPair(text);
+        			} else {
+        				pairToAdd = new RowPair(text, id);
+        			}
+                	this.add(pairToAdd);
+                	
+                	this.add(addPreferenceButton);
+                	
+                	this.revalidate();
+                	this.repaint();
+                }
+                
+            	private void removePair(RowPair pairToRemove) {
+            		this.remove(pairToRemove);
+            		
+                	for (int j = 0; j < partners.size(); j++) {
+        				if (partners.get(j).getName().equals(pairToRemove.getFixedText())) {
+        					partners.remove(j);
+        				}
+        			}
+                	writeStudents();
+            		
+                	this.revalidate();
+                	this.repaint();
+            	}
+                
+                public void actionPerformed(ActionEvent e) {
+                	Object source = e.getSource();
+                	if (source == addPreferenceButton) {
+                		Component[] componentList = this.getComponents();
+                		int index = componentList.length - 2;
+                		if (index == 0) {
+                			RowPair partnerPair = new RowPair(NEW_STUDENT_TEXT);
+                        	this.add(partnerPair);
+                		} else {
+    	            		addPairToBottom(NEW_STUDENT_TEXT, null);
+                		}
+                	}
+                }
+                
+                private class RowPair extends JPanel {
+                	private FixedRow fixed;
+                	private EditingRow editing;
+                	private String savedStudentID;
+                	
+                	RowPair(String text) {
+                		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+                		
+                		fixed = new FixedRow(text);
+                		editing = new EditingRow(text);
+                		
+                		toEditingVisibility();
+                		
+                		this.add(fixed);
+                		this.add(editing);
+                	}
+                	
+                	RowPair(String text, String id) {
+                		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+                		
+                		fixed = new FixedRow(text);
+                		editing = new EditingRow(text);
+                		
+                		toFixedVisibility(id);
+                		
+                		this.add(fixed);
+                		this.add(editing);
+                	}
+                	
+                	public String getFixedText() {
+                		return fixed.getText();
+                	}
+                	
+                	private String getStudentID() {
+                		return savedStudentID;
+                	}
+                	
+                	private void copyToEditing() {
+                		editing.setText(fixed.getText());
+                	}
+                	
+                	private void addErrorToFixed(String text) {
+                		fixed.addErrorLabel(text);
+                	}
+                	
+                	public void toFixedVisibility(String id) {
+                		savedStudentID = id;
+                		fixed.setText(editing.getText());
+                		
+                		fixed.setVisible(true);
+                		editing.setVisible(false);
+                	}
+                	
+                	private void toEditingVisibility() {
+                		fixed.setVisible(false);
+                		editing.setVisible(true);
+                	}
+                	
+                	public boolean hasRow(PreferenceRow row) {
+                		if ((row.equals(editing)) || (row.equals(fixed))) {
+                			return true;
+                		} else {
+                			return false;
+                		}
+                	}
+                	
+                	public boolean editingIsVisible() {
+                		if (editing.isVisible()) {
+                			return true;
+                		} else {
+                			return false;
+                		}
+                	}
+                	
+                	private void removeThis() {
+                		removePair(this);
+                	}
+                	
+                    private class FixedRow extends PreferenceRow implements ActionListener {
+                    	private JButton editButton;
+                    	private JLabel nameLabel;
+                    	private JLabel personAddedLabel;
+
+                    	FixedRow(String nameLabel) {
+                    		super(nameLabel);
+                    		
+                    		//this.setBackground(Color.BLACK);
+                    		this.nameLabel = new JLabel(nameLabel);
+                    		
+                    		editButton = new JButton("%"); // change later
+                    		editButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
+                    		editButton.addActionListener(this);
+
+                    		this.add(this.nameLabel);
+                    		this.add(Box.createHorizontalGlue());
+                    		this.add(editButton);
+                    		this.add(removeButton);
+                    		
+                    		toUniversalFont(this);
+                    	}
+                    	
+                    	public String getText() {	
+                			return nameLabel.getText();
+                    	}
+                    	
+                    	public void actionPerformed(ActionEvent e) {
+                    		Object source = e.getSource();
+                    		if (source == editButton) {
+                    			copyToEditing();
+                    			toEditingVisibility();
+                    			
+                    			if (editingIndex != -1) {
+                    				showFixed(editingIndex);
+                    			} 
+                    			editingIndex = getIndex(this);
+                    			
+                    		} else if (source == removeButton) {
+                    			removeThis();
+                    		}
+                    	}
+
+        				@Override
+        				public void setText(String newText) {
+        					nameLabel.setText(newText);
+        				}
+                    }
+                    
+                    private class EditingRow extends PreferenceRow implements ActionListener {
+                    	private JButton okButton;
+                    	private JTextField nameField;
+                    	
+                    	EditingRow(String nameLabel) {
+                    		super(nameLabel);
+                    		this.setBackground(Color.WHITE);
+                    		
+                    		nameField = new JTextField(nameLabel);
+                    		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+                            nameField.addMouseListener(new MouseAdapter() {
+                            	@Override
+                            	public void mouseClicked(MouseEvent e) {
+                            		nameField.setText("");
+                            	}
+                            });
+                            
+                            nameField.setMaximumSize(new Dimension(300, 100));
+                    		/*
+                            nameField.addKeyListener(new KeyAdapter() {
+                                @Override
+                                public void keyTyped(KeyEvent e) {
+                                    if (nameField.getText().length() >= 50) // limit to 50 characters
+                                        e.consume();
+                                }
+                            });
+                    		*/
+                    		
+                    		okButton = new JButton("OK");
+                    		okButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
+                    		okButton.addActionListener(this);
+                    		
+                    		this.add(nameField);
+                    		this.add(Box.createHorizontalGlue());
+                    		this.add(okButton);
+                    		this.add(removeButton);
+                    		
+                    		toUniversalFont(this);
+                    	}
+                    	
+                    	public String getText() {	
+                			return nameField.getText();
+                    	}
+                    	
+                    	public void actionPerformed(ActionEvent e) {                		
+                    		Object source = e.getSource();
+                    		if (source == okButton) {
+                    			ArrayList<Student> foundStudents = findStudentsWithName(nameField.getText());
+                    			if (foundStudents == null) {
+                                    this.addErrorLabel("Partner not Found. Ask them to register before you can add them");
+                                } else if (foundStudents.size() == 1) {
+                                	if (foundStudents.get(0) == TicketPanel.this.selectedStudent) {
+        	                            this.addErrorLabel("You can't add yourself");
+        	                        } else if (TicketPanel.this.selectedStudent.getPartners().contains(foundStudents.get(0))) {
+        	                            toFixedVisibility(foundStudents.get(0).getId());
+        	                            addErrorToFixed("Person already added");
+        	                            
+        	                            editingIndex = -1;
+        	                        } else {
+        	                        	partners.remove(new Student(getFixedText(), getStudentID()));
+        	                        	
+        	                            toFixedVisibility(foundStudents.get(0).getId());
+        	                            
+        	                            editingIndex = -1;
+        	                        	partners.add(foundStudents.get(0));
+        	                        }
+                                } else {
+                                	this.addErrorLabel("Warning! More than one student with that name");
+                                	resolvePanel.addResolvingRow(foundStudents.get(0).getName());
+                                	removeThis();
+                                }
+                    		} else if (source == removeButton) {
+                    			removeThis();
+                    			editingIndex = -1;
+                    		}
+                        	
+                        	this.revalidate();
+                        	this.repaint();
+                    	}
+
+        				@Override
+        				public void setText(String newText) {
+        					nameField.setText(newText);
+        				}
+                    }
+                }
+                
+                abstract public class PreferenceRow extends JPanel implements ActionListener {
+                	protected JButton removeButton;
+                	abstract public String getText();
+                	abstract public void setText(String newText);
+                	private JLabel errorLabel;
+                	private final int RIGHT_BORDER = 400;
+                	
+                	PreferenceRow(String nameLabel) {
+                		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+                		this.setFocusable(true);
+                		
+                		//this.setMaximumSize(new Dimension(WINDOW_WIDTH, 100));
+                		this.setBorder(new EmptyBorder(3, 3, 3, RIGHT_BORDER));
+                		this.setAlignmentX(Component.LEFT_ALIGNMENT);
+                		
+                		removeButton = new JButton("-");
+                		removeButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
+                		removeButton.addActionListener(this);
+                	}
+                	
+                	public void addErrorLabel(String errorText) {
+                		if (errorLabel == null) {
+                			errorLabel = new JLabel(errorText);
+                			//personAddedLabel = new JLabel("Person already added");
+                			this.add(Box.createRigidArea(new Dimension(5, 0)));
+                			this.add(errorLabel);
+                			System.out.println(RIGHT_BORDER - errorLabel.getPreferredSize().getWidth() - 5);
+                			this.setBorder(new EmptyBorder(3, 3, 3,
+                					(int) (RIGHT_BORDER - errorLabel.getPreferredSize().getWidth() - 5)));
+                		} else {
+                			errorLabel.setText(errorText);
+                		}
+                	}
+                	
+                	@Override
+                	public boolean equals(Object obj) {
+                		if (!obj.getClass().equals(this.getClass())) {
+                			//System.out.println("not ")
+                			return false;
+                		} else if (((PreferenceRow) obj).getText().equals(this.getText())) {
+                			return true;
+                		} else {
+                			return false;
+                		}
+                	}
+                }
+        	}
+        	
+            public class ResolveNamesPanel extends JPanel {
+            	private JLabel instructLabel;
+            	private String EMPTY_PANEL_TEXT = "Your partner list does not currently require any additionnal "
+        				+ "information to be provided";
+            	private String IN_USE_TEXT = "Please specify the student IDs for the following students: ";
+            	
+            	ResolveNamesPanel() {
+            		instructLabel = new JLabel(EMPTY_PANEL_TEXT);
+            		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+            		
+            		this.add(instructLabel);
+            	}
+            	
+            	private void removeResolvingRow(JPanel panel) {
+            		this.remove(panel);
+            	}
+            	
+            	public void addResolvingRow(String studentName) {
+            		if (instructLabel.getText().equals(EMPTY_PANEL_TEXT)) {
+            			instructLabel.setText(IN_USE_TEXT);
+            		}
+            		
+            		JPanel resolvingRowPanel = new JPanel();
+            		resolvingRowPanel.setLayout(new BoxLayout(resolvingRowPanel, BoxLayout.PAGE_AXIS));
+            		resolvingRowPanel.add(new JLabel(studentName));
+            		
+            		JTextField idField = new JTextField("Student ID here");
+            		resolvingRowPanel.add(idField);
+            		
+            		JButton okButton = new JButton("OK");
+            		resolvingRowPanel.add(okButton);
+            		
+            		okButton.addActionListener(new ActionListener() {
+            			public void actionPerformed(ActionEvent e) {
+            				Student selectedStudent = findStudentByID(idField.getText());
+            				if (selectedStudent == null) {
+            					// output error
+            				} else {
+            					instructLabel.setText(EMPTY_PANEL_TEXT);
+            					removeResolvingRow(resolvingRowPanel);
+            					
+            					partnerPanel.addPairToBottom(selectedStudent.getName(), selectedStudent.getId());
+            				}
+            			}
+            		});
+            		
+            		this.add(resolvingRowPanel);
+            	}
             }
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Object source = e.getSource();
-                if (source == selectImage){
-                    int returnValue = fileChooser.showOpenDialog(null);
+            private class PaymentPanel extends JPanel implements ActionListener {
+                //private JTextField cardNumber = new JTextField();
+                private JLabel cardLabel = new JLabel("Enter Card Number:");
+                private JButton buyButton = new JButton("Buy now!");
+                private JButton refundButton = new JButton("Click here for a refund");
 
-                    if (returnValue == JFileChooser.APPROVE_OPTION) {
-                        try {
-                            File selectedFile = fileChooser.getSelectedFile();
-                            filePath = selectedFile.toPath();
+            	PaymentPanel() {
+            		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+                    //do all layout
 
-                            BufferedImage tempBufferedImage = ImageIO.read(new File(filePath.toString()));
+            		this.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-                            int w = tempBufferedImage.getWidth();
-                            int h = tempBufferedImage.getHeight();
-                            int s;
-                            if (w > h){
-                                s = h;
-                            } else {
-                                s = w;
-                            }
+                    // this.add(infoMessage, BorderLayout.CENTER);
 
-                            tempBufferedImage = tempBufferedImage.getSubimage((w-s)/2,(h-s)/2, s, s);
-                            Image tempImage = tempBufferedImage.getScaledInstance(imageSize,imageSize, Image.SCALE_SMOOTH);
+            		buyButton.addActionListener(this);
+            		refundButton.addActionListener(this);
 
-                            studentImage = new BufferedImage(imageSize,imageSize,BufferedImage.TYPE_INT_ARGB);
-                            Graphics2D resize = (Graphics2D) studentImage.getGraphics();
-                            resize.drawImage(tempImage, 0, 0, null);
-                            resize.dispose();
+                    this.add(cardLabel);
+                    //this.add(cardNumber);
+                    this.add(buyButton);
+                    this.add(refundButton);
+            	}
 
-                            //remove old image
-                            this.remove(imageComponent);
-                            //add new image
-                            imageComponent = new JLabel(new ImageIcon(studentImage));
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Object source = e.getSource();
+                    if (source == buyButton){
+                        cardLabel.setVisible(false);
+                        //cardNumber.setVisible(false);
+                        buyButton.setVisible(false);
+                        refundButton.setVisible(true);
+                        selectedStudent.setPaid(true);
 
-                            GridBagConstraints c = new GridBagConstraints();
-                            c.gridy = 1;
-
-                            this.add(imageComponent,c);
-
-                            selectedStudent.setPicture(studentImage);
-
-                            writeStudents();
-                        } catch (Exception ex){
-                            ex.printStackTrace();
-                        }
-
-                        revalidate();
-                        repaint();
+                    } else if (source == refundButton) {
+                        cardLabel.setVisible(true);
+                        //cardNumber.setVisible(true);
+                        buyButton.setVisible(true);
+                        refundButton.setVisible(false);
+                        selectedStudent.setPaid(false);
+                    }
+                    if (selectedStudent.hasPaid() && selectedStudent.getPartners().size() == 0){
+                        infoMessage.setText("Woo! You're coming to Prom!\nMake sure to set your preferences");
+                    } else if (selectedStudent.hasPaid()) {
+                        infoMessage.setText("Woo! You're set for Prom!\nYou can still add more or edit your preferences");
+                    } else {
+                        infoMessage.setText("You're almost there!\nMake sure to purchase your ticket");
                     }
                 }
             }
-        }
 
-        private class AccommodationPanel extends JPanel implements ActionListener{
-            private ArrayList<String> accommodations;
-            private ArrayList<JButton> removes;
-            private ArrayList<JLabel> labels;
-            private JButton addAccommodation;
-            private JTextField accommodationInput;
+            private class ProfilePanel extends JPanel implements ActionListener{
+                private BufferedImage studentImage;
+                private JLabel imageComponent;
+                private JFileChooser fileChooser;
+                private JButton selectImage;
+                private Path filePath;
 
-            AccommodationPanel() {
-                this.setVisible(true);
-                this.accommodations = selectedStudent.getAccommodations();
-                this.setLayout(new GridBagLayout());
-                removes = new ArrayList<JButton>();
-                labels = new ArrayList<JLabel>();
-                GridBagConstraints c;
-                for (int i = 0; i < this.accommodations.size(); i++) {
+                private static final int imageSize = 200;
+
+                ProfilePanel(BufferedImage image){
+                    this.setLayout(new GridBagLayout());
+
+                    studentImage = image;
+
+                    if (studentImage != null) {
+                        imageComponent = new JLabel(new ImageIcon(studentImage));
+                    } else {
+                        imageComponent = new JLabel("No image");
+                    }
+                    selectImage = new JButton("Select Image");
+                    fileChooser = new JFileChooser();
+                    fileChooser.setFileFilter(new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes()));
+
+                    GridBagConstraints c = new GridBagConstraints();
+                    c.gridy = 0;
+                    this.add(selectImage,c);
+                    selectImage.addActionListener(this);
+
                     c = new GridBagConstraints();
-                    c.gridx = 0;
-                    c.gridy = i;
-                    JButton r = new JButton("Remove");
-                    r.addActionListener(this);
-                    this.add(r,c);
-                    removes.add(r);
+                    c.gridy = 1;
+                    this.add(imageComponent,c);
 
-                    c = new GridBagConstraints();
-                    c.gridx = 1;
-                    c.gridy = i;
-                    JLabel l = new JLabel(this.accommodations.get(i));
-                    this.add(l,c);
-                    labels.add(l);
-               }
+                }
 
-               addAccommodation = new JButton("Add Accommodation");
-               accommodationInput = new JTextField("Accommodation Here");
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Object source = e.getSource();
+                    if (source == selectImage){
+                        int returnValue = fileChooser.showOpenDialog(null);
 
-               c = new GridBagConstraints();
-               c.gridx = 0;
-               c.gridy = this.accommodations.size();
-               this.add(addAccommodation, c);
-               addAccommodation.addActionListener(this);
+                        if (returnValue == JFileChooser.APPROVE_OPTION) {
+                            try {
+                                File selectedFile = fileChooser.getSelectedFile();
+                                filePath = selectedFile.toPath();
 
-               c = new GridBagConstraints();
-               c.gridx = 1;
-               c.gridy = this.accommodations.size();
-               this.add(accommodationInput, c);
+                                BufferedImage tempBufferedImage = ImageIO.read(new File(filePath.toString()));
+
+                                int w = tempBufferedImage.getWidth();
+                                int h = tempBufferedImage.getHeight();
+                                int s;
+                                if (w > h){
+                                    s = h;
+                                } else {
+                                    s = w;
+                                }
+
+                                tempBufferedImage = tempBufferedImage.getSubimage((w-s)/2,(h-s)/2, s, s);
+                                Image tempImage = tempBufferedImage.getScaledInstance(imageSize,imageSize, Image.SCALE_SMOOTH);
+
+                                studentImage = new BufferedImage(imageSize,imageSize,BufferedImage.TYPE_INT_ARGB);
+                                Graphics2D resize = (Graphics2D) studentImage.getGraphics();
+                                resize.drawImage(tempImage, 0, 0, null);
+                                resize.dispose();
+
+                                //remove old image
+                                this.remove(imageComponent);
+                                //add new image
+                                imageComponent = new JLabel(new ImageIcon(studentImage));
+
+                                GridBagConstraints c = new GridBagConstraints();
+                                c.gridy = 1;
+
+                                this.add(imageComponent,c);
+
+                                selectedStudent.setPicture(studentImage);
+
+                                writeStudents();
+                            } catch (Exception ex){
+                                ex.printStackTrace();
+                            }
+
+                            revalidate();
+                            repaint();
+                        }
+                    }
+                }
             }
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Object source = e.getSource();
+            private class AccommodationPanel extends JPanel implements ActionListener{
+                private ArrayList<String> accommodations;
+                private ArrayList<JButton> removes;
+                private ArrayList<JLabel> labels;
+                private JButton addAccommodation;
+                private JTextField accommodationInput;
 
-                this.remove(addAccommodation);
-                this.remove(accommodationInput);
+                AccommodationPanel() {
+                    this.setVisible(true);
+                    this.accommodations = selectedStudent.getAccommodations();
+                    this.setLayout(new GridBagLayout());
+                    removes = new ArrayList<JButton>();
+                    labels = new ArrayList<JLabel>();
+                    GridBagConstraints c;
+                    for (int i = 0; i < this.accommodations.size(); i++) {
+                        c = new GridBagConstraints();
+                        c.gridx = 0;
+                        c.gridy = i;
+                        JButton r = new JButton("Remove");
+                        r.addActionListener(this);
+                        this.add(r,c);
+                        removes.add(r);
 
-                if ((source == addAccommodation) && (!accommodationInput.getText().equals("Accommodation Here"))){
+                        c = new GridBagConstraints();
+                        c.gridx = 1;
+                        c.gridy = i;
+                        JLabel l = new JLabel(this.accommodations.get(i));
+                        this.add(l,c);
+                        labels.add(l);
+                   }
+
+                   addAccommodation = new JButton("Add Accommodation");
+                   accommodationInput = new JTextField("Accommodation Here");
+
+                   c = new GridBagConstraints();
+                   c.gridx = 0;
+                   c.gridy = this.accommodations.size();
+                   this.add(addAccommodation, c);
+                   addAccommodation.addActionListener(this);
+
+                   c = new GridBagConstraints();
+                   c.gridx = 1;
+                   c.gridy = this.accommodations.size();
+                   this.add(accommodationInput, c);
+                }
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Object source = e.getSource();
+
+                    this.remove(addAccommodation);
+                    this.remove(accommodationInput);
+
+                    if ((source == addAccommodation) && (!accommodationInput.getText().equals("Accommodation Here"))){
+
+                        GridBagConstraints c = new GridBagConstraints();
+                        c.gridx = 0;
+                        c.gridy = accommodations.size();
+                        JButton r = new JButton("Remove");
+                        r.addActionListener(this);
+                        this.add(r,c);
+                        removes.add(r);
+
+                        c = new GridBagConstraints();
+                        c.gridx = 1;
+                        c.gridy = this.accommodations.size();
+                        JLabel l = new JLabel(accommodationInput.getText());
+                        this.add(l,c);
+                        labels.add(l);
+
+                        accommodations.add(accommodationInput.getText());
+
+                        accommodationInput.setText("Accommodation Here");
+
+                        writeStudents();
+                    } else {
+                        int index = removes.indexOf(source);
+
+                        if (index != -1) {
+                            this.removeAll();
+
+                            removes.remove(index);
+                            labels.remove(index);
+                            accommodations.remove(index);
+
+                            GridBagConstraints c;
+                            for (int i = 0; i < this.accommodations.size(); i++) {
+                                c = new GridBagConstraints();
+                                c.gridx = 0;
+                                c.gridy = i;
+
+                                this.add(removes.get(i),c);
+
+                                c = new GridBagConstraints();
+                                c.gridx = 1;
+                                c.gridy = i;
+
+                                this.add(labels.get(i),c);
+                            }
+
+                            writeStudents();
+                        }
+                    }
 
                     GridBagConstraints c = new GridBagConstraints();
                     c.gridx = 0;
-                    c.gridy = accommodations.size();
-                    JButton r = new JButton("Remove");
-                    r.addActionListener(this);
-                    this.add(r,c);
-                    removes.add(r);
+                    c.gridy = this.accommodations.size();
+                    this.add(addAccommodation, c);
+                    addAccommodation.addActionListener(this);
 
                     c = new GridBagConstraints();
                     c.gridx = 1;
                     c.gridy = this.accommodations.size();
-                    JLabel l = new JLabel(accommodationInput.getText());
-                    this.add(l,c);
-                    labels.add(l);
+                    this.add(accommodationInput, c);
 
-                    accommodations.add(accommodationInput.getText());
-
-                    accommodationInput.setText("Accommodation Here");
-
-                    writeStudents();
-                } else {
-                    int index = removes.indexOf(source);
-
-                    if (index != -1) {
-                        this.removeAll();
-
-                        removes.remove(index);
-                        labels.remove(index);
-                        accommodations.remove(index);
-
-                        GridBagConstraints c;
-                        for (int i = 0; i < this.accommodations.size(); i++) {
-                            c = new GridBagConstraints();
-                            c.gridx = 0;
-                            c.gridy = i;
-
-                            this.add(removes.get(i),c);
-
-                            c = new GridBagConstraints();
-                            c.gridx = 1;
-                            c.gridy = i;
-
-                            this.add(labels.get(i),c);
-                        }
-
-                        writeStudents();
-                    }
-                }
-
-                GridBagConstraints c = new GridBagConstraints();
-                c.gridx = 0;
-                c.gridy = this.accommodations.size();
-                this.add(addAccommodation, c);
-                addAccommodation.addActionListener(this);
-
-                c = new GridBagConstraints();
-                c.gridx = 1;
-                c.gridy = this.accommodations.size();
-                this.add(accommodationInput, c);
-
-                revalidate();
-                repaint();
+                    revalidate();
+                    repaint();
+               }
            }
-       }
+        }
     }
 
     /**
