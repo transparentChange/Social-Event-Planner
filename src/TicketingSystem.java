@@ -494,6 +494,8 @@ public class TicketingSystem extends JPanel {
     private class TicketPanel extends JPanel{
         private Student selectedStudent;
         private ArrayList<Student> partners;
+        private ArrayList<Student> blackList;
+        BufferedImage image = null;
 
         private JLabel infoMessage = new JLabel();
         private ButtonPanel upperPanel;
@@ -501,18 +503,26 @@ public class TicketingSystem extends JPanel {
         private int X_PADDING = 200;
         
         TicketPanel(Student student) {
+
+            try {
+                image = ImageIO.read(new File("loginBackground.jpg"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             if (student != null) {
                 this.setLayout(new BorderLayout());
                 this.setVisible(true);
                 this.selectedStudent = student;
                 partners = student.getPartners();
+                blackList = student.getBlacklist();
                 
                 //add all components
                 upperPanel = new ButtonPanel();
                 this.add(upperPanel, BorderLayout.NORTH);
                 
                 JPanel mainPanel = new JPanel(new GridBagLayout());
-                mainPanel.setBackground(DesignConstants.BACK_COLOUR);
+                mainPanel.setOpaque(false);
                 
                 CenterPanel centerPanel = new CenterPanel();
                 //centerPanel.setBackground(Color.WHITE);
@@ -598,11 +608,11 @@ public class TicketingSystem extends JPanel {
         	
         	CenterPanel() {
         		this.setVisible(true);
-        		//this.setOpaque(false);
-        		this.setPreferredSize(new Dimension(500, 2000));
+        		this.setOpaque(false);
+        		//this.setPreferredSize(new Dimension(500, 2000));
         		//this.setMaximumSize(new Dimension(WINDOW_WIDTH - X_PADDING * 2, WINDOW_HEIGHT));
                 this.setLayout(new GridBagLayout());
-                this.setBackground(DesignConstants.BACK_COLOUR);
+                //this.setBackground(DesignConstants.BACK_COLOUR);
                 
                 partnerPanel = new PartnerPanel();
                 resolvePanel = new ResolveNamesPanel();
@@ -696,13 +706,18 @@ public class TicketingSystem extends JPanel {
                     this.add(instructLabel);
 
                     if (partners.size() == 0) {
-                    	RowPair partnerPair = new RowPair(NEW_STUDENT_TEXT);
+                    	RowPair partnerPair = new RowPair(NEW_STUDENT_TEXT, false);
                     	this.add(partnerPair);
                     } else {
     	                for (int i = 0; i < partners.size(); i++) {
-    	                	RowPair partnerPair = new RowPair(partners.get(i).getName(), partners.get(i).getId());
+    	                	RowPair partnerPair = new RowPair(partners.get(i).getName(), partners.get(i).getId(), false);
     	                	this.add(partnerPair);
     	                }
+                    }
+
+                    for (int i = 0; i < blackList.size(); i++) {
+                        RowPair partnerPair = new RowPair(blackList.get(i).getName(), blackList.get(i).getId(), true);
+                        this.add(partnerPair);
                     }
                     
                     editingIndex = -1;
@@ -756,9 +771,9 @@ public class TicketingSystem extends JPanel {
         			
         			RowPair pairToAdd;
         			if (id == null) {
-        				pairToAdd = new RowPair(text);
+        				pairToAdd = new RowPair(text, false);
         			} else {
-        				pairToAdd = new RowPair(text, id);
+        				pairToAdd = new RowPair(text, id, false);
         			}
                 	this.add(pairToAdd);
                 	
@@ -770,12 +785,15 @@ public class TicketingSystem extends JPanel {
                 
             	private void removePair(RowPair pairToRemove) {
             		this.remove(pairToRemove);
-            		
-                	for (int j = 0; j < partners.size(); j++) {
-        				if (partners.get(j).getName().equals(pairToRemove.getFixedText())) {
-        					partners.remove(j);
-        				}
-        			}
+
+                    Student s = findStudentByID(pairToRemove.getStudentID());
+
+                    if (pairToRemove.isBlackList()){
+                        blackList.remove(s);
+                    } else {
+                        partners.remove(s);
+                    }
+
                 	writeStudents();
             		
                 	this.revalidate();
@@ -788,7 +806,7 @@ public class TicketingSystem extends JPanel {
                 		Component[] componentList = this.getComponents();
                 		int index = componentList.length - 2;
                 		if (index == 0) {
-                			RowPair partnerPair = new RowPair(NEW_STUDENT_TEXT);
+                			RowPair partnerPair = new RowPair(NEW_STUDENT_TEXT, false);
                         	this.add(partnerPair);
                 		} else {
     	            		addPairToBottom(NEW_STUDENT_TEXT, null);
@@ -800,8 +818,12 @@ public class TicketingSystem extends JPanel {
                 	private FixedRow fixed;
                 	private EditingRow editing;
                 	private String savedStudentID;
+                    private boolean isBlackList;
                 	
-                	RowPair(String text) {
+                	RowPair(String text, boolean isBlackList) {
+                	    this.isBlackList = isBlackList;
+                	    recolour();
+
                 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
                 		
                 		fixed = new FixedRow(text);
@@ -813,7 +835,10 @@ public class TicketingSystem extends JPanel {
                 		this.add(editing);
                 	}
                 	
-                	RowPair(String text, String id) {
+                	RowPair(String text, String id, boolean isBlackList) {
+                	    this.isBlackList = isBlackList;
+                	    recolour();
+
                 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
                 		
                 		fixed = new FixedRow(text);
@@ -873,26 +898,52 @@ public class TicketingSystem extends JPanel {
                 	private void removeThis() {
                 		removePair(this);
                 	}
-                	
+
+                    public void recolour(){
+                        if (isBlackList) {
+                            this.setBackground(new Color(63, 63, 63));
+                        } else {
+                            this.setBackground(new Color(170, 181, 49));
+                        }
+                    }
+
+                    public void setBlackList(boolean isBlackList){
+                        this.isBlackList = isBlackList;
+                    }
+
+                    public boolean isBlackList(){
+                        return this.isBlackList;
+                    }
+
                     private class FixedRow extends PreferenceRow implements ActionListener {
                     	private JButton editButton;
                     	private JLabel nameLabel;
                     	private JLabel personAddedLabel;
+                    	private JButton whiteBlackListToggle;
 
                     	FixedRow(String nameLabel) {
                     		super(nameLabel);
-                    		
-                    		//this.setBackground(Color.BLACK);
+                    		this.setOpaque(false);
+
                     		this.nameLabel = new JLabel(nameLabel);
                     		
                     		editButton = new JButton("%"); // change later
                     		editButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
                     		editButton.addActionListener(this);
 
+                    		if (isBlackList()){
+                                whiteBlackListToggle = new JButton("Make Preferred");
+                            } else {
+                                whiteBlackListToggle = new JButton("Make Blacklisted");
+                            }
+                            whiteBlackListToggle.setAlignmentX(Component.RIGHT_ALIGNMENT);
+                            whiteBlackListToggle.addActionListener(this);
+
                     		this.add(this.nameLabel);
                     		this.add(Box.createHorizontalGlue());
                     		this.add(editButton);
                     		this.add(removeButton);
+                    		this.add(whiteBlackListToggle);
                     		
                     		toUniversalFont(this);
                     	}
@@ -914,7 +965,21 @@ public class TicketingSystem extends JPanel {
                     			
                     		} else if (source == removeButton) {
                     			removeThis();
-                    		}
+                    		} else if (source == whiteBlackListToggle) {
+                    		    setBlackList(!isBlackList());
+                    		    recolour();
+                                Student current = findStudentByID(savedStudentID);
+                    		    if (isBlackList()) {
+                                    partners.remove(current);
+                                    blackList.add(current);
+                                    whiteBlackListToggle.setText("Make Preferred");
+                                } else {
+                                    blackList.remove(current);
+                                    partners.add(current);
+                                    whiteBlackListToggle.setText("Make Blacklisted");
+                                }
+                    		    writeStudents();
+                            }
                     	}
 
         				@Override
@@ -976,18 +1041,23 @@ public class TicketingSystem extends JPanel {
                                 } else if (foundStudents.size() == 1) {
                                 	if (foundStudents.get(0) == TicketPanel.this.selectedStudent) {
         	                            this.addErrorLabel("You can't add yourself");
-        	                        } else if (TicketPanel.this.selectedStudent.getPartners().contains(foundStudents.get(0))) {
+        	                        } else if ((partners.contains(foundStudents.get(0))) || (blackList.contains(foundStudents.get(0)))) {
         	                            toFixedVisibility(foundStudents.get(0).getId());
         	                            addErrorToFixed("Person already added");
         	                            
         	                            editingIndex = -1;
         	                        } else {
-        	                        	partners.remove(new Student(getFixedText(), getStudentID()));
+                                	    if (isBlackList) {
+                                            blackList.remove(new Student(getFixedText(), getStudentID()));
+                                        } else {
+                                            partners.remove(new Student(getFixedText(), getStudentID()));
+                                        }
         	                        	
         	                            toFixedVisibility(foundStudents.get(0).getId());
         	                            
         	                            editingIndex = -1;
         	                        	partners.add(foundStudents.get(0));
+        	                        	setBlackList(false);
         	                        }
                                 } else {
                                 	this.addErrorLabel("Warning! More than one student with that name");
@@ -998,7 +1068,10 @@ public class TicketingSystem extends JPanel {
                     			removeThis();
                     			editingIndex = -1;
                     		}
-                        	
+
+                    		recolour();
+                    		writeStudents();
+
                         	this.revalidate();
                         	this.repaint();
                     	}
@@ -1109,7 +1182,7 @@ public class TicketingSystem extends JPanel {
             }
 
             private class PaymentPanel extends JPanel implements ActionListener {
-                //private JTextField cardNumber = new JTextField();
+                private JTextField cardNumber = new JTextField();
                 private JLabel cardLabel = new JLabel("Enter Card Number:");
                 private JButton buyButton = new JButton("Buy now!");
                 private JButton refundButton = new JButton("Click here for a refund");
@@ -1126,17 +1199,20 @@ public class TicketingSystem extends JPanel {
             		refundButton.addActionListener(this);
 
                     this.add(cardLabel);
+                    this.add(cardNumber);
                     this.add(buyButton);
                     this.add(refundButton);
 
             		if (selectedStudent.hasPaid()){
-            		    refundButton.setVisible(true);
-            		    cardLabel.setVisible(false);
-            		    buyButton.setVisible(false);
+                        cardLabel.setVisible(false);
+                        cardNumber.setVisible(false);
+                        buyButton.setVisible(false);
+                        refundButton.setVisible(true);
                     } else {
-                        refundButton.setVisible(false);
                         cardLabel.setVisible(true);
+                        cardNumber.setVisible(true);
                         buyButton.setVisible(true);
+                        refundButton.setVisible(false);
                     }
             	}
 
@@ -1145,17 +1221,18 @@ public class TicketingSystem extends JPanel {
                     Object source = e.getSource();
                     if (source == buyButton){
                         cardLabel.setVisible(false);
-                        //cardNumber.setVisible(false);
+                        cardNumber.setVisible(false);
                         buyButton.setVisible(false);
                         refundButton.setVisible(true);
                         selectedStudent.setPaid(true);
-
+                        writeStudents();
                     } else if (source == refundButton) {
                         cardLabel.setVisible(true);
-                        //cardNumber.setVisible(true);
+                        cardNumber.setVisible(true);
                         buyButton.setVisible(true);
                         refundButton.setVisible(false);
                         selectedStudent.setPaid(false);
+                        writeStudents();
                     }
                     if (selectedStudent.hasPaid() && selectedStudent.getPartners().size() == 0){
                         infoMessage.setText("Woo! You're coming to Prom!\nMake sure to set your preferences");
@@ -1374,6 +1451,15 @@ public class TicketingSystem extends JPanel {
                     repaint();
                }
            }
+        }
+
+        public void paintComponent(Graphics g) {
+            if (this.image != null) {
+                g.drawImage(this.image, 0, 0, this.getWidth(), this.getHeight(), this);
+            } else {
+                g.setColor(new Color(0, 0, 0));
+                g.fillRect(0, 0, this.getWidth(), this.getHeight());
+            }
         }
     }
 
