@@ -1125,11 +1125,18 @@ public class TicketingSystem extends JPanel {
             		buyButton.addActionListener(this);
             		refundButton.addActionListener(this);
 
+                    this.add(cardLabel);
+                    this.add(buyButton);
+                    this.add(refundButton);
+
             		if (selectedStudent.hasPaid()){
-                        this.add(refundButton);
+            		    refundButton.setVisible(true);
+            		    cardLabel.setVisible(false);
+            		    buyButton.setVisible(false);
                     } else {
-                        this.add(cardLabel);
-                        this.add(buyButton);
+                        refundButton.setVisible(false);
+                        cardLabel.setVisible(true);
+                        buyButton.setVisible(true);
                     }
             	}
 
@@ -1421,9 +1428,9 @@ public class TicketingSystem extends JPanel {
     			//(float) (33 / 255.0), (float) 0.3);
         public static final Color MAIN_COLOUR = new Color(75, 112, 68);
         
-        public static final Font LARGE_FONT = new Font("Garamond", Font.PLAIN, 20);
-        public static final Font MEDIUM_FONT = new Font("Garamond", Font.BOLD, 15);
-        public static final Font SMALL_FONT = new Font("Garamond", Font.BOLD, 13);
+        public static final Font LARGE_FONT = new Font("Segoe UI", Font.PLAIN, 20);
+        public static final Font MEDIUM_FONT = new Font("Segoe UI", Font.BOLD, 15);
+        public static final Font SMALL_FONT = new Font("Segoe UI", Font.BOLD, 13);
 
         DesignConstants() {
         	throw new AssertionError();
