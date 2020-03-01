@@ -2,7 +2,11 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 
-
+/**
+ * Class Prom. Main class for the project. Holds constants for TicketingSystem.
+ * @see TicketingSystem
+ * @author Daksh & Matthew
+ */
 public class Prom extends JFrame {
     private TicketingSystem ticketingPanel;
     private ArrayList<Student> students;
@@ -15,6 +19,10 @@ public class Prom extends JFrame {
     public final static int maxTables = 10;
     public final static int tableSize = 10;
 
+    /**
+     *Constructor for Prom. Adds the ticketingSystem Panel and displays it.
+     * @see TicketingSystem
+     */
     public Prom() {
         super("Prom");
 
@@ -34,6 +42,10 @@ public class Prom extends JFrame {
         this.setVisible(true);
     }
 
+    /**
+     * Entry point for the application. Constructs a Prom object.
+     * @param args does literally nothing
+     */
     public static void main(String[] args){
         new Prom();
     }

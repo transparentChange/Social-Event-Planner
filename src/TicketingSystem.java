@@ -15,6 +15,13 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.*;
 
+/**
+ * Ticketing System used by the Prom Project.
+ * @see Prom
+ * @see Student
+ * @see Table
+ * @author Daksh & Matthew
+ */
 public class TicketingSystem extends JPanel {
     private ArrayList<Student> students;
     private ArrayList<Table> tables;
@@ -28,6 +35,11 @@ public class TicketingSystem extends JPanel {
     private final int WINDOW_WIDTH = (int) getToolkit().getScreenSize().getWidth();
     private final int WINDOW_HEIGHT = (int) getToolkit().getScreenSize().getWidth();
 
+    /**
+     * Constructs the TicketingSystem. Sets displayed panel to login.
+     * @param students The master list of students.
+     * @param tables The master list of tables.
+     */
     public TicketingSystem(ArrayList<Student> students, ArrayList<Table> tables) {
         this.setLayout(new GridLayout());
         this.students = students;
@@ -47,6 +59,9 @@ public class TicketingSystem extends JPanel {
         this.setVisible(true);
     }
 
+    /**
+     * Sets the displayed panel to the ticket panel when the student is logged in.
+     */
     private void showTicket() {
         this.removeAll();
         this.add(this.ticketPanel);
@@ -55,6 +70,9 @@ public class TicketingSystem extends JPanel {
         this.updateUI();
     }
 
+    /**
+     * Sets the displayed panel to the login panel when the student logs off.
+     */
     private void showLogin() {
         this.removeAll();
         this.loginPanel = new LoginPanel(); //reset the login panel
@@ -64,6 +82,10 @@ public class TicketingSystem extends JPanel {
         this.updateUI();
     }
 
+    /**
+     * Sets the displayed panel to the floor plan panel.
+     * @param fromPanel the panel from which the panel was called from so it can shift back.
+     */
     private void showFloor(JPanel fromPanel){
         floorPanel = new FloorPlanPanel(fromPanel);
         this.removeAll();
@@ -73,14 +95,27 @@ public class TicketingSystem extends JPanel {
         this.updateUI();
     }
 
+    /**
+     * Adds a student to the master list of students.
+     * @param student the student.
+     */
     private void addStudent(Student student) {
         this.students.add(student);
     }
 
+    /**
+     * Removes a student from the master list of students. Never used, but here for UML.
+     * @param student the student.
+     */
     private void removeStudent(Student student) {
         this.students.remove(student);
     }
 
+    /**
+     * Finds all students with the inputted name.
+     * @param name The students name
+     * @return Students with that name or similar.
+     */
     private ArrayList<Student> findStudentsWithName(String name) {
     	ArrayList<Student> studentsWithName = new ArrayList<Student>();
         for (Student student : students) {
@@ -92,6 +127,11 @@ public class TicketingSystem extends JPanel {
         return studentsWithName;
     }
 
+    /**
+     * Finds a student based off of ID. Used by login panel.
+     * @param id The id.
+     * @return The student with the id. Null if not found.
+     */
     private Student findStudentByID(String id) {
         for (Student student : students){
             if (student.getId().equals(id)){
@@ -101,6 +141,9 @@ public class TicketingSystem extends JPanel {
         return null;
     }
 
+    /**
+     * Loads all students from file and recreates the master list
+     */
     private void initializeStudents() {
         try {
             Scanner input = new Scanner(loginCredentials);
@@ -177,6 +220,9 @@ public class TicketingSystem extends JPanel {
         }
     }
 
+    /**
+     * Writes all students to file to save all student information.
+     */
     private void writeStudents() {
         try {
             FileWriter studentRecords = new FileWriter(loginCredentials, false);
@@ -1222,10 +1268,18 @@ public class TicketingSystem extends JPanel {
        }
     }
 
+    /**
+     * The floor plan panel. Displays the floor plan.
+     */
     private class FloorPlanPanel extends JPanel implements ActionListener{
         private JPanel fromPanel;
         private JButton exitButton;
 
+        /**
+         * The constructor for the FloorPlanPanel. Adds an exit button and a FloorPlanSystem.
+         * @param fromPanel the panel that called the floor plan.
+         * @see FloorPlanSystem
+         */
         FloorPlanPanel(JPanel fromPanel) {
             ArrayList<Student> paidStudents = new ArrayList<Student>();
             for (Student s : students){
@@ -1243,6 +1297,10 @@ public class TicketingSystem extends JPanel {
             this.exitButton.addActionListener(this);
         }
 
+        /**
+         * Monitors for the exit button being pressed.
+         * @param e the button pressed.
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
