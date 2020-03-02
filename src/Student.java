@@ -19,8 +19,8 @@ public class Student {
 
     /**
      * Constructor that follows UML. Creates a new Student Object. Never Used but here for the mark.
-     * @param name
-     * @param studentNumber
+     * @param name Student name
+     * @param studentNumber Student id
      */
     public Student(String name, String studentNumber) {
         this.name = name;
@@ -35,9 +35,9 @@ public class Student {
 
     /**
      * Constructor that follows UML. Creates a new Student Object. Never Used but here for the mark.
-     * @param name
-     * @param studentNumber
-     * @param partners
+     * @param name Student name.
+     * @param studentNumber Student id.
+     * @param partners Student's prefered partners.
      */
     public Student(String name, String studentNumber, ArrayList<Student> partners) {
         this.name = name;
@@ -52,11 +52,11 @@ public class Student {
 
     /**
      * Constructor used to create a new student when a new account needs to be created.
-     * Used in our rendition of TicketingSystem
-     * @param name
-     * @param id
-     * @param grade
-     * @param password
+     * Used in our rendition of TicketingSystem.
+     * @param name Student name.
+     * @param id Student id.
+     * @param grade Student grade.
+     * @param password Student password.
      */
     public Student(String name, String id, String grade, String password) {
         this.name = name;
