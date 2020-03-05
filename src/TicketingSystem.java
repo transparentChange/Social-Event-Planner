@@ -1,3 +1,5 @@
+import com.sun.tools.javac.comp.Resolve;
+
 import javax.imageio.ImageIO;
 
 import javax.swing.*;
@@ -109,26 +111,6 @@ public class TicketingSystem extends JPanel {
      */
     private void removeStudent(Student student) {
         this.students.remove(student);
-    }
-
-    /**
-     * Finds all students with the inputted name.
-     * @param name The students name
-     * @return Students with that name or similar.
-     */
-    private ArrayList<Student> findStudentsWithName(String name) {
-    	ArrayList<Student> studentsWithName = new ArrayList<Student>();
-        for (Student student : students) {
-            if (name.equals(student.getName())) {
-                studentsWithName.add(student);
-            }
-        }
-        
-        if (studentsWithName.size() == 0) {
-        	return null;
-        } else {
-        	return studentsWithName;
-        }
     }
 
     /**
@@ -915,6 +897,34 @@ public class TicketingSystem extends JPanel {
                         return this.isBlackList;
                     }
 
+                    /**
+                     * Finds all students with the inputted name.
+                     * @param name The students name
+                     * @return Students with that name or similar.
+                     */
+                    private ArrayList<Student> findStudentsWithName(String name) {
+                        ArrayList<Student> studentsWithNameExact = new ArrayList<Student>();
+                        ArrayList<Student> studentWithNameClose = new ArrayList<>();
+
+                        for (Student student : students) {
+                            if (student.getName().equals(name)) {
+                                studentsWithNameExact.add(student);
+                            } else if (student.getName().contains(name)) {
+                                studentWithNameClose.add(student);
+                            }
+                        }
+
+                        if (studentsWithNameExact.size() == 0) {
+                            if (studentWithNameClose.size() == 0) {
+                                return null;
+                            } else {
+                                return studentWithNameClose;
+                            }
+                        } else {
+                            return studentsWithNameExact;
+                        }
+                    }
+
                     private class FixedRow extends PreferenceRow implements ActionListener {
                     	private JButton editButton;
                     	private JLabel nameLabel;
@@ -987,7 +997,7 @@ public class TicketingSystem extends JPanel {
         					nameLabel.setText(newText);
         				}
                     }
-                    
+
                     private class EditingRow extends PreferenceRow implements ActionListener {
                     	private JButton okButton;
                     	private JTextField nameField;
@@ -1061,7 +1071,7 @@ public class TicketingSystem extends JPanel {
         	                        }
                                 } else {
                                 	this.addErrorLabel("Warning! More than one student with that name");
-                                	resolvePanel.addResolvingRow(foundStudents.get(0).getName());
+                                	resolvePanel.addResolvingRow(foundStudents);
                                 	removeThis();
                                 }
                     		} else if (source == removeButton) {
@@ -1116,7 +1126,7 @@ public class TicketingSystem extends JPanel {
                 			errorLabel.setText(errorText);
                 		}
                 	}
-                	
+
                 	@Override
                 	public boolean equals(Object obj) {
                 		if (!obj.getClass().equals(this.getClass())) {
@@ -1133,51 +1143,62 @@ public class TicketingSystem extends JPanel {
         	
             public class ResolveNamesPanel extends JPanel {
             	private JLabel instructLabel;
-            	private String EMPTY_PANEL_TEXT = "Your partner list does not currently require any additionnal "
-        				+ "information to be provided";
-            	private String IN_USE_TEXT = "Please specify the student IDs for the following students: ";
-            	
+            	private String EMPTY_PANEL_TEXT = "Your partner list does not currently require any additional information to be provided";
+            	private String IN_USE_TEXT = "Please select which student you refer to";
+
             	ResolveNamesPanel() {
             		instructLabel = new JLabel(EMPTY_PANEL_TEXT);
             		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
             		
             		this.add(instructLabel);
             	}
-            	
-            	private void removeResolvingRow(JPanel panel) {
-            		this.remove(panel);
-            	}
-            	
-            	public void addResolvingRow(String studentName) {
+
+            	private class ResolveRow extends JPanel implements ActionListener{
+                    ArrayList<String> studentIds = new ArrayList<String>();
+                    ArrayList<JButton> studentSelectors = new ArrayList<JButton>();
+
+            	    ResolveRow (ArrayList<Student> foundStudents) {
+                        JScrollPane resolvingRowPanel = new JScrollPane();
+                        resolvingRowPanel.setLayout(new FlowLayout());
+
+                        for (Student student : foundStudents) {
+                            JPanel selectorPane = new JPanel();
+                            selectorPane.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+                            BufferedImage studentPicture = student.getPicture();
+                            if (studentPicture != null){
+                                selectorPane.add(new JLabel(new ImageIcon(studentPicture)));
+                            } else {
+                                selectorPane.add(new JLabel("Picture Not Found"));
+                            }
+                            selectorPane.add(new JLabel(student.getId()));
+                            selectorPane.add(new JLabel(student.getName()));
+                            JButton select = new JButton("Select");
+                            select.addActionListener(this);
+                            selectorPane.add(select);
+                            studentSelectors.add(select);
+                            studentIds.add(student.getId());
+                            resolvingRowPanel.add(selectorPane);
+                        }
+                        this.add(resolvingRowPanel);
+                    }
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Object source = e.getSource();
+                        int index = studentSelectors.indexOf(source);
+                        String id = studentIds.get(index);
+                        Student partner = findStudentByID(id);
+
+                    }
+                }
+
+            	public void addResolvingRow(ArrayList<Student> foundStudents) {
             		if (instructLabel.getText().equals(EMPTY_PANEL_TEXT)) {
             			instructLabel.setText(IN_USE_TEXT);
             		}
-            		
-            		JPanel resolvingRowPanel = new JPanel();
-            		resolvingRowPanel.setLayout(new BoxLayout(resolvingRowPanel, BoxLayout.PAGE_AXIS));
-            		resolvingRowPanel.add(new JLabel(studentName));
-            		
-            		JTextField idField = new JTextField("Student ID here");
-            		resolvingRowPanel.add(idField);
-            		
-            		JButton okButton = new JButton("OK");
-            		resolvingRowPanel.add(okButton);
-            		
-            		okButton.addActionListener(new ActionListener() {
-            			public void actionPerformed(ActionEvent e) {
-            				Student selectedStudent = findStudentByID(idField.getText());
-            				if (selectedStudent == null) {
-            					// output error
-            				} else {
-            					instructLabel.setText(EMPTY_PANEL_TEXT);
-            					removeResolvingRow(resolvingRowPanel);
-            					
-            					partnerPanel.addPairToBottom(selectedStudent.getName(), selectedStudent.getId());
-            				}
-            			}
-            		});
-            		
-            		this.add(resolvingRowPanel);
+                    ResolveRow resolveRow = new ResolveRow(foundStudents);
+
+            		this.add(resolveRow);
             	}
             }
 
@@ -1476,13 +1497,30 @@ public class TicketingSystem extends JPanel {
          * @see FloorPlanSystem
          */
         FloorPlanPanel(JPanel fromPanel) {
+            HashMap<Student, HashMap<Student, Double>> paidHash = new HashMap<Student, HashMap<Student, Double>>();
             ArrayList<Student> paidStudents = new ArrayList<Student>();
+
             for (Student s : students){
-                if (s.hasPaid() && paidStudents.size() < Prom.maxTables*Prom.tableSize){
+                if (s.hasPaid() && paidHash.size() < Prom.maxTables*Prom.tableSize){
+                    HashMap<Student, Double> weights = new HashMap<Student, Double>();
+                    for (Student partner : s.getPartners()){
+                        weights.put(partner, 1.0);
+                    }
+                    for (Student blackList : s.getBlacklist()){
+                        weights.put(blackList, -100.0);
+                    }
+                    paidHash.put(s, weights);
                     paidStudents.add(s);
                 }
             }
-            tables = SeatingAssignmentSystem.assignTables(paidStudents, Prom.maxTables, Prom.tableSize);
+            tables = SeatingAssignmentSystem.assignTables(paidStudents, Prom.maxTables, Prom.tableSize, paidHash);
+            for (Table t: tables){
+                System.out.print("[");
+                for (Student s : t.getStudents()){
+                    System.out.print(s.getId() + ",");
+                }
+                System.out.println("]");
+            }
             floorPlan = new FloorPlanSystem(tables);
             this.fromPanel = fromPanel;
             this.exitButton = new JButton("Hide FloorPlan");
