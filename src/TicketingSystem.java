@@ -1,5 +1,3 @@
-import com.sun.tools.javac.comp.Resolve;
-
 import javax.imageio.ImageIO;
 
 import javax.swing.*;
@@ -749,7 +747,7 @@ public class TicketingSystem extends JPanel {
                 	}
                 }
             	
-                private void addPairToBottom(String text, String id) {
+                protected void addPairToBottom(String text, String id) {
                 	Component[] componentList = this.getComponents();
                 	
                 	if (id == null) {
@@ -1156,17 +1154,21 @@ public class TicketingSystem extends JPanel {
             		this.add(instructLabel);
             	}
 
-            	private class ResolveRow extends JPanel implements ActionListener{
-                    ArrayList<String> studentIds = new ArrayList<String>();
-                    ArrayList<JButton> studentSelectors = new ArrayList<JButton>();
+            	private class ResolveRow extends JPanel implements ActionListener {
+            	    ArrayList<String> studentIds;
+                    ArrayList<JButton> studentSelectors;
 
-            	    ResolveRow (ArrayList<Student> foundStudents) {
-                        JScrollPane resolvingRowPanel = new JScrollPane();
+                    ResolveRow (ArrayList<Student> foundStudents) {
+                        studentIds = new ArrayList<String>();
+                        studentSelectors = new ArrayList<JButton>();
+
+                        JPanel resolvingRowPanel = new JPanel();
                         resolvingRowPanel.setLayout(new FlowLayout());
 
                         for (Student student : foundStudents) {
                             JPanel selectorPane = new JPanel();
-                            selectorPane.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+                            //selectorPane.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+                            selectorPane.setLayout(new FlowLayout());
                             BufferedImage studentPicture = student.getPicture();
                             if (studentPicture != null){
                                 selectorPane.add(new JLabel(new ImageIcon(studentPicture)));
@@ -1191,7 +1193,9 @@ public class TicketingSystem extends JPanel {
                         int index = studentSelectors.indexOf(source);
                         String id = studentIds.get(index);
                         Student partner = findStudentByID(id);
+                        partnerPanel.addPairToBottom(partner.getName(), id);
 
+                        removeResolvingRow(this);
                     }
                 }
 
@@ -1202,7 +1206,17 @@ public class TicketingSystem extends JPanel {
                     ResolveRow resolveRow = new ResolveRow(foundStudents);
 
             		this.add(resolveRow);
+
+            		this.revalidate();
+            		this.repaint();
             	}
+
+            	public void removeResolvingRow(ResolveRow row) {
+            	    this.remove(row);
+
+            	    this.revalidate();
+            	    this.repaint();
+                }
             }
 
             private class PaymentPanel extends JPanel implements ActionListener {
