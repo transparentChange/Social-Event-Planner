@@ -661,20 +661,11 @@ public class TicketingSystem extends JPanel {
         	public class PartnerPanel extends DynamicBoxLayoutPanel implements ActionListener {
                 private int editingIndex;
                 
-                private final String NEW_STUDENT_TEXT = "New Student's Name";
+                private final String FIELD_INSTRUCTION = "New Student's Name";
                 
                 PartnerPanel() {
-                    /*
-                    nameField.addMouseListener(new MouseAdapter() {
-                    	@Override
-                    	public void mouseClicked(MouseEvent e) {
-                    		nameField.setText("");
-                    	}
-                    });
-                    */
-
                     if (partners.size() == 0) {
-                    	RowPair partnerPair = new RowPair(NEW_STUDENT_TEXT, false);
+                    	RowPair partnerPair = new RowPair(FIELD_INSTRUCTION, false);
                     	this.add(partnerPair);
                     } else {
     	                for (int i = 0; i < partners.size(); i++) {
@@ -722,7 +713,7 @@ public class TicketingSystem extends JPanel {
                 	Component[] componentList = this.getComponents();
                 	if (componentList[index] instanceof RowPair) {
                 		if ((index == componentList.length - 2) && 
-                				(((RowPair) componentList[index]).getFixedText().equals(NEW_STUDENT_TEXT))) {
+                				(((RowPair) componentList[index]).getFixedText().equals(FIELD_INSTRUCTION))) {
                 			this.remove(componentList[index]);
                 		} else {
                 			((RowPair) componentList[index]).toFixedVisibility(((RowPair) componentList[index]).getStudentID());
@@ -780,10 +771,10 @@ public class TicketingSystem extends JPanel {
                 		Component[] componentList = this.getComponents();
                 		int index = componentList.length - 2;
                 		if (index == 0) {
-                			RowPair partnerPair = new RowPair(NEW_STUDENT_TEXT, false);
+                			RowPair partnerPair = new RowPair(FIELD_INSTRUCTION, false);
                         	this.add(partnerPair);
                 		} else {
-    	            		addPairToBottom(NEW_STUDENT_TEXT, null);
+    	            		addPairToBottom(FIELD_INSTRUCTION, null);
                 		}
                 	}
                 }
@@ -969,6 +960,7 @@ public class TicketingSystem extends JPanel {
                     		super(nameLabel);
                     		//this.setBackground(Color.RED);
                     		
+                    		addListener(FIELD_INSTRUCTION);
                     		okButton = new JButton("OK");
                     		okButton.addActionListener(this);
                     		
@@ -1059,24 +1051,8 @@ public class TicketingSystem extends JPanel {
             		
             		nameField = new JTextField(nameLabel);
             		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
-                    nameField.addMouseListener(new MouseAdapter() {
-                    	@Override
-                    	public void mouseClicked(MouseEvent e) {
-                    		nameField.setText("");
-                    	}
-                    });
-                    
                     nameField.setMaximumSize(new Dimension(SPACE_TO_BUTTONS, NUM_COLUMNS));
                     nameField.setColumns(20);
-            		/*
-                    nameField.addKeyListener(new KeyAdapter() {
-                        @Override
-                        public void keyTyped(KeyEvent e) {
-                            if (nameField.getText().length() >= 50) // limit to 50 characters
-                                e.consume();
-                        }
-                    });
-            		*/
             		
             		this.add(nameField);
             		this.add(Box.createRigidArea(new Dimension(
@@ -1091,6 +1067,17 @@ public class TicketingSystem extends JPanel {
 				@Override
 				public void setText(String newText) {
 					nameField.setText(newText);
+				}
+				
+				public void addListener(String defaultLabel) {
+                    nameField.addMouseListener(new MouseAdapter() {
+                    	@Override
+                    	public void mouseClicked(MouseEvent e) {
+                    		if (nameField.getText().equals(defaultLabel)) {
+                    			nameField.setText("");
+                    		}
+                    	}
+                    });
 				}
             }
         	
@@ -1465,6 +1452,7 @@ public class TicketingSystem extends JPanel {
             
             private class AccommodationPanel extends DynamicBoxLayoutPanel {
             	private ArrayList<String> accommodations;
+            	private final String FIELD_INSTRUCTION = "New Accommodation";
             	
             	AccommodationPanel() {
             		accommodations = selectedStudent.getAccommodations();
@@ -1472,7 +1460,7 @@ public class TicketingSystem extends JPanel {
             			this.add(new AccommodationRow(this.accommodations.get(i)));
             		}
             		
-            		this.add(areaBeforeButton); // change
+            		this.add(areaBeforeButton);
             		this.add(addButton);
             	}
             	
@@ -1485,12 +1473,17 @@ public class TicketingSystem extends JPanel {
             	}
             	
             	public void actionPerformed(ActionEvent e) {
-            		super.addAdditiveComponent(new AccommodationRow("Accommodation here"));
+            		super.addAdditiveComponent(new AccommodationRow(FIELD_INSTRUCTION));
+            	}
+            	
+            	public String getFieldInstruction() {
+            		return FIELD_INSTRUCTION;
             	}
             
             	public class AccommodationRow extends EditingRow implements ActionListener {
             		AccommodationRow(String labelText) {
             			super(labelText);
+            			addListener(FIELD_INSTRUCTION);
             			
             			this.setBackground(Color.WHITE);
             			this.add(removeButton);
