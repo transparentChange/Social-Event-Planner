@@ -18,13 +18,16 @@ public class Prom extends JFrame {
 
     public final static int maxTables = 10;
     public final static int tableSize = 10;
+    
+    public final static String TYPE_OF_EVENT = "Prom";
+    public final static String COST_OF_TICKET = "$60.00 CAD";
 
     /**
      *Constructor for Prom. Adds the ticketingSystem Panel and displays it.
      * @see TicketingSystem
      */
     public Prom() {
-        super("Prom");
+        super(TYPE_OF_EVENT);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
