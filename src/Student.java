@@ -4,18 +4,16 @@ import java.util.ArrayList;
 /**
  * Student class required for Prom Project. Has additional methods for TicketingSystem extended capabilities from UML.
  * @see TicketingSystem
- * @author Daksh & Matthew
+ * @author Daksh and Matthew
  */
 public class Student {
     private String name;
     private String id;
     private ArrayList<Student> partners;
-    private ArrayList<Student> blacklist;
     private ArrayList<String> accommodations;
     private boolean hasPaid;
     private String password;
     private String grade;
-    private BufferedImage profilePic;
 
     /**
      * Constructor that follows UML. Creates a new Student Object. Never Used but here for the mark.
@@ -30,7 +28,6 @@ public class Student {
         this.partners = new ArrayList<Student>();
         this.hasPaid = false;
         this.accommodations = new ArrayList<String>();
-        this.blacklist = new ArrayList<Student>();
     }
 
     /**
@@ -47,7 +44,6 @@ public class Student {
         this.partners = partners;
         this.hasPaid = false;
         this.accommodations = new ArrayList<String>();
-        this.blacklist = new ArrayList<Student>();
     }
 
     /**
@@ -66,7 +62,6 @@ public class Student {
         this.partners = new ArrayList<Student>();
         this.hasPaid = false;
         this.accommodations = new ArrayList<String>();
-        this.blacklist = new ArrayList<Student>();
     }
 
     /**
@@ -134,24 +129,6 @@ public class Student {
     }
 
     /**
-     * Used to get the profile picture of the student.
-     * @return The student's image.
-     * @see BufferedImage
-     */
-    public BufferedImage getPicture() {
-        return profilePic;
-    }
-
-    /**
-     * Used to set the profile picture of the student.
-     * @param image The student's new image.
-     * @see BufferedImage
-     */
-    public void setPicture(BufferedImage image){
-        this.profilePic = image;
-    }
-
-    /**
      * Used to get the accommodations of the student.
      * @return The student's accommodations
      */
@@ -165,22 +142,6 @@ public class Student {
      */
     public void setAccommodations(ArrayList<String> accommodations) {
         this.accommodations = accommodations;
-    }
-
-    /**
-     * Used to get the student's blacklist.
-     * @return The student's blacklist.
-     */
-    public ArrayList<Student> getBlacklist() {
-        return blacklist;
-    }
-
-    /**
-     * Used to set the student's blacklist.
-     * @param blacklist The student's blacklist.
-     */
-    public void setBlacklist(ArrayList<Student> blacklist) {
-        this.blacklist = blacklist;
     }
 
     /**

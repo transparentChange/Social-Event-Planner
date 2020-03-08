@@ -18,11 +18,11 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * Ticketing System used by the Prom Project.
+ * Ticketing System used by the Prom Project. Andy Special
  * @see Prom
  * @see Student
  * @see Table
- * @author Daksh & Matthew
+ * @author Daksh and Matthew
  */
 public class TicketingSystem extends JPanel {
     private ArrayList<Student> students;
@@ -134,7 +134,6 @@ public class TicketingSystem extends JPanel {
         try {
             Scanner input = new Scanner(loginCredentials);
             ArrayList<String[]> partners = new ArrayList<String[]>();
-            ArrayList<String[]> blackList = new ArrayList<String[]>();
 
             while (input.hasNext()) {
                 String student = input.nextLine();
@@ -154,13 +153,10 @@ public class TicketingSystem extends JPanel {
                     String id = keys.get("id");
 
                     String[] partnerString = keys.get("partners").split("#");
-                    String[] blackListString = keys.get("blacklist").split("#");
 
                     Boolean hasPaid = Boolean.parseBoolean(keys.get("paid"));
                     String password = keys.get("password");
                     String grade = keys.get("grade");
-
-                    String image = keys.get("image");
 
                     ArrayList<String> accommodations = new ArrayList<String>();
                     if (keys.get("accommodation").length() > 0) {
@@ -174,29 +170,16 @@ public class TicketingSystem extends JPanel {
                     addStudent(s);
 
                     partners.add(partnerString);
-                    blackList.add(blackListString);
-
-                    if (!image.equals("null")){
-                        BufferedImage studentImage = ImageIO.read(new File("studentImages/" + id + ".png"));
-                        s.setPicture(studentImage);
-                    }
                 }
             }
             input.close();
 
             for (int i = 0; i < students.size(); i++) {
                 ArrayList<Student> studentPartners = students.get(i).getPartners();
-                ArrayList<Student> blackListed = students.get(i).getBlacklist();
                 for (int j = 0; j < partners.get(i).length; j++) {
                     Student s = findStudentByID(partners.get(i)[j]);
                     if (s != null) {
                         studentPartners.add(s);
-                    }
-                }
-                for (int j = 0; j < blackList.get(i).length; j++) {
-                    Student s = findStudentByID(blackList.get(i)[j]);
-                    if (s != null) {
-                        blackListed.add(s);
                     }
                 }
             }
@@ -220,12 +203,6 @@ public class TicketingSystem extends JPanel {
                 output.print("paid:" + curStudent.hasPaid() + ",");
                 output.print("grade:" + curStudent.getGrade() + ",");
                 output.print("password:" + curStudent.getPassword() + ",");
-                if (curStudent.getPicture() != null) {
-                    ImageIO.write(curStudent.getPicture(), "png", new File("studentImages/" + curStudent.getId() + ".png"));
-                    output.print("image:" + curStudent.getId() + ".png,");
-                } else {
-                    output.print("image:null,");
-                }
                 String partnerString = "";
                 ArrayList<Student> partnerArray = curStudent.getPartners();
                 for (int i = 0; i < partnerArray.size(); i++) {
@@ -244,18 +221,8 @@ public class TicketingSystem extends JPanel {
                     accommodationString = accommodationString.substring(0, accommodationString.length() - 1);
                 }
 
-                String blackListString = "";
-                ArrayList<Student> blackListArray = curStudent.getBlacklist();
-                for (int i = 0; i < blackListArray.size(); i++) {
-                    blackListString += blackListArray.get(i).getId() + "#";
-                }
-                if (blackListString.length() != 0){
-                    blackListString = blackListString.substring(0,blackListString.length() - 1);
-                }
-
                 output.print("partners:" + partnerString + ",");
                 output.print("accommodation:"+accommodationString+",");
-                output.print("blacklist:"+blackListString);
 
                 output.println();
             }
@@ -487,7 +454,6 @@ public class TicketingSystem extends JPanel {
     public class TicketPanel extends JPanel{
         private Student selectedStudent;
         private ArrayList<Student> partners;
-        private ArrayList<Student> blackList;
         private BufferedImage image;
         private ButtonPanel upperPanel;
         
@@ -505,7 +471,6 @@ public class TicketingSystem extends JPanel {
                 this.setVisible(true);
                 this.selectedStudent = student;
                 partners = student.getPartners();
-                blackList = student.getBlacklist();
                 
                 //add all components
                 upperPanel = new ButtonPanel();
@@ -611,7 +576,6 @@ public class TicketingSystem extends JPanel {
                 addComponent(new PaymentPanel());
                 addComponent(new JLabel("Accommodations"));
                 addComponent(new AccommodationPanel());
-                addComponent(new ProfilePanel(selectedStudent.getPicture()));
                 //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
         	}
         	
@@ -666,18 +630,13 @@ public class TicketingSystem extends JPanel {
                 
                 PartnerPanel() {
                     if (partners.size() == 0) {
-                    	RowPair partnerPair = new RowPair(FIELD_INSTRUCTION, false);
+                    	RowPair partnerPair = new RowPair(FIELD_INSTRUCTION);
                     	this.add(partnerPair);
                     } else {
     	                for (Student s : partners) {
-    	                	RowPair partnerPair = new RowPair(s.getName(), s.getId(), false);
+    	                	RowPair partnerPair = new RowPair(s.getName(), s.getId());
     	                	this.add(partnerPair);
     	                }
-                    }
-
-                    for (Student s : blackList) {
-                        RowPair partnerPair = new RowPair(s.getName(), s.getId(), true);
-                        this.add(partnerPair);
                     }
                     
                     editingIndex = 0;
@@ -738,9 +697,9 @@ public class TicketingSystem extends JPanel {
         			
         			RowPair pairToAdd;
         			if (id == null) {
-        				pairToAdd = new RowPair(text, false);
+        				pairToAdd = new RowPair(text);
         			} else {
-        				pairToAdd = new RowPair(text, id, false);
+        				pairToAdd = new RowPair(text, id);
         			}
                 	addAdditiveComponent(pairToAdd);
                 	
@@ -754,12 +713,9 @@ public class TicketingSystem extends JPanel {
 	                	super.removeAdditiveComponent(pairToRemove);
 	                	
 	                    Student s = findStudentByID(((RowPair) pairToRemove).getStudentID());
-	
-	                    if (((RowPair) pairToRemove).isBlackList()){
-	                        blackList.remove(s);
-	                    } else {
-	                        partners.remove(s);
-	                    }
+
+	                    partners.remove(s);
+
 	
 	                	writeStudents();
                 	}
@@ -771,7 +727,7 @@ public class TicketingSystem extends JPanel {
                 		Component[] componentList = this.getComponents();
                 		int index = componentList.length - 2;
                 		if (index == 0) {
-                			RowPair partnerPair = new RowPair(FIELD_INSTRUCTION, false);
+                			RowPair partnerPair = new RowPair(FIELD_INSTRUCTION);
                         	this.add(partnerPair);
                 		} else {
     	            		addPairToBottom(FIELD_INSTRUCTION, null);
@@ -783,10 +739,8 @@ public class TicketingSystem extends JPanel {
                 	private PartnerFixedRow fixed;
                 	private EditingRow editing;
                 	private String savedStudentID;
-                    private boolean isBlackList;
                 	
-                	RowPair(String text, boolean isBlackList) {
-                	    this.isBlackList = isBlackList;
+                	RowPair(String text) {
                 	    recolour();
 
                 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -802,8 +756,7 @@ public class TicketingSystem extends JPanel {
                 		toUniversalFont(this);
                 	}
                 	
-                	RowPair(String text, String id, boolean isBlackList) {
-                	    this.isBlackList = isBlackList;
+                	RowPair(String text, String id) {
                 	    recolour();
 
                 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -857,19 +810,7 @@ public class TicketingSystem extends JPanel {
                 	}
 
                     public void recolour(){
-                        if (isBlackList) {
-                            this.setBackground(new Color(177, 176, 178));
-                        } else {
-                            this.setBackground(new Color(255, 252, 231));
-                        }
-                    }
-
-                    public void setBlackList(boolean isBlackList){
-                        this.isBlackList = isBlackList;
-                    }
-
-                    public boolean isBlackList(){
-                        return this.isBlackList;
+                        this.setBackground(new Color(255, 252, 231));
                     }
 
                     /**
@@ -902,7 +843,6 @@ public class TicketingSystem extends JPanel {
                     
                     private class PartnerFixedRow extends FixedRow implements ActionListener {
                     	private JButton editButton;
-                    	private JButton whiteBlackListToggle;
 
                     	PartnerFixedRow(String nameLabel) {
                     		super(nameLabel);
@@ -911,16 +851,8 @@ public class TicketingSystem extends JPanel {
                     		editButton = new JButton("%"); // change later
                     		editButton.addActionListener(this);
 
-                    		if (isBlackList()){
-                                whiteBlackListToggle = new JButton("Make Preferred");
-                            } else {
-                                whiteBlackListToggle = new JButton("Make Blacklisted");
-                            }
-                            whiteBlackListToggle.addActionListener(this);
-
                     		this.add(editButton);
                     		this.add(removeButton);
-                    		this.add(whiteBlackListToggle);
                     		this.add(Box.createHorizontalGlue());
                     	}
                     	
@@ -937,21 +869,7 @@ public class TicketingSystem extends JPanel {
                     			
                     		} else if (source == removeButton) {
                     			removeThis();
-                    		} else if (source == whiteBlackListToggle) {
-                    		    setBlackList(!isBlackList());
-                    		    recolour();
-                                Student current = findStudentByID(savedStudentID);
-                    		    if (isBlackList()) {
-                                    partners.remove(current);
-                                    blackList.add(current);
-                                    whiteBlackListToggle.setText("Make Preferred");
-                                } else {
-                                    blackList.remove(current);
-                                    partners.add(current);
-                                    whiteBlackListToggle.setText("Make Blacklisted");
-                                }
-                    		    writeStudents();
-                            }
+                    		}
                     	}
                     }
                     
@@ -978,7 +896,7 @@ public class TicketingSystem extends JPanel {
                                 ArrayList<Student> foundStudents = findStudentsWithName(nameField.getText());
                                 ArrayList<Student> foundNotAdded = new ArrayList<>();
                                 for (Student student : foundStudents) {
-                                    if (!(partners.contains(student)) || (blackList.contains(student))) {
+                                    if (!(partners.contains(student))) {
                                         foundNotAdded.add(student);
                                     }
                                 }
@@ -988,46 +906,36 @@ public class TicketingSystem extends JPanel {
                                 } else if ((foundStudents.size() == 1)) {
                                     if (foundStudents.get(0) == TicketPanel.this.selectedStudent) {
                                         errorLabel.setText("You can't add yourself");
-                                    } else if ((partners.contains(foundStudents.get(0))) || (blackList.contains(foundStudents.get(0)))) {
+                                    } else if ((partners.contains(foundStudents.get(0)))) {
                                         toFixedVisibility(foundStudents.get(0).getId());
                                         errorLabel.setText("Person already added");
 
                                         editingIndex = -1;
                                     } else {
-                                        if (isBlackList) {
-                                            blackList.remove(new Student(getFixedText(), getStudentID()));
-                                        } else {
-                                            partners.remove(new Student(getFixedText(), getStudentID()));
-                                        }
+                                        partners.remove(new Student(getFixedText(), getStudentID()));
 
                                         toFixedVisibility(foundStudents.get(0).getId());
 
                                         editingIndex = -1;
                                         partners.add(foundStudents.get(0));
-                                        setBlackList(false);
                                     }
                                 } else if (foundNotAdded.size() == 0) {
                                     errorLabel.setText("All people with that name have been added");
                                 } else if (foundNotAdded.size() == 1){
                                     if (foundNotAdded.get(0) == TicketPanel.this.selectedStudent) {
                                         errorLabel.setText("You can't add yourself");
-                                    } else if ((partners.contains(foundNotAdded.get(0))) || (blackList.contains(foundNotAdded.get(0)))) {
+                                    } else if ((partners.contains(foundNotAdded.get(0)))) {
                                         toFixedVisibility(foundNotAdded.get(0).getId());
                                         errorLabel.setText("Person already added");
 
                                         editingIndex = -1;
                                     } else {
-                                        if (isBlackList) {
-                                            blackList.remove(new Student(getFixedText(), getStudentID()));
-                                        } else {
-                                            partners.remove(new Student(getFixedText(), getStudentID()));
-                                        }
+                                        partners.remove(new Student(getFixedText(), getStudentID()));
 
                                         toFixedVisibility(foundNotAdded.get(0).getId());
 
                                         editingIndex = -1;
                                         partners.add(foundNotAdded.get(0));
-                                        setBlackList(false);
                                     }
                                 } else {
                                 	errorLabel.setText("Warning! More than one student with that name");
@@ -1078,7 +986,6 @@ public class TicketingSystem extends JPanel {
 
             	EditingRow(String nameLabel) {
             		super();
-            		//this.setBackground(Color.RED);
             		
             		nameField = new JTextField(nameLabel);
             		nameField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
@@ -1176,29 +1083,19 @@ public class TicketingSystem extends JPanel {
 
                         for (int i = 0; i < foundStudents.size(); i++) {
                             Student student = foundStudents.get(i);
-                            BufferedImage studentPicture = student.getPicture();
                             GridBagConstraints c = new GridBagConstraints();
                             c.gridx = i;
                             c.gridy = 0;
                             c.insets = space;
-                            if (studentPicture != null){
-                                this.add(new JLabel(new ImageIcon(studentPicture.getScaledInstance(50,50,Image.SCALE_SMOOTH))),c);
-                            } else {
-                                this.add(new JLabel("Picture Not Found"),c);
-                            }
+                            this.add(new JLabel(student.getId()),c);
                             c = new GridBagConstraints();
                             c.gridx = i;
                             c.gridy = 1;
                             c.insets = space;
-                            this.add(new JLabel(student.getId()),c);
-                            c = new GridBagConstraints();
-                            c.gridx = i;
-                            c.gridy = 2;
-                            c.insets = space;
                             this.add(new JLabel(student.getName()),c);
                             c = new GridBagConstraints();
                             c.gridx = i;
-                            c.gridy = 3;
+                            c.gridy = 2;
                             c.insets = space;
                             JButton select = new JButton("Select");
                             select.addActionListener(this);
@@ -1214,7 +1111,7 @@ public class TicketingSystem extends JPanel {
                         int index = studentSelectors.indexOf(source);
                         String id = studentIds.get(index);
                         Student partner = findStudentByID(id);
-                        if ((!partners.contains(partner)) && (!blackList.contains(partner))) {
+                        if ((!partners.contains(partner))) {
                             partnerPanel.addPairToBottom(partner.getName(), id);
                             partners.add(partner);
                             writeStudents();
@@ -1444,94 +1341,6 @@ public class TicketingSystem extends JPanel {
             		}
             	}
             }
-
-            private class ProfilePanel extends JPanel implements ActionListener{
-                private BufferedImage studentImage;
-                private JLabel imageComponent;
-                private JFileChooser fileChooser;
-                private JButton selectImage;
-                private Path filePath;
-
-                private static final int imageSize = 200;
-
-                ProfilePanel(BufferedImage image){
-                    this.setLayout(new GridBagLayout());
-
-                    studentImage = image;
-
-                    if (studentImage != null) {
-                        imageComponent = new JLabel(new ImageIcon(studentImage));
-                    } else {
-                        imageComponent = new JLabel("No image");
-                    }
-                    selectImage = new JButton("Select Image");
-                    fileChooser = new JFileChooser();
-                    fileChooser.setFileFilter(new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes()));
-
-                    GridBagConstraints c = new GridBagConstraints();
-                    c.gridy = 0;
-                    this.add(selectImage,c);
-                    selectImage.addActionListener(this);
-
-                    c = new GridBagConstraints();
-                    c.gridy = 1;
-                    this.add(imageComponent,c);
-
-                }
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    Object source = e.getSource();
-                    if (source == selectImage){
-                        int returnValue = fileChooser.showOpenDialog(null);
-
-                        if (returnValue == JFileChooser.APPROVE_OPTION) {
-                            try {
-                                File selectedFile = fileChooser.getSelectedFile();
-                                filePath = selectedFile.toPath();
-
-                                BufferedImage tempBufferedImage = ImageIO.read(new File(filePath.toString()));
-
-                                int w = tempBufferedImage.getWidth();
-                                int h = tempBufferedImage.getHeight();
-                                int s;
-                                if (w > h){
-                                    s = h;
-                                } else {
-                                    s = w;
-                                }
-
-                                tempBufferedImage = tempBufferedImage.getSubimage((w-s)/2,(h-s)/2, s, s);
-                                Image tempImage = tempBufferedImage.getScaledInstance(imageSize,imageSize, Image.SCALE_SMOOTH);
-
-                                studentImage = new BufferedImage(imageSize,imageSize,BufferedImage.TYPE_INT_ARGB);
-                                Graphics2D resize = (Graphics2D) studentImage.getGraphics();
-                                resize.drawImage(tempImage, 0, 0, null);
-                                resize.dispose();
-
-                                //remove old image
-                                this.remove(imageComponent);
-                                //add new image
-                                imageComponent = new JLabel(new ImageIcon(studentImage));
-
-                                GridBagConstraints c = new GridBagConstraints();
-                                c.gridy = 1;
-
-                                this.add(imageComponent,c);
-
-                                selectedStudent.setPicture(studentImage);
-
-                                writeStudents();
-                            } catch (Exception ex){
-                                ex.printStackTrace();
-                            }
-
-                            revalidate();
-                            repaint();
-                        }
-                    }
-                }
-            }
             
             abstract private class DynamicBoxLayoutPanel extends JPanel implements ActionListener {
             	protected JButton addButton;
@@ -1654,31 +1463,7 @@ public class TicketingSystem extends JPanel {
          * @see FloorPlanSystem
          */
         FloorPlanPanel(JPanel fromPanel) {
-            HashMap<Student, HashMap<Student, Double>> paidHash = new HashMap<Student, HashMap<Student, Double>>();
-            ArrayList<Student> paidStudents = new ArrayList<Student>();
-
-            for (Student s : students){
-                if (s.hasPaid() && paidHash.size() < Prom.maxTables*Prom.tableSize){
-                    HashMap<Student, Double> weights = new HashMap<Student, Double>();
-                    for (Student partner : s.getPartners()){
-                        weights.put(partner, 1.0);
-                    }
-                    for (Student blackList : s.getBlacklist()){
-                        weights.put(blackList, -100.0);
-                    }
-                    paidHash.put(s, weights);
-                    paidStudents.add(s);
-                }
-            }
-            tables = SeatingAssignmentSystem.assignTables(paidStudents, Prom.maxTables, Prom.tableSize, paidHash);
-            for (Table t: tables){
-                System.out.print("[");
-                for (Student s : t.getStudents()){
-                    System.out.print(s.getId() + ",");
-                }
-                System.out.println("]");
-            }
-            floorPlan = new FloorPlanSystem(tables);
+            floorPlan = new FloorPlanSystem(students);
             this.fromPanel = fromPanel;
             this.exitButton = new JButton("Hide FloorPlan");
             this.setLayout(new BorderLayout());

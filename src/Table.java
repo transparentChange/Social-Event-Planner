@@ -4,7 +4,7 @@ import java.util.ArrayList;
  * Student class required for Prom Project. Used by TicketingSystem
  * @see TicketingSystem
  * @see Student
- * @author Daksh & Matthew
+ * @author Daksh and Matthew
  */
 public class Table {
     private int size;
