@@ -1,7 +1,9 @@
 import javax.imageio.ImageIO;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.*;
@@ -278,7 +280,7 @@ public class TicketingSystem extends JPanel {
     		} else if (component instanceof JButton) {
     			component.setFont(DesignConstants.SMALL_BOLD_FONT);
     		} else if (!((className.equals("CenterPanel")) && (component instanceof JLabel))
-    				&& (!className.equals("LoginPanel"))) {
+    				&& (!className.equals("LoginPanel")) && (!className.equals("OrderInfoPanel"))) {
     				component.setFont(DesignConstants.GENERAL_FONT);
 			}
     	}
@@ -679,8 +681,7 @@ public class TicketingSystem extends JPanel {
                         this.add(partnerPair);
                     }
                     
-                    
-                    editingIndex = -1;
+                    editingIndex = 0;
                     
                     this.add(areaBeforeButton);
                     this.add(addButton);
@@ -715,6 +716,7 @@ public class TicketingSystem extends JPanel {
                 		if ((index == componentList.length - 2) && 
                 				(((RowPair) componentList[index]).getFixedText().equals(FIELD_INSTRUCTION))) {
                 			this.remove(componentList[index]);
+                			System.out.println("here");
                 		} else {
                 			((RowPair) componentList[index]).toFixedVisibility(((RowPair) componentList[index]).getStudentID());
                 		}
@@ -730,6 +732,7 @@ public class TicketingSystem extends JPanel {
                 	if (id == null) {
 	                	if (editingIndex != -1) {
 	        				showFixed(editingIndex);
+	        				System.out.println("here");
 	        			} 
 	                	editingIndex = componentList.length - 1;
                 	} else {
@@ -1191,7 +1194,13 @@ public class TicketingSystem extends JPanel {
             	    this.repaint();
                 }
             }
-
+            
+            /*
+             * PaymentPanel
+             * This class is a JPanel that replicates a payment system similar to School Cash online. 
+             * The current version does not save any of the payment information or do any verification 
+             * of the information entered, but simply updates the selectedStudent's state via the setPaid method
+             */
             private class PaymentPanel extends JPanel implements ActionListener {
             	private JLabel cardLabel = new JLabel("Card Number");
             	private JTextField cardField = new JTextField();
@@ -1200,36 +1209,38 @@ public class TicketingSystem extends JPanel {
                 private JTextField codeField = new JTextField();
 
                 private JLabel expiryLabel = new JLabel("Expiry Date");
-                private JComboBox monthBox;
-                private JComboBox yearBox;
+                private JComboBox<String> monthBox;
+                private JComboBox<String> yearBox;
 
                 private JButton buyButton = new JButton("Buy now!");
                 private JButton refundButton = new JButton("Click here for a refund");
-                private int currentYPos = 0;
+                
+                private int currentYPos = 0; // keeps track of y position for layout purposes
 
             	PaymentPanel() {
             		this.setLayout(new GridBagLayout());
-                    //do all layout
-
-                    // this.add(infoMessage, BorderLayout.CENTER);
-
-            		buyButton.addActionListener(this);
-            		refundButton.addActionListener(this);
-
+            		
+            		// add credit card number row
                     cardField.setColumns(20);
             		addRow(cardLabel, cardField);
 
+            		// add credit card code row
             		codeField.setColumns(10);
             		addRow(codeLabel, codeField);
-
-            		this.add(expiryLabel, getLabelConstraints(expiryLabel));
+            		
+            		// add credit card expiry row
+            		addLabel(expiryLabel);
 
             		String[] monthOptions = new String[13];
             		monthOptions[0] = "mm ";
             		for (int i = 1; i < 13; i++) {
             			monthOptions[i] = Integer.toString(i);
+            			if (monthOptions[i].length() == 1) {
+            				monthOptions[i] = "0" + monthOptions[i]; 
+            			}
             		}
-            		monthBox = new JComboBox(monthOptions);
+            		monthBox = new JComboBox<String>(monthOptions);
+            		
             		GridBagConstraints c = new GridBagConstraints();
             		c.gridx = 1;
             		c.gridy = currentYPos;
@@ -1239,87 +1250,151 @@ public class TicketingSystem extends JPanel {
             		c.insets = new Insets(0, 5, 0, 5);
             		this.add(new JLabel("/"), c);
 
-            		String[] yearOptions = new String[15];
+            		String[] yearOptions = new String[17];
             		yearOptions[0] = "yy";
             		int curYear = Calendar.getInstance().get(Calendar.YEAR);
-            		for (int i = 0; i < 12; i++) {
+            		for (int i = 0; i < 16; i++) {
             			yearOptions[i + 1] = Integer.toString(curYear + i);
+            			yearOptions[i + 1] = yearOptions[i + 1].substring(yearOptions[i + 1].length() - 2);
             		}
-            		yearBox = new JComboBox(yearOptions);
+            		yearBox = new JComboBox<String>(yearOptions);
 
             		c = new GridBagConstraints();
             		c.gridx = 3;
             		c.gridy = currentYPos;
             		c.anchor = GridBagConstraints.LINE_START;
-            		c.weightx = 1.0;
             		this.add(yearBox, c);
             		
-            		
+            		// add buy and refund buttons to end  
             		c = new GridBagConstraints();
             		c.anchor = GridBagConstraints.LINE_START;
-            		c.weightx = 0.2;
             		c.gridy = currentYPos + 1;
                     this.add(buyButton, c);
 
                     c.gridy = currentYPos + 2;
                     this.add(refundButton, c);
-					
-            		if (selectedStudent.hasPaid()){
-                        setVisibility(false);
-                    } else {
-                        setVisibility(true);
-                    }
                     
+            		buyButton.addActionListener(this);
+            		refundButton.addActionListener(this);
+					
+                    // add an order information panel to upper right side
+                    OrderInfoPanel orderPanel = new OrderInfoPanel();
+            		c = new GridBagConstraints();
+            		c.gridheight = 3;
+            		c.gridx = 4;
+            		c.anchor = GridBagConstraints.PAGE_START;
+            		c.weightx = 1.0;
+            		this.add(orderPanel, c);
+                    
+            		setVisibility();
             	}
-
-            	public void addRow(JLabel label, JTextField field) {
-                    this.add(label, getLabelConstraints(label));
+            	
+            	/*
+            	 * addRow
+            	 * This method accepts a label and field as parameters and adds them to the panel in a horizontal row with
+            	 * vertical and horizontal spacing.
+            	 * @param the JLabel to be added
+            	 * @param the JTextField to be added
+            	 */
+            	private void addRow(JLabel label, JTextField field) {
+                    addLabel(label);
 
                     GridBagConstraints c = new GridBagConstraints();
                     c.anchor = GridBagConstraints.WEST;
-                    c.weightx = 1.0;
             		c.gridwidth = 3;
                     c.gridx = 1;
                     c.insets = new Insets(0, 0, 20, 0);
                     this.add(field, c);
 
-                    currentYPos++;
+                    currentYPos++; // keep track of gridy
             	}
-
-            	public GridBagConstraints getLabelConstraints(JLabel label) {
+            	
+            	/*
+            	 * getLabelConstraints
+            	 * This method adds a label to the panel with northwest positioning and insets below and to the right
+            	 * @param label, the JLabel to be added
+            	 */
+            	public void addLabel(JLabel label) {
             		GridBagConstraints c = new GridBagConstraints();
-            		c.anchor = GridBagConstraints.NORTHWEST;
+            		c.anchor = GridBagConstraints.FIRST_LINE_START;
             		c.gridy = currentYPos;
-            		c.insets = new Insets(0, 0, 20, 0);
+            		c.insets = new Insets(0, 0, 20, 100);
 
-            		return c;
+            		this.add(label, c);
             	}
 
-            	public void setVisibility(boolean toBuy) {
+            	/*
+            	 * setVisibility
+            	 * This method sets the visibility of components based on whether or not the user has paid. 
+            	 * If a student has paid, they will be able to ask for a refund, otherwise, all components will be 
+            	 * shown except for the refund button
+            	 * @param a boolean that represents whether or not the student has b 
+            	 */
+            	public void setVisibility() {
             		Component[] componentList = this.getComponents();
 
             		for (Component component : componentList) {
             			if (!component.equals(refundButton)) {
-            				component.setVisible(toBuy);
+            				component.setVisible(!selectedStudent.hasPaid());
             			} else {
-            				component.setVisible(!toBuy);
+            				component.setVisible(selectedStudent.hasPaid());
             			}
             		}
             	}
-
+            	
+            	/*
+            	 * actionPerformed
+            	 * This method is used for the buy and refund buttons, updating the visibility, the info label at the top
+            	 * of the application, and the loginCredentials file when one of these buttons are pressed 
+            	 * @param e, the ActionEvent object
+            	 */
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     Object source = e.getSource();
                     if (source == buyButton){
-                        setVisibility(false);
                         selectedStudent.setPaid(true);
                     } else if (source == refundButton) {
-                        setVisibility(true);
                         selectedStudent.setPaid(false);
                     }
+                    setVisibility();
+                    
                     writeStudents();
                     updateInfoLabel();
                 }
+                
+                /*
+                 * OrderInfoPanel
+                 * This class is a JPanel that displays information on the type of event and cost of ticket
+                 */
+                private class OrderInfoPanel extends JPanel {
+            		private JLabel titleLabel = new JLabel("Your Order");
+            		private JLabel nameLabel, infoLabel, costLabel; 
+            		
+            		OrderInfoPanel() {
+            			this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+            			this.setBorder(new CompoundBorder(new LineBorder(Color.BLACK, 1, true),
+            					new EmptyBorder(10, 10, 10, 10)));
+            			this.setOpaque(false);
+            			
+            			titleLabel.setFont(DesignConstants.SMALL_BOLD_FONT);
+            			this.add(titleLabel);
+            			this.add(new JSeparator(SwingConstants.HORIZONTAL));
+            			
+            			nameLabel = new JLabel(selectedStudent.getName());
+            			nameLabel.setFont(DesignConstants.GENERAL_FONT);
+            			this.add(nameLabel);
+            			
+            			infoLabel = new JLabel("    " + Prom.TYPE_OF_EVENT + " - Ticket (Qty: 1)");
+            			infoLabel.setFont(DesignConstants.GENERAL_FONT);
+            			this.add(infoLabel);
+            			this.add(new JSeparator(SwingConstants.HORIZONTAL));
+            			
+            			costLabel = new JLabel("Total             " + Prom.COST_OF_TICKET);
+            			costLabel.setFont(DesignConstants.SMALL_BOLD_ITALICS_FONT);
+            			costLabel.setForeground(new Color(106, 116, 125));
+            			this.add(costLabel);
+            		}
+            	}
             }
 
             private class ProfilePanel extends JPanel implements ActionListener{
@@ -1591,6 +1666,7 @@ public class TicketingSystem extends JPanel {
         public static final Font MEDIUM_BOLD_FONT = new Font("Segoe UI", Font.BOLD, 17);
         public static final Font GENERAL_FONT = new Font("Segoe UI", Font.PLAIN, 14);
         public static final Font SMALL_BOLD_FONT = new Font("Segoe UI", Font.BOLD, 13);
+        public static final Font SMALL_BOLD_ITALICS_FONT = new Font("Segoe UI", Font.BOLD + Font.ITALIC, 13);
         public static final Canvas C = new Canvas();
         public static final FontMetrics metricsSmall = C.getFontMetrics(GENERAL_FONT);
         
