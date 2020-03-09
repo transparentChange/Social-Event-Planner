@@ -8,6 +8,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 
 import java.io.File;
@@ -288,24 +289,18 @@ public class TicketingSystem extends JPanel {
         revalidate();
         repaint();
     }
-
+    //-------------------------------------------------------------------------------------------------------------------------
+    // beginning of TicketingSystem inner classes
+    //-------------------------------------------------------------------------------------------------------------------------
+    /*
+     * LoginPanel
+     * This class is a JPanel that contains the InnerLoginPanel and displays the background image located
+     * under the name "loginBakground.jpg" in the background
+     */
     private class LoginPanel extends JPanel {
         BufferedImage image = null;
-        private JTextField idField;
-        private JTextField nameField;
-        private JTextField passwordField;
-        private JButton loginButton;
-        private JButton createAccount;
-        private JButton createToggle;
-        private boolean createIsToggled;
-        private JComboBox gradeOptions;
-        private JLabel nameText;
-        private JLabel gradeText;
-        private JLabel errorLabel;
-
+        
         LoginPanel() {
-            this.setFocusable(false);
-            this.setOpaque(true);
             this.setLayout(new GridBagLayout());
 
             try {
@@ -314,66 +309,94 @@ public class TicketingSystem extends JPanel {
                 e.printStackTrace();	
             }
 
-            this.add(new InnerFrame());
-
-            this.setVisible(true);
-
-            createIsToggled = false;
+            this.add(new InnerLoginPanel());
         }
-
+        
+        /*
+         * paintComponent
+         * This method draws the BufferedImage image if it is not equal to null
+         * @param g, a Graphics object
+         * @throws RuntimeException, indicated that the image is equal to null
+         */
         public void paintComponent(Graphics g) {
             if (this.image != null) {
                 g.drawImage(this.image, 0, 0, this.getWidth(), this.getHeight(), this);
             } else {
-                g.setColor(new Color(0, 0, 0));
-                g.fillRect(0, 0, this.getWidth(), this.getHeight());
+            	throw new RuntimeException("Image does not exist");
             }
         }
-
-        private class InnerFrame extends JPanel implements ActionListener {
-            InnerFrame() {
+        
+        //-------------------------------------------------------------------------------------------------------------
+        // Inner Class InnerLoginPanel
+        //-------------------------------------------------------------------------------------------------------------
+        /*
+         * InnerLoginPanel
+         * This class is a JPanel that will be shown in the center of the window. It will contain
+         * all the necessary fields and buttons to login and create an account. Includes some verification
+         * of user input.
+         */
+        private class InnerLoginPanel extends JPanel implements ActionListener {
+            private JLabel nameText;
+            private JLabel gradeText;
+            private JLabel errorLabel;
+            
+            private JTextField idField = new JTextField();
+            private JTextField nameField;
+            private JTextField passwordField = new JTextField();
+            private JComboBox<String> gradeOptions;
+            
+            private JButton loginButton;
+            private JButton createAccountButton;
+            private JButton toggleButton;
+        	
+        	private String TO_LOGIN_MESSAGE = "Back to login";
+        	private String TO_CREATE_MESSAGE = "Don't have an account? Click here to sign up.";
+        	
+            InnerLoginPanel() {
         		this.setLayout(new GridBagLayout());
-        		this.setVisible(true);
         		this.setBorder(new EmptyBorder(WINDOW_WIDTH / 40, WINDOW_WIDTH / 40,
         				WINDOW_WIDTH / 40, WINDOW_WIDTH / 40));
-        		 this.setBackground(DesignConstants.MAIN_COLOUR);
+        		this.setBackground(DesignConstants.MAIN_COLOUR);
 
         		errorLabel = new JLabel("");
 
-        		createToggle = new JButton("Don't have an account? Click here to sign up.");
-        		createToggle.addActionListener(this);
+        		toggleButton = new JButton("Don't have an account? Click here to sign up.");
+        		toggleButton.addActionListener(this);
 
                 addComponent(0, new JLabel("Student ID"));
-               
-        		idField = new JTextField();
         		addComponent(1, idField);
         		
         		addComponent(2, new JLabel("Password"));
-        		
-        		passwordField = new JTextField();
         		addComponent(3, passwordField);
         		
         		loginButton = new JButton("Login");
         		loginButton.addActionListener(this);
         		addComponent(8,loginButton);
 
-        		addComponent(9 ,createToggle);
+        		addComponent(9, toggleButton);
         		
         		String[] grades = {"9", "10", "11", "12"};
         		nameField = new JTextField(20);
-        		gradeOptions = new JComboBox(grades);
+        		gradeOptions = new JComboBox<String>(grades);
 
-        		createAccount = new JButton("Create Account");
-        		createAccount.addActionListener(this);
+        		createAccountButton = new JButton("Create Account");
+        		createAccountButton.addActionListener(this);
             }
             
-            public void addComponent(int gridy, JComponent component) {
+            /*
+             * addComponent
+             * This method adds the component passed in as a parameter to the specified gridy position.
+             * It also adjusts other design aspects of the component such as insets, font, and colour
+             * @param gridy, an integer that specifies the vertical position on the panel relative 
+             * to other components through Gridbaglayout
+             * @param component, the JComponent that is being added
+             */
+            private void addComponent(int gridy, JComponent component) {
                 GridBagConstraints c = new GridBagConstraints();
-                c.gridx = 0;
                 c.gridy = gridy;
 
                 if (component instanceof JLabel) {
-                    c.insets = new Insets(10, 0, 0, 0); // space in between
+                    c.insets = new Insets(10, 0, 0, 0);
                     c.anchor = GridBagConstraints.LINE_START;
                     component.setForeground(Color.WHITE);
                     component.setFont(DesignConstants.SMALL_BOLD_FONT);
@@ -391,41 +414,49 @@ public class TicketingSystem extends JPanel {
 
                 this.add(component, c);
             }
-
-            public void showError(String error){
-                errorLabel = new JLabel(error);
+            
+            /*
+             * showError
+             * This method sets the errorLabel text to the error String parameter, 
+             * and adds the JLabel to the bottom of the panel
+             * @param the String object that will be displayed on the errorLabel 
+             */
+            private void showError(String error){
+                errorLabel.setText(error);
                 addComponent(10, errorLabel);
             }
 
-            public void hideError(){
-                this.remove(errorLabel);
-            }
-
-            public void actionPerformed(ActionEvent evt) {
-                Object source = evt.getSource();
+            /*
+             * actionPerformed
+             * This method determines what happens after the loginButton, createAccountButton, or toggleButton JButtons
+             * are pressed
+             * @param e, an ActionEvent object
+             */
+            public void actionPerformed(ActionEvent e) {
+                Object source = e.getSource();
+                
                 String inputId = idField.getText();
                 String inputPassword = passwordField.getText();
                 Student enteredStudent = findStudentByID(inputId);
 
-                hideError();
+                this.remove(errorLabel);
 
                 if (source == loginButton) {
-                    if (enteredStudent != null){
-                        if (enteredStudent.getPassword().equals(inputPassword)) {
-                            ticketPanel = new TicketPanel(enteredStudent); //show selected student
-                            showTicket(); //switch to ticket panel
-                        } else {
-                            showError("Password Incorrect");
-                        }
+                    if ((enteredStudent != null) && (enteredStudent.getPassword().equals(inputPassword))) {
+                        ticketPanel = new TicketPanel(enteredStudent);
+                        showTicket();
+                    } else if (enteredStudent != null) {
+                    	showError("Password Incorrect");
                     } else {
                         showError("Student doesn't exist");
                     }
-                } else if (source == createAccount) {
+                } else if (source == createAccountButton) {
                     String name = nameField.getText();
                     String grade = String.valueOf(gradeOptions.getSelectedIndex());
+                    
                     if (inputId.equals("")) {
                         showError("Id cannot be blank");
-                    } else if (idExists(inputId)) {
+                    } else if (findStudentByID(inputId) != null) {
                         showError("Id already taken");
                     } else if (inputPassword.equals("")) {
                         showError("Pasword cannot be blank");
@@ -435,52 +466,42 @@ public class TicketingSystem extends JPanel {
                         Student s = new Student(name, inputId, grade, inputPassword);
                         students.add(s);
                         writeStudents();
+                        
                         ticketPanel = new TicketPanel(s);
                         showTicket();
                     }
-                } else if (source == createToggle) {
-                    if (createIsToggled){
-                        createToggle.setText("Don't have an account? Click here to sign up.");
+                } else if (source == toggleButton) {
+                    if (toggleButton.getText().equals(TO_LOGIN_MESSAGE)) {
+                        toggleButton.setText(TO_CREATE_MESSAGE);
 
                         this.remove(nameText);
                         this.remove(nameField);
                         this.remove(gradeText);
                         this.remove(gradeOptions);
-                        this.remove(createAccount);
+                        this.remove(createAccountButton);
 
                         addComponent(8,loginButton);
-
                     } else {
-                        createToggle.setText("Back to login");
+                        toggleButton.setText(TO_LOGIN_MESSAGE);
 
                         this.remove(loginButton);
 
                         nameText = new JLabel("Name");
                         addComponent(4, nameText);
+                        
                         addComponent(5, nameField);
 
                         gradeText = new JLabel("Grade");
                         addComponent(6, gradeText);
 
                         addComponent(7, gradeOptions);
-
-                        addComponent(8, createAccount);
+                        addComponent(8, createAccountButton);
 
                     }
-                    createIsToggled = !createIsToggled;
                 }
 
                 revalidate();
                 repaint();
-            }
-
-            public boolean idExists(String inputId) {
-                for (Student s : students){
-                    if (inputId.equals(s.getId())){
-                        return true;
-                    }
-                }
-                return false;
             }
         }
     }
@@ -536,6 +557,18 @@ public class TicketingSystem extends JPanel {
             }
         }
         
+        public void paintComponent(Graphics g) {
+            if (this.image != null) {
+                g.drawImage(this.image, 0, 0, this.getWidth(), this.getHeight(), this);
+            } else {
+                g.setColor(new Color(0, 0, 0));
+                g.fillRect(0, 0, this.getWidth(), this.getHeight());
+            }
+            
+            this.revalidate();
+            this.repaint();
+        }
+        
         private class ButtonPanel extends JPanel implements ActionListener {
             private JButton logout;
             private JButton showFloor;
@@ -578,9 +611,7 @@ public class TicketingSystem extends JPanel {
 
         	CenterPanel() {
         		this.setVisible(true);
-        		//this.setOpaque(false);
                 this.setLayout(new GridBagLayout());
-                //this.setBackground(new Color(192, 171, 140));
                 this.setBackground(new Color(192, 171, 140));
                 
                 partnerPanel = new PartnerPanel();
@@ -613,7 +644,6 @@ public class TicketingSystem extends JPanel {
                 addComponent(new JLabel("Accommodations"));
                 addComponent(new AccommodationPanel());
                 addComponent(new ProfilePanel(selectedStudent.getPicture()));
-                //this.setSize(new Dimension(WINDOW_WIDTH * 3 / 7, WINDOW_HEIGHT));
         	}
         	
         	public void updateInfoLabel() {
@@ -662,7 +692,6 @@ public class TicketingSystem extends JPanel {
         	
         	public class PartnerPanel extends DynamicBoxLayoutPanel implements ActionListener {
                 private int editingIndex;
-                
                 private final String FIELD_INSTRUCTION = "New Student's Name";
                 
                 PartnerPanel() {
@@ -1453,7 +1482,7 @@ public class TicketingSystem extends JPanel {
                 private JButton selectImage;
                 private Path filePath;
 
-                private static final int imageSize = 200;
+                private static final int IMAGE_SIZE = 200;
 
                 ProfilePanel(BufferedImage image){
                     this.setLayout(new GridBagLayout());
@@ -1493,26 +1522,24 @@ public class TicketingSystem extends JPanel {
 
                                 BufferedImage tempBufferedImage = ImageIO.read(new File(filePath.toString()));
 
-                                int w = tempBufferedImage.getWidth();
-                                int h = tempBufferedImage.getHeight();
-                                int s;
-                                if (w > h){
-                                    s = h;
-                                } else {
-                                    s = w;
-                                }
+                                int width = tempBufferedImage.getWidth();
+                                int height = tempBufferedImage.getHeight();
+                                int side = Math.min(width, height);
 
-                                tempBufferedImage = tempBufferedImage.getSubimage((w-s)/2,(h-s)/2, s, s);
-                                Image tempImage = tempBufferedImage.getScaledInstance(imageSize,imageSize, Image.SCALE_SMOOTH);
+                                tempBufferedImage = tempBufferedImage.getSubimage((width - side) / 2,
+                                		(height - side) / 2, side, side);
+                                Image tempImage = tempBufferedImage.getScaledInstance(IMAGE_SIZE, IMAGE_SIZE, Image.SCALE_SMOOTH);
 
-                                studentImage = new BufferedImage(imageSize,imageSize,BufferedImage.TYPE_INT_ARGB);
+                                studentImage = new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB);
                                 Graphics2D resize = (Graphics2D) studentImage.getGraphics();
-                                resize.drawImage(tempImage, 0, 0, null);
+                                resize.setClip(new Ellipse2D.Float(0, 0, IMAGE_SIZE, IMAGE_SIZE));
+                                resize.drawImage(tempImage, 0, 0, IMAGE_SIZE, IMAGE_SIZE, null);
                                 resize.dispose();
-
-                                //remove old image
+                                
+                                // remove old image
                                 this.remove(imageComponent);
-                                //add new image
+                                
+                                // add new image
                                 imageComponent = new JLabel(new ImageIcon(studentImage));
 
                                 GridBagConstraints c = new GridBagConstraints();
@@ -1707,17 +1734,7 @@ public class TicketingSystem extends JPanel {
         }
 
         
-        public void paintComponent(Graphics g) {
-            if (this.image != null) {
-                g.drawImage(this.image, 0, 0, this.getWidth(), this.getHeight(), this);
-            } else {
-                g.setColor(new Color(0, 0, 0));
-                g.fillRect(0, 0, this.getWidth(), this.getHeight());
-            }
-            
-            this.revalidate();
-            this.repaint();
-        }
+        
         
     }
 
