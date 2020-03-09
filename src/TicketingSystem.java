@@ -503,9 +503,9 @@ public class TicketingSystem extends JPanel {
                 revalidate();
                 repaint();
             }
-        }
-    }
-
+        } // end of InnerLoginPanel
+    } // end of LoginPanel
+    
     public class TicketPanel extends JPanel{
         private Student selectedStudent;
         private ArrayList<Student> partners;
@@ -710,13 +710,10 @@ public class TicketingSystem extends JPanel {
                         this.add(partnerPair);
                     }
                     
-                    editingIndex = 0;
+                    editingIndex = 1;
                     
                     this.add(areaForAddButton);
                     this.add(addButton);
-                    
-                    this.revalidate();
-                    this.repaint();
                 }
                 
                 public void defineAddButton() {
@@ -741,8 +738,9 @@ public class TicketingSystem extends JPanel {
                 
                 public boolean showFixed(int index) {
                 	Component[] componentList = this.getComponents();
+                	
                 	if (componentList[index] instanceof RowPair) {
-                		if ((index == componentList.length - 2) && 
+                		if ((index == componentList.length - 3) && 
                 				(((RowPair) componentList[index]).getFixedText().equals(FIELD_INSTRUCTION))) {
                 			this.remove(componentList[index]);
                 		} else {
@@ -761,9 +759,9 @@ public class TicketingSystem extends JPanel {
 	                	if (editingIndex != -1) {
 	        				showFixed(editingIndex);
 	        			} 
-	                	editingIndex = componentList.length - 1;
+	                	editingIndex = componentList.length - 2;
                 	} else {
-                		editingIndex = -1;
+                		editingIndex = -1; // not editing anything
                 	}
         			
         			RowPair pairToAdd;
@@ -798,14 +796,7 @@ public class TicketingSystem extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                 	Object source = e.getSource();
                 	if (source == addButton) {
-                		Component[] componentList = this.getComponents();
-                		int index = componentList.length - 2;
-                		if (index == 0) {
-                			RowPair partnerPair = new RowPair(FIELD_INSTRUCTION, false);
-                        	this.add(partnerPair);
-                		} else {
-    	            		addPairToBottom(FIELD_INSTRUCTION, null);
-                		}
+	            		addPairToBottom(FIELD_INSTRUCTION, null);
                 	}
                 }
                 
@@ -862,8 +853,12 @@ public class TicketingSystem extends JPanel {
                 	}
 
                 	public void toFixedVisibility(String id) {
+                		editingIndex = -1;
                 		savedStudentID = id;
-                		fixed.setText(editing.getText() + "  -  ID:  " + id);
+                		int indexOfSpace = editing.getText().indexOf("  -  ID:  ");
+                		if (indexOfSpace == -1) {
+                			fixed.setText(editing.getText() + "  -  ID:  " + id);
+                		}
                 		
                 		fixed.setVisible(true);
                 		editing.setVisible(false);
@@ -1007,12 +1002,15 @@ public class TicketingSystem extends JPanel {
                     		if (source == okButton) {
                                 ArrayList<Student> foundStudents = findStudentsWithName(nameField.getText());
                                 ArrayList<Student> foundNotAdded = new ArrayList<>();
-                                for (Student student : foundStudents) {
-                                    if (!(partners.contains(student)) || (blackList.contains(student))) {
-                                        foundNotAdded.add(student);
-                                    }
-                                }
-                                if (foundStudents.size() == 0) {
+                                if (foundStudents != null) {
+	                                for (Student student : foundStudents) {
+	                                    if (!(partners.contains(student)) || (blackList.contains(student))) {
+	                                        foundNotAdded.add(student);
+	                                    }
+	                                }
+                                } 
+                                
+                                if (foundStudents == null) {
                                     errorLabel.setText("<html> Partner not Found. "
                                             + "<br> Ask them to register before you can add them. </html>");
                                 } else if ((foundStudents.size() == 1)) {
@@ -1021,8 +1019,6 @@ public class TicketingSystem extends JPanel {
                                     } else if ((partners.contains(foundStudents.get(0))) || (blackList.contains(foundStudents.get(0)))) {
                                         toFixedVisibility(foundStudents.get(0).getId());
                                         errorLabel.setText("Person already added");
-
-                                        editingIndex = -1;
                                     } else {
                                         if (isBlackList) {
                                             blackList.remove(new Student(getFixedText(), getStudentID()));
@@ -1031,8 +1027,6 @@ public class TicketingSystem extends JPanel {
                                         }
 
                                         toFixedVisibility(foundStudents.get(0).getId());
-
-                                        editingIndex = -1;
                                         partners.add(foundStudents.get(0));
                                         setBlackList(false);
                                     }
@@ -1044,8 +1038,6 @@ public class TicketingSystem extends JPanel {
                                     } else if ((partners.contains(foundNotAdded.get(0))) || (blackList.contains(foundNotAdded.get(0)))) {
                                         toFixedVisibility(foundNotAdded.get(0).getId());
                                         errorLabel.setText("Person already added");
-
-                                        editingIndex = -1;
                                     } else {
                                         if (isBlackList) {
                                             blackList.remove(new Student(getFixedText(), getStudentID()));
@@ -1055,7 +1047,6 @@ public class TicketingSystem extends JPanel {
 
                                         toFixedVisibility(foundNotAdded.get(0).getId());
 
-                                        editingIndex = -1;
                                         partners.add(foundNotAdded.get(0));
                                         setBlackList(false);
                                     }
