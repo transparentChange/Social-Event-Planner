@@ -15,6 +15,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 
 import java.nio.file.Path;
+import java.text.DateFormatSymbols;
 import java.util.*;
 
 /**
@@ -682,7 +683,7 @@ public class TicketingSystem extends JPanel {
                     
                     editingIndex = 0;
                     
-                    this.add(areaBeforeButton);
+                    this.add(areaForAddButton);
                     this.add(addButton);
                     
                     this.revalidate();
@@ -962,7 +963,7 @@ public class TicketingSystem extends JPanel {
                     		super(nameLabel);
                     		//this.setBackground(Color.RED);
                     		
-                    		addListener(FIELD_INSTRUCTION);
+                    		addFieldListener(FIELD_INSTRUCTION);
                     		okButton = new JButton("OK");
                     		okButton.addActionListener(this);
                     		
@@ -1100,7 +1101,7 @@ public class TicketingSystem extends JPanel {
 					nameField.setText(newText);
 				}
 
-				public void addListener(String defaultLabel) {
+				public void addFieldListener(String defaultLabel) {
                     nameField.addMouseListener(new MouseAdapter() {
                     	@Override
                     	public void mouseClicked(MouseEvent e) {
@@ -1535,12 +1536,12 @@ public class TicketingSystem extends JPanel {
             
             abstract private class DynamicBoxLayoutPanel extends JPanel implements ActionListener {
             	protected JButton addButton;
-            	public abstract void defineAddButton();
+            	protected abstract void defineAddButton();
             	
             	protected JLabel infoLabel;
-            	public abstract void defineInfoLabel();
+            	protected abstract void defineInfoLabel();
             	
-            	protected Component areaBeforeButton = Box.createRigidArea(new Dimension(0, 10));
+            	protected Component areaForAddButton = Box.createRigidArea(new Dimension(0, 10));
             	
             	DynamicBoxLayoutPanel() {
             		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -1555,11 +1556,11 @@ public class TicketingSystem extends JPanel {
             	
             	public void addAdditiveComponent(JPanel row) {
             		this.remove(addButton);
-        			this.remove(areaBeforeButton);
+        			this.remove(areaForAddButton);
             		
             		this.add(row);
             		
-                	this.add(areaBeforeButton);
+                	this.add(areaForAddButton);
             		this.add(addButton);
             		
             		this.revalidate();
@@ -1567,54 +1568,133 @@ public class TicketingSystem extends JPanel {
             	}
             	
             	protected void removeAdditiveComponent(JPanel row) {
-            		this.remove(row);
+            		this.remove(row);	
             		this.revalidate();
             		this.repaint();
             	}
             }
             
+            /*
+             * AccommodationPanel
+             * This class is a DynamicBoxLayoutPanel that consists of AccommodationRows as well as add and save buttons
+             * for these rows. This class deals with saving accommodations for the user, allowing them to remove, edit,
+             * and add new accommodations as they please
+             */
             private class AccommodationPanel extends DynamicBoxLayoutPanel {
-            	private ArrayList<String> accommodations;
             	private final String FIELD_INSTRUCTION = "New Accommodation";
-
+            	private JButton saveButton;
+            	private Component areaForSaveButton;
+            	
             	AccommodationPanel() {
-            		accommodations = selectedStudent.getAccommodations();
-            		for (int i = 0; i < accommodations.size(); i++) {
-            			this.add(new AccommodationRow(this.accommodations.get(i)));
+            		for (int i = 0; i < selectedStudent.getAccommodations().size(); i++) {
+            			this.add(new AccommodationRow(selectedStudent.getAccommodations().get(i)));
             		}
             		
-            		this.add(areaBeforeButton);
+            		this.add(areaForAddButton);
             		this.add(addButton);
+            		
+            		saveButton = new JButton("Save");
+            		saveButton.addActionListener(this);
+            		
+            		areaForSaveButton = Box.createRigidArea(new Dimension(0, 10));
+            		this.add(areaForSaveButton);
+            		this.add(saveButton);
             	}
             	
-            	public void defineAddButton() {
+            	/*
+            	 * defineAddButton
+            	 * This method defines the addButton of the superclass, setting its text to "Add Accommodation"
+            	 */
+            	@Override
+            	protected void defineAddButton() {
             		addButton = new JButton("Add Accommodation");
             	}
             	
-            	public void defineInfoLabel() {
+            	/*
+            	 * defineInfoLabel
+            	 * This method defines the infoLabel of the superclass
+            	 */
+            	@Override
+            	protected void defineInfoLabel() {
             		infoLabel = new JLabel("Any accommodations you would like the organisers to keep in mind: ");
             	}
             	
-            	public void actionPerformed(ActionEvent e) {
-            		super.addAdditiveComponent(new AccommodationRow(FIELD_INSTRUCTION));
-            	}
+            	/*
+            	 * removeAdditiveComponent
+            	 * This method removes the row and then removes the user's accommodation that that row contained
+            	 * @param the JPanel that is to be removed
+            	 */
+            	@Override 
+            	protected void removeAdditiveComponent(JPanel row) {
+            		super.removeAdditiveComponent(row);
+            		
+            		Component[] components = this.getComponents();
+            		for (int i = 0; i < components.length; i++) {
+            			if (components[i] instanceof AccommodationRow) {
+        					selectedStudent.getAccommodations().remove(((AccommodationRow) components[i]).savedAccommodation);
+        				}
+        			}
 
-            	public String getFieldInstruction() {
-            		return FIELD_INSTRUCTION;
+            		writeStudents();
             	}
-            
+            	
+            	/*
+            	 * actionPerformed
+            	 * This method allows new rows to be added by pressing the addButton and the accommodations to be
+            	 * saved in selectedStudent
+            	 * @param e, an ActionEvent object
+            	 */
+            	public void actionPerformed(ActionEvent e) {
+            		Object source = e.getSource();
+            		if (source == addButton) {
+            			super.addAdditiveComponent(new AccommodationRow(FIELD_INSTRUCTION));
+            			
+            			// ensure the saveButton is at the bottom
+            			this.remove(areaForSaveButton);
+            			this.remove(saveButton);
+            			
+            			this.add(areaForSaveButton);
+            			this.add(saveButton);
+            		} else if (source == saveButton) {
+            			Component[] components = this.getComponents();
+            			
+            			// re-write all accommodations since multiple rows could have been edited at once
+            			selectedStudent.setAccommodations(new ArrayList<String>());
+            			for (int i = 0; i < components.length; i++) {
+            				if (components[i] instanceof AccommodationRow) {
+            					((AccommodationRow) components[i]).savedAccommodation = ((EditingRow) components[i]).getText();
+            					selectedStudent.getAccommodations().add(((AccommodationRow) components[i]).savedAccommodation);
+            				}
+            			}
+            		}
+
+            		writeStudents();
+            	}
+            	
+            	/*
+            	 * AccommodationRow
+            	 * This class is an Editing Row that adds a field listener and a remove button.
+            	 */
             	public class AccommodationRow extends EditingRow implements ActionListener {
+            		private String savedAccommodation;
+            		
             		AccommodationRow(String labelText) {
             			super(labelText);
-            			addListener(FIELD_INSTRUCTION);
-
-            			this.setBackground(Color.WHITE);
+            			this.setOpaque(false);
+            			
+            			addFieldListener(FIELD_INSTRUCTION);
+            			
             			this.add(removeButton);
             			this.add(Box.createHorizontalGlue());
             			
-            			toUniversalFont(this);
+            			toUniversalFont(this); // necessary when the user adds a row
             		}
             		
+            		/*
+            		 * actionPerformed
+            		 * This method calls the removeAdditiveComponent method, effectively removing the AccommodationRow
+            		 * @param e, the ActionEvent object
+            		 */
             		@Override
             		public void actionPerformed(ActionEvent e) {
             			Object source = e.getSource();
