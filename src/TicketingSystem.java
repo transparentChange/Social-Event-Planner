@@ -1523,7 +1523,6 @@ public class TicketingSystem extends JPanel {
 
                                 studentImage = new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB);
                                 Graphics2D resize = (Graphics2D) studentImage.getGraphics();
-                                resize.setClip(new Ellipse2D.Float(0, 0, IMAGE_SIZE, IMAGE_SIZE));
                                 resize.drawImage(tempImage, 0, 0, IMAGE_SIZE, IMAGE_SIZE, null);
                                 resize.dispose();
                                 
