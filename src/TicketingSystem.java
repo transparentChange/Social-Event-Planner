@@ -2085,13 +2085,6 @@ public class TicketingSystem extends JPanel {
                 }
             }
             tables = SeatingAssignmentSystem.assignTables(paidStudents, Prom.maxTables, Prom.tableSize, paidHash);
-            for (Table t : tables){
-                System.out.print("[");
-                for (Student s : t.getStudents()){
-                    System.out.print(s.getId() + ",");
-                }
-                System.out.println("]");
-            }
             floorPlan = new FloorPlanSystem(tables);
             this.fromPanel = fromPanel;
             this.exitButton = new JButton("Hide FloorPlan");
