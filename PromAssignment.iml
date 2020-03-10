@@ -8,7 +8,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="EricSeatingAssignment" level="project" />
-    <orderEntry type="library" name="PromFloorPlan-master" level="project" />
+    <orderEntry type="library" name="PromFloorPlan - Michael" level="project" />
+    <orderEntry type="library" name="SeatingAssignment - Eric" level="project" />
   </component>
 </module>

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 /**
  * Student class required for Prom Project. Has additional methods for TicketingSystem extended capabilities from UML.
  * @see TicketingSystem
- * @author Daksh & Matthew
+ * @author Daksh and Matthew
  */
 public class Student {
     private String name;

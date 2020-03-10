@@ -5,7 +5,7 @@ import javax.swing.JFrame;
 /**
  * Class Prom. Main class for the project. Holds constants for TicketingSystem.
  * @see TicketingSystem
- * @author Daksh & Matthew
+ * @author Daksh and Matthew
  */
 public class Prom extends JFrame {
     private TicketingSystem ticketingPanel;

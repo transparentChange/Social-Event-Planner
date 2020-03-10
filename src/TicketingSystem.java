@@ -1,20 +1,6 @@
 import javax.imageio.ImageIO;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
-import javax.swing.JViewport;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -51,9 +37,9 @@ import java.util.Scanner;
 
 /*
  * [TicketingSystem.java]
- * Ticketing System used by the Prom Project. Contains the main user interface other 
+ * Ticketing System used by the Prom Project. Contains the main user interface other
  * than the Floor Plan, and regulates switching between the login, main page,
- * and floor plan. 
+ * and floor plan.
  * Author: Daksh and Matthew
  * March 9th, 2020
  * @see Prom
@@ -73,7 +59,7 @@ public class TicketingSystem extends JPanel {
     private final int WINDOW_HEIGHT = (int) getToolkit().getScreenSize().getWidth();
 
     /*
-     * Constructor 
+     * Constructor
      * Constructs the TicketingSystem. Sets displayed panel to login.
      * @param students The master list of students.
      * @param tables The master list of tables.
@@ -101,6 +87,7 @@ public class TicketingSystem extends JPanel {
      */
     private void showTicket() {
         this.removeAll();
+        this.loginPanel = null;
         this.add(this.ticketPanel);
         this.ticketPanel.setVisible(true);
         this.ticketPanel.requestFocus();
@@ -113,7 +100,8 @@ public class TicketingSystem extends JPanel {
      */
     private void showLogin() {
         this.removeAll();
-        this.loginPanel = new LoginPanel(); //reset the login panel
+        this.ticketPanel = null;
+        this.loginPanel = new LoginPanel();
         this.add(this.loginPanel);
         this.loginPanel.setVisible(true);
         this.loginPanel.requestFocus();
@@ -168,7 +156,7 @@ public class TicketingSystem extends JPanel {
     }
 
     /*
-     * initializeStudents 
+     * initializeStudents
      * This method loads all students from file and recreates the master list
      */
     private void initializeStudents() {
@@ -312,9 +300,9 @@ public class TicketingSystem extends JPanel {
     /*
      * toUniversalFont
      * This method sets the font of all the components inside the JPanel
-     * passed in as a parameter to either SMALL_BOLD_FONT or GENERAL_FONT, 
+     * passed in as a parameter to either SMALL_BOLD_FONT or GENERAL_FONT,
      * with a few exceptions.
-     * @param panel, the panel whose font is being changed 
+     * @param panel, the panel whose font is being changed
      */
     private void toUniversalFont(Container panel) {
     	Component[] componentList = panel.getComponents();
@@ -329,7 +317,7 @@ public class TicketingSystem extends JPanel {
     			component.setFont(DesignConstants.SMALL_BOLD_FONT);
     		} else if (!((className.equals("CenterPanel")) && (component instanceof JLabel))
     				&& (!className.equals("LoginPanel")) && (!className.equals("OrderInfoPanel"))) {
-    			// sets most components to the GENERAL_FONT	
+    			// sets most components to the GENERAL_FONT
     			component.setFont(DesignConstants.GENERAL_FONT);
 			}
     	}
@@ -342,7 +330,7 @@ public class TicketingSystem extends JPanel {
     //-------------------------------------------------------------------------------------------------------------------------
     /*
      * LoginPanel
-     * This class is a JPanel that contains the InnerLoginPanel and displays the 
+     * This class is a JPanel that contains the InnerLoginPanel and displays the
      * background image located under the name "loginBakground.jpg" in the background
      */
     private class LoginPanel extends JPanel {
@@ -373,7 +361,7 @@ public class TicketingSystem extends JPanel {
             	throw new RuntimeException("Image does not exist");
             }
         }
-        
+
         /*
          * InnerLoginPanel
          * This class is a JPanel that will be shown in the center of the window. It will contain
@@ -385,9 +373,9 @@ public class TicketingSystem extends JPanel {
             private JLabel gradeText;
             private JLabel errorLabel;
             
-            private JTextField idField = new JTextField();
+            private JTextField idField;
             private JTextField nameField;
-            private JTextField passwordField = new JTextField();
+            private JPasswordField passwordField;
             private JComboBox<String> gradeOptions;
             
             private JButton loginButton;
@@ -398,6 +386,10 @@ public class TicketingSystem extends JPanel {
         	private String TO_CREATE_MESSAGE = "Don't have an account? Click here to sign up.";
         	
             InnerLoginPanel() {
+                idField = new JTextField();
+                passwordField = new JPasswordField();
+                passwordField.setEchoChar('*');
+
         		this.setLayout(new GridBagLayout());
         		this.setBorder(new EmptyBorder(WINDOW_WIDTH / 40, WINDOW_WIDTH / 40,
         				WINDOW_WIDTH / 40, WINDOW_WIDTH / 40));
@@ -445,7 +437,7 @@ public class TicketingSystem extends JPanel {
                     c.anchor = GridBagConstraints.LINE_START;
                     component.setForeground(Color.WHITE);
                     component.setFont(DesignConstants.SMALL_BOLD_FONT);
-                } else if (component instanceof JTextField) {
+                } else if ((component instanceof JTextField) || (component instanceof JPasswordField)) {
                     c.insets = new Insets(5, 0, 0, 0);
                     c.fill = GridBagConstraints.HORIZONTAL;
                     component.setFont(DesignConstants.LARGE_FONT);
@@ -481,7 +473,11 @@ public class TicketingSystem extends JPanel {
                 Object source = e.getSource();
                 
                 String inputId = idField.getText();
-                String inputPassword = passwordField.getText();
+                String inputPassword = "";
+                char[] passwordAsChar = passwordField.getPassword();
+                for (char c : passwordAsChar){
+                    inputPassword += c;
+                }
                 Student enteredStudent = findStudentByID(inputId);
 
                 this.remove(errorLabel);
@@ -626,11 +622,11 @@ public class TicketingSystem extends JPanel {
         
         //-------------------------------------------------------------------------------------------------------
         // start of TicketPanel inner classes
-        //-------------------------------------------------------------------------------------------------------        
+        //-------------------------------------------------------------------------------------------------------
         /*
          * ButtonPanel
          * This class is a JPanel containing a logoutButton and a showFloorButton.
-         * It is meant to be displayed at the top of the window. 
+         * It is meant to be displayed at the top of the window.
          */
         private class ButtonPanel extends JPanel implements ActionListener {
             private JButton logoutButton;
@@ -654,7 +650,7 @@ public class TicketingSystem extends JPanel {
                 revalidate();
                 repaint();
             }
-            
+
             /*
              * actionPerformed
              * This method calls the appropriate methods for showing the floor plan or the login
@@ -736,7 +732,7 @@ public class TicketingSystem extends JPanel {
                     infoMessage.setText("You're almost there! Make sure to purchase your ticket");
                 }
         	}
-        	
+
         	/*
         	 * initComponent
         	 * This method sets the background of the component parameter to white and creates a white border around it
@@ -748,7 +744,7 @@ public class TicketingSystem extends JPanel {
         		component.setOpaque(true);
         		component.setBorder(BorderFactory.createMatteBorder(borderY, 20, borderY, 20, Color.WHITE));
         	}
-        	
+
         	/*
         	 * addComponent
         	 * This method adds a JComponent component to the CenterPanel with insets and a horizontal fill
@@ -792,23 +788,23 @@ public class TicketingSystem extends JPanel {
             abstract private class DynamicBoxLayoutPanel extends JPanel implements ActionListener {
             	protected JButton addButton;
             	protected abstract void defineAddButton();
-            	
+
             	protected JLabel infoLabel;
             	protected abstract void defineInfoLabel();
-            	
+
             	protected Component areaForAddButton = Box.createRigidArea(new Dimension(0, 10));
-            	
+
             	DynamicBoxLayoutPanel() {
             		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-            		
+
             		defineAddButton();
             		addButton.addActionListener(this);
-            		
+
             		defineInfoLabel();
             		infoLabel.setBorder(DesignConstants.INFO_LABEL_BORDER);
             		this.add(infoLabel);
             	}
-            	
+
             	/*
             	 * addAdditiveComponent
             	 * This method adds the JPanel parameter row, making sure the addButton ends up at the bottom
@@ -817,28 +813,28 @@ public class TicketingSystem extends JPanel {
             	public void addAdditiveComponent(JPanel row) {
             		this.remove(addButton);
         			this.remove(areaForAddButton);
-            		
+
             		this.add(row);
-            		
+
                 	this.add(areaForAddButton);
             		this.add(addButton);
-            		
+
             		this.revalidate();
             		this.repaint();
             	}
-            	
+
             	/*
             	 * removeAdditiveComponent
             	 * This method removes the JPanel parameter row
             	 * @param row, the JPanel that is to be removed
             	 */
             	public void removeAdditiveComponent(JPanel row) {
-            		this.remove(row);	
+            		this.remove(row);
             		this.revalidate();
             		this.repaint();
             	}
             } // end of DynamicBoxLayoutPanel
-        	
+
         	/*
         	 * RowOption
         	 * This abstract class defines a row with a removeButton and errorLabel, as well as a LINE_AXIS BoxLayout
@@ -846,19 +842,19 @@ public class TicketingSystem extends JPanel {
         	abstract public class RowOption extends JPanel implements ActionListener {
             	protected JButton removeButton;
             	protected JLabel errorLabel;
-            	
+
             	abstract public String getText();
             	abstract public void setText(String newText);
-            	
+
             	protected final int SPACE_TO_BUTTONS = (int) (SCROLL_PANE_WIDTH * 0.375);
-            	
+
             	RowOption() {
             		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
             		this.setFocusable(true);
-            		
+
             		this.setBorder(new EmptyBorder(3, 10, 3, 3));
             		this.setAlignmentX(Component.LEFT_ALIGNMENT);
-            		
+
             		errorLabel = new JLabel();
             		errorLabel.setBorder(new EmptyBorder(0, 10, 0, 10));
 
@@ -866,10 +862,10 @@ public class TicketingSystem extends JPanel {
             		removeButton.addActionListener(this);
             	}
             } // end of RowOption
-        	
+
         	/*
         	 * EditingRow
-        	 * This abstract class is a RowOption that adds a JTextField rowField 
+        	 * This abstract class is a RowOption that adds a JTextField rowField
         	 */
         	abstract private class EditingRow extends RowOption implements ActionListener {
             	protected JTextField rowField;
@@ -877,27 +873,27 @@ public class TicketingSystem extends JPanel {
 
             	EditingRow(String nameLabel) {
             		super();
-            		
+
             		rowField = new JTextField(nameLabel);
             		rowField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
                     rowField.setMaximumSize(new Dimension(SPACE_TO_BUTTONS, NUM_COLUMNS));
                     rowField.setColumns(20);
-            		
+
             		this.add(rowField);
             		this.add(Box.createRigidArea(new Dimension(
             				SPACE_TO_BUTTONS - DesignConstants.metricsSmall.charWidth('m') * NUM_COLUMNS, 0)));
             	}
-            	
+
             	/*
             	 * getText
             	 * This method returns the text in the rowField
             	 * @return rowField.getText(), the text of the rowField
             	 */
             	@Override
-            	public String getText() {	
+            	public String getText() {
         			return rowField.getText();
             	}
-            	
+
             	/*
             	 * setText
             	 * This method sets the text of the rowField to the parameter
@@ -907,12 +903,12 @@ public class TicketingSystem extends JPanel {
 				public void setText(String newText) {
 					rowField.setText(newText);
 				}
-				
+
 				/*
 				 * addFieldListener
 				 * This method adds a mouse listener to the rowField that removes any text from
 				 * the rowField when it is clicked, unless it contains the text equal to defaultLabel
-				 * @param defaultLabel, the String that will be used to determine whether or not 
+				 * @param defaultLabel, the String that will be used to determine whether or not
 				 * to set the text of the rowField to an empty String
 				 */
 				public void addFieldListener(String defaultLabel) {
@@ -926,10 +922,10 @@ public class TicketingSystem extends JPanel {
                     });
 				}
             } // end of EditingRow
-        	
+
         	/*
         	 * FixedRow
-        	 * This abstract class is a RowOption that adds a JLabel rowLabel 
+        	 * This abstract class is a RowOption that adds a JLabel rowLabel
         	 */
         	abstract private class FixedRow extends RowOption implements ActionListener {
             	private Component rigid;
@@ -937,7 +933,7 @@ public class TicketingSystem extends JPanel {
 
             	FixedRow(String rowText) {
             		super();
-            		
+
             		this.rowLabel = new JLabel(rowText);
             		this.add(this.rowLabel);
 
@@ -945,17 +941,17 @@ public class TicketingSystem extends JPanel {
             				(SPACE_TO_BUTTONS - DesignConstants.metricsSmall.stringWidth(this.rowLabel.getText()), 0));
             		this.add(rigid);
             	}
-            	
+
             	/*
             	 * getText
             	 * This method returns the text in the rowLabel
             	 * @return rowLabel.getText(), the text of the rowLabel
             	 */
             	@Override
-            	public String getText() {	
+            	public String getText() {
         			return rowLabel.getText();
             	}
-            	
+
             	/*
             	 * setText
             	 * This method sets the text of the rowLabel to the parameter
@@ -964,7 +960,7 @@ public class TicketingSystem extends JPanel {
 				@Override
 				public void setText(String newText) {
 					rowLabel.setText(newText);
-					
+
 					this.remove(rigid);
 					rigid = Box.createRigidArea(new Dimension
             				(SPACE_TO_BUTTONS - DesignConstants.metricsSmall.stringWidth(this.rowLabel.getText()), 0));
@@ -972,7 +968,7 @@ public class TicketingSystem extends JPanel {
 					this.setComponentZOrder(rigid, 1);
 				}
             } // end of FixedRow
-        	
+
         	/*
         	 * PartnerPanel
         	 * This class is a DynamicBoxLayoutPanel that allows a user to specify their seating assignment preferences
@@ -1065,7 +1061,7 @@ public class TicketingSystem extends JPanel {
                 		throw new RuntimeException("Incorrect index");
                 	}
                 }
-                
+
                 /*
                  * addPairToBottom
                  * This method creates a RowPair as defined by the parameters and uses it as a parameter
@@ -1078,15 +1074,15 @@ public class TicketingSystem extends JPanel {
                 	
                 	if (editingIndex != -1) {
         				showFixed(editingIndex);
-        			} 
-                	
+        			}
+
                 	RowPair pairToAdd;
                 	if (id == null) {
 	                	editingIndex = componentList.length - 2; // -2 instead of -3 because a rowPair is being added
 	                	pairToAdd = new RowPair(text, false); // RowPair with editing visibility
                 	} else { // executes when ResolvePanel sends the information of a confirmed Student
                 		editingIndex = -1; // not editing anything
-                		pairToAdd = new RowPair(text, id, false); // RowPair with fixed visibility 
+                		pairToAdd = new RowPair(text, id, false); // RowPair with fixed visibility
                 	}
 
                 	addAdditiveComponent(pairToAdd);
@@ -1098,7 +1094,7 @@ public class TicketingSystem extends JPanel {
                 /*
                  * removeAdditiveComponent
                  * This method removes the JPanel pairToRemove from the PartnerPanel and removes the student
-                 * that the RowPair represented from the blacklist or the partner list. It then calls the 
+                 * that the RowPair represented from the blacklist or the partner list. It then calls the
                  * writeStudent method to save these changes.
                  * Note: editingIndex does not need to updated no matter what the pairToRemove's visibility.
                  * @param pairToRemove, the JPanel being removed
@@ -1136,17 +1132,17 @@ public class TicketingSystem extends JPanel {
                 /*
                  * RowPair
                  * This class is made up of a PartnerFixedRow and a PartnerEditingRow that alternate visibility
-                 * based on the okButton and editButton. 
+                 * based on the okButton and editButton.
                  */
                 private class RowPair extends JPanel {
                 	private PartnerFixedRow fixed;
                 	private EditingRow editing;
                 	private String savedStudentID;
                     private boolean isBlackList;
-                    
+
                     private final Color BLACKLIST_COLOUR = new Color(177, 176, 178);
                     private final Color PREFERRED_COLOUR = new Color(255, 252, 231);
-                	
+
                     /*
                      * Constructor
                      * This constructor creates a RowPair set to EditingVisibility
@@ -1155,13 +1151,13 @@ public class TicketingSystem extends JPanel {
                      */
                 	RowPair(String text, boolean isBlackList) {
                 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-                		
+
                 	    this.isBlackList = isBlackList;
                 	    recolour();
 
                 		fixed = new PartnerFixedRow(text);
                 		editing = new PartnerEditingRow(text);
-                		
+
                 		this.add(fixed);
                 		this.add(editing);
                 		
@@ -1178,13 +1174,13 @@ public class TicketingSystem extends JPanel {
                      */
                 	RowPair(String text, String id, boolean isBlackList) {
                 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-                		
+
                 	    this.isBlackList = isBlackList;
                 	    recolour();
 
                 		fixed = new PartnerFixedRow(text);
                 		editing = new PartnerEditingRow(text);
-                		
+
                 		this.add(fixed);
                 		this.add(editing);
 
@@ -1221,7 +1217,7 @@ public class TicketingSystem extends JPanel {
                         this.isBlackList = isBlackList;
                         recolour();
                     }
-                    
+
                     /*
                      * isBlackList
                      * This methods determines whether or not the student represented by the RowPair is blacklisted
@@ -1230,7 +1226,7 @@ public class TicketingSystem extends JPanel {
                     public boolean isBlackList(){
                         return this.isBlackList;
                     }
-                	
+
                 	/*
                 	 * hasRow
                 	 * This method determines if the row that it passed in as a parameter is contained in the RowPair
@@ -1243,7 +1239,7 @@ public class TicketingSystem extends JPanel {
                 			return false;
                 		}
                 	}
-                	
+
                 	/*
                 	 * copyToEditing
                 	 * This method copies the text from the editing panel to the fixed panel
@@ -1259,8 +1255,8 @@ public class TicketingSystem extends JPanel {
                 	 */
                 	private void toFixedVisibility(String id) {
                 		editingIndex = -1; // nothing is being edited
-                		savedStudentID = id;	
-                	
+                		savedStudentID = id;
+
                 		int indexOfSpace = editing.getText().indexOf("  -  ID:  ");
                 		if (indexOfSpace == -1) { // prevents several additions of ID number
                 			fixed.setText(editing.getText() + "  -  ID:  " + id);
@@ -1291,7 +1287,7 @@ public class TicketingSystem extends JPanel {
                 	/*
                 	 * recolour
                 	 * This method sets the background of the RowPair based on whether or not the student
-                	 * represented by the row is blacklisted 
+                	 * represented by the row is blacklisted
                 	 */
                     private void recolour() {
                         if (isBlackList) {
@@ -1365,8 +1361,8 @@ public class TicketingSystem extends JPanel {
                     	
                     	/*
                     	 * actionPerformed
-                    	 * This method defines what happens when the editButton, removeButton, or whiteBlackListToggle 
-                    	 * are pressed. 
+                    	 * This method defines what happens when the editButton, removeButton, or whiteBlackListToggle
+                    	 * are pressed.
                     	 * @param e, an ActionEvent object
                     	 */
                     	public void actionPerformed(ActionEvent e) {
@@ -1384,7 +1380,7 @@ public class TicketingSystem extends JPanel {
                     			removeThis();
                     		} else if (source == whiteBlackListToggle) {
                     		    setBlackList(!isBlackList());
-                                
+
                     		    Student current = findStudentByID(savedStudentID);
                     		    if (isBlackList()) {
                                     partners.remove(current);
@@ -1395,7 +1391,7 @@ public class TicketingSystem extends JPanel {
                                     partners.add(current);
                                     whiteBlackListToggle.setText("Make Blacklisted");
                                 }
-                    		    
+
                     		    writeStudents();
                             }
                     	}
@@ -1428,7 +1424,7 @@ public class TicketingSystem extends JPanel {
                     	 * that have the current rowField input as their name
                     	 * @param e, an ActionEvent object
                     	 */
-                    	public void actionPerformed(ActionEvent e) {                		
+                    	public void actionPerformed(ActionEvent e) {
                     		Object source = e.getSource();
                     		if (source == okButton) {
                                 ArrayList<Student> foundStudents = findStudentsWithName(rowField.getText());
@@ -1451,13 +1447,13 @@ public class TicketingSystem extends JPanel {
                                 	} else {
                                 		tempStudent = foundNotAdded.get(0);
                                 	}
-                                	
+
                                     if (tempStudent == TicketPanel.this.selectedStudent) {
                                         errorLabel.setText("You can't add yourself");
                                     } else if ((partners.contains(tempStudent)) || (blackList.contains(tempStudent))) {
                                         toFixedVisibility(tempStudent.getId());
                                         errorLabel.setText("Person already added");
-                                    } else { 
+                                    } else {
                                     	// add tempStudent
                                         if (isBlackList) {
                                             blackList.remove(new Student(getFixedText(), getStudentID()));
@@ -1487,18 +1483,18 @@ public class TicketingSystem extends JPanel {
                         	this.revalidate();
                         	this.repaint();
                     	}
-                    } // end of PartnerEditingRow    
+                    } // end of PartnerEditingRow
                     //----------------------------------------------------------------------------------------------
                     // end of RowPair inner classes
                     //----------------------------------------------------------------------------------------------
                 } // end of RowPair
-        	} // end of PartnerPanel 
+        	} // end of PartnerPanel
         	
         	/*
         	 * ResolveNamesPanel
         	 * This panel is a JPanel that is made up of ResolveRows arranged vertically in BoxLayout.
-        	 * The number of ResolveRows will vary based on the number of users that have the 
-        	 * same name but have different studentIDs 
+        	 * The number of ResolveRows will vary based on the number of users that have the
+        	 * same name but have different studentIDs
         	 */
             public class ResolveNamesPanel extends JPanel {
             	private JLabel infoLabel;
@@ -1513,10 +1509,10 @@ public class TicketingSystem extends JPanel {
             		infoLabel.setBorder(DesignConstants.INFO_LABEL_BORDER);
             		this.add(infoLabel);
             	}
-            	
+
             	/*
             	 * addResolvingRow
-            	 * This method creates a resolving row populated with the ArrayList of Students passed in as 
+            	 * This method creates a resolving row populated with the ArrayList of Students passed in as
             	 * a parameter and adds it to the ResolveNamesPanel
             	 * @param foundStudents, the ArrayList of Students
             	 */
@@ -1531,7 +1527,7 @@ public class TicketingSystem extends JPanel {
             		this.revalidate();
             		this.repaint();
             	}
-            	
+
             	/*
             	 * removeResolvingRow
             	 * This method removes the ResolveRow passed in as a parameter from the ResolveNamesJPanel
@@ -1543,7 +1539,7 @@ public class TicketingSystem extends JPanel {
             	    this.revalidate();
             	    this.repaint();
                 }
-            	
+
             	/*
             	 * ResolveRow
             	 * This class is a JPanel that defines a row that allows a user to select between
@@ -1565,7 +1561,7 @@ public class TicketingSystem extends JPanel {
                         for (int i = 0; i < foundStudents.size(); i++) {
                             Student student = foundStudents.get(i);
                             BufferedImage studentPicture = student.getPicture();
-                            
+
                             c.gridy = 0;
                             c.gridx = i;
                             if (studentPicture != null){
@@ -1586,16 +1582,16 @@ public class TicketingSystem extends JPanel {
                             JButton select = new JButton("Select");
                             select.addActionListener(this);
                             this.add(select, c);
-                            
+
                             studentSelectors.add(select);
                             studentIds.add(student.getId());
                         }
                     }
-                    
+
                     /*
                      * actionPerformed
                      * This method adds a partner based on the student that is selected through studentSelectors
-                     * if they are not already a partner or are not already blacklisted 
+                     * if they are not already a partner or are not already blacklisted
                      * @param e, an ActionEvent object
                      */
                     @Override
@@ -1815,7 +1811,7 @@ public class TicketingSystem extends JPanel {
             		}
             	} // end of OrderInfoPanel
             } // end of PaymentPanel
-            
+
             /*
              * ProfilePanel
              * This class is a JPanel that allows a user to choose and edit a profile picture that
@@ -1854,7 +1850,7 @@ public class TicketingSystem extends JPanel {
                     c.gridy = 1;
                     this.add(imageComponent, c);
                 }
-                
+
                 /*
                  * actionPerformed
                  * This method allows the user to select a profile picture from their local machine
@@ -1880,7 +1876,7 @@ public class TicketingSystem extends JPanel {
 
                                 tempBufferedImage = tempBufferedImage.getSubimage((width - side) / 2,
                                 		(height - side) / 2, side, side);
-                                Image tempImage = tempBufferedImage.getScaledInstance(IMAGE_SIZE_SIDE, 
+                                Image tempImage = tempBufferedImage.getScaledInstance(IMAGE_SIZE_SIDE,
                                 		IMAGE_SIZE_SIDE, Image.SCALE_SMOOTH);
 
                                 studentImage = new BufferedImage(IMAGE_SIZE_SIDE, IMAGE_SIZE_SIDE, BufferedImage.TYPE_INT_ARGB);
@@ -2067,7 +2063,7 @@ public class TicketingSystem extends JPanel {
          */
         FloorPlanPanel(JPanel fromPanel) {
         	this.setLayout(new BorderLayout());
-        	
+
             HashMap<Student, HashMap<Student, Double>> paidHash = new HashMap<Student, HashMap<Student, Double>>();
             ArrayList<Student> paidStudents = new ArrayList<Student>();
 
@@ -2088,7 +2084,7 @@ public class TicketingSystem extends JPanel {
             floorPlan = new FloorPlanSystem(tables);
             this.fromPanel = fromPanel;
             this.exitButton = new JButton("Hide FloorPlan");
-            
+
             this.add(floorPlan, BorderLayout.CENTER);
             this.add(exitButton, BorderLayout.PAGE_START);
             this.exitButton.addActionListener(this);
