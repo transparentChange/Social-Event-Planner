@@ -859,6 +859,7 @@ public class TicketingSystem extends JPanel {
         	abstract private class EditingRow extends RowOption implements ActionListener {
             	protected JTextField rowField;
             	private final int NUM_COLUMNS = 20;
+                private String defaultLabel;
 
             	EditingRow(String nameLabel) {
             		super();
@@ -901,15 +902,18 @@ public class TicketingSystem extends JPanel {
 				 * to set the text of the rowField to an empty String
 				 */
 				public void addFieldListener(String defaultLabel) {
-                    rowField.addMouseListener(new MouseAdapter() {
-                    	@Override
-                    	public void mouseClicked(MouseEvent e) {
-                    		if (rowField.getText().equals(defaultLabel)) {
-                    			rowField.setText("");
-                    		}
-                    	}
-                    });
+				    this.defaultLabel = defaultLabel;
+                    rowField.addMouseListener(new FieldListener());
 				}
+
+				private class FieldListener extends MouseAdapter {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (rowField.getText().equals(defaultLabel)) {
+                            rowField.setText("");
+                        }
+                    }
+                }
             } // end of EditingRow
 
         	/*
