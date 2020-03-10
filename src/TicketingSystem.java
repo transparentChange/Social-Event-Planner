@@ -906,6 +906,11 @@ public class TicketingSystem extends JPanel {
                     rowField.addMouseListener(new FieldListener());
 				}
 
+                /*
+                 * FieldListener
+                 * This is the FieldListener used by addFieldListener
+                 * @see addFieldListener
+                 */
 				private class FieldListener extends MouseAdapter {
                     @Override
                     public void mouseClicked(MouseEvent e) {
