@@ -6,18 +6,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -2105,6 +2094,32 @@ public class TicketingSystem extends JPanel {
                     showTicket();
                 }
             }
+        }
+    }
+
+    /*
+     * DesignConstants
+     * This final class holds a number of constants relating to visual aspect of
+     * the program, mainly Font and Color objects
+     */
+     public static final class DesignConstants {
+        public static final Color BACK_COLOUR = new Color((float) (130 / 255.0), (float) (235 / 255.0),
+                (float) (33 / 255.0), (float) 0.3);
+        public static final Color MAIN_COLOUR = new Color(75, 112, 68);
+
+        public static final Font LARGE_BOLD_FONT = new Font("Segoe UI", Font.BOLD, 25);
+        public static final Font LARGE_FONT = new Font("Segoe UI", Font.PLAIN, 20);
+        public static final Font MEDIUM_BOLD_FONT = new Font("Segoe UI", Font.BOLD, 17);
+        public static final Font GENERAL_FONT = new Font("Segoe UI", Font.PLAIN, 14);
+        public static final Font SMALL_BOLD_FONT = new Font("Segoe UI", Font.BOLD, 13);
+        public static final Font SMALL_BOLD_ITALICS_FONT = new Font("Segoe UI", Font.BOLD + Font.ITALIC, 13);
+        public static final Canvas C = new Canvas();
+        public static final FontMetrics metricsSmall = C.getFontMetrics(GENERAL_FONT);
+
+        public static final EmptyBorder INFO_LABEL_BORDER = new EmptyBorder(0, 0, 10, 0);
+
+        DesignConstants() {
+            throw new AssertionError();
         }
     }
 }
